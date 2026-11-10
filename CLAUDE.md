@@ -1,89 +1,92 @@
 # CLAUDE.md
 
-Guia para o Claude Code trabalhar neste repositório.
+Guidance for Claude Code when working in this repository.
 
-## O projeto
+## The project
 
-OutageAlarm é um alarme sonoro de falta de energia elétrica. Um carregador USB na tomada alimenta um módulo TP4056, que mantém uma bateria 18650 carregada, e energiza um relé. Quando a energia cai, o contato NF do relé fecha e o buzzer toca, alimentado pela bateria. Um botão TESTE simula a queda.
+OutageAlarm is an audible power outage alarm. A USB charger in the wall outlet powers a TP4056 module, which keeps an 18650 cell charged, and energizes a relay. When power fails, the relay's NC contact closes and the buzzer sounds, powered by the battery. A TEST button simulates the outage.
 
-Repositório público: https://github.com/icefoxj/OutageAlarm (branch `main`).
+Public repository: https://github.com/icefoxj/OutageAlarm (branch `main`).
 
-## Fase atual: v1 (simples)
+## Language
 
-- Circuito sem microcontrolador e sem firmware:
-  - detecção: U1 IN+ → SW2 (TESTE, pulsador NF) → bobina de K1 → U1 IN−; LED1 + R1 ligados direto nos 5 V, antes do SW2;
-  - alarme: U1 OUT+ → SW1 (ARMAR) → K1 COM → K1 NF → BZ1 → U1 OUT−;
-  - bateria: BT1 18650 em U1 B+/B−.
-- Caixa impressa em 3D, modelada em OpenSCAD.
-- Ainda não existe código de software. Quando existir (v2, ESP32), ele vai em `firmware/`.
+**All project material is in English:** documentation, code comments, identifiers, file and folder names, schematic labels, commit messages, and the text engraved on the enclosure. The user may talk to you in Portuguese; answer them in their language, but keep everything committed to the repo in English.
 
-## Princípios de projeto
+## Current phase: v1 (simple)
 
-Não quebre estes princípios sem discutir com o usuário antes:
+- No microcontroller and no firmware:
+  - detection: U1 IN+ → SW2 (TEST, NC pushbutton) → K1 coil → U1 IN−; LED1 + R1 straight across the 5 V, before SW2;
+  - alarm: U1 OUT+ → SW1 (ARM) → K1 COM → K1 NC → BZ1 → U1 OUT−;
+  - battery: BT1 18650 on U1 B+/B−.
+- 3D-printed enclosure, modeled in OpenSCAD.
+- There is no software yet. When there is (v2, ESP32), it goes in `firmware/`.
 
-1. **Falha segura:** falta de 5 V = alarme tocando. Toda mudança precisa preservar isso.
-2. **Bateria sempre pronta:** o USB mantém a bateria carregada. Em espera, nada além da proteção do U1 consome da bateria (µA).
-3. **Teste de ponta a ponta:** o botão TESTE precisa simular a queda real (cortar a bobina), não só ligar o buzzer.
-4. **Nenhuma ligação direta à rede 127/220 V.** A rede só entra pelo carregador USB certificado. Se uma versão futura precisar medir a rede diretamente, isso exige isolamento (optoacoplador ou transformador), fusível e uma revisão explícita. Aponte os riscos ao usuário.
-5. **Bateria Li-ion só através da proteção.** Cargas ligam em OUT+/OUT− do U1, nunca em B+/B−.
-6. **Componentes fáceis de achar no Brasil** (lojas de eletrônica, Mercado Livre, AliExpress).
-7. **Simplicidade antes de recursos.** Recursos novos entram como v2 ou v3, não na v1.
+## Design principles
 
-## Estrutura
+Do not break these without discussing with the user first:
+
+1. **Fail-safe:** no 5 V = alarm sounding. Every change must preserve this.
+2. **Battery always ready:** USB keeps the cell charged. On standby, nothing but U1's protection draws from the cell (µA).
+3. **End-to-end test:** the TEST button must simulate a real outage (cut the coil), not just turn on the buzzer.
+4. **No direct connection to 120/230 V mains.** Mains only enters through the certified USB charger. If a future version needs to sense mains directly, that requires isolation (optocoupler or transformer), a fuse and an explicit review. Point out the risks to the user.
+5. **Li-ion cell only through the protection.** Loads connect to U1's OUT+/OUT−, never to B+/B−.
+6. **Parts easy to source in Brazil** (local electronics stores, Mercado Livre, AliExpress).
+7. **Simplicity before features.** New features go into v2 or v3, not v1.
+
+## Layout
 
 ```
-README.md                         visão geral, BOM, teste, roadmap
-docs/eletronica.md                circuito detalhado, cálculos, tabela de ligações, diagnóstico
-docs/mecanica.md                  caixa, parâmetros, impressão, montagem
-docs/img/                         PNGs renderizados da caixa (gerados pelo CI)
-hardware/eletronica/esquematico.svg   esquemático (SVG feito à mão)
-hardware/mecanica/caixa.scad      caixa paramétrica: fonte da verdade da mecânica
-hardware/mecanica/stl/            STLs gerados a partir do caixa.scad
-.github/workflows/render-caixa.yml    CI que renderiza STLs e PNGs
+README.md                             overview, BOM, test, roadmap
+docs/electronics.md                   detailed circuit, calculations, wiring table, troubleshooting
+docs/mechanical.md                    enclosure, parameters, printing, assembly
+docs/img/                             rendered PNGs of the enclosure (generated by CI)
+hardware/electronics/schematic.svg    schematic (hand-drawn SVG)
+hardware/mechanical/enclosure.scad    parametric enclosure: mechanical source of truth
+hardware/mechanical/stl/              STLs generated from enclosure.scad
+.github/workflows/render-enclosure.yml   CI that renders STLs and PNGs
 ```
 
-## Convenções
+## Conventions
 
-- **Idioma:** documentação, comentários e nomes no código em português do Brasil.
-- **Unidades:** mm, V, mA, Ω. No texto use vírgula decimal (5,1 kΩ); no código, ponto.
-- **Designadores:** U1, BT1, K1, D1, R1, LED1, BZ1, SW1 (ARMAR), SW2 (TESTE). Use os mesmos no esquemático, nas BOMs e na tabela de ligações.
-- **Contatos:** NF (normalmente fechado) e NA (normalmente aberto), nunca NC/NO no texto.
-- **Commits:** mensagens em português, no imperativo ("Adiciona…", "Corrige…").
+- **Units:** mm, V, mA, Ω, with a decimal point (5.1 kΩ).
+- **Designators:** U1, BT1, K1, D1, R1, LED1, BZ1, SW1 (ARM), SW2 (TEST). Use the same ones in the schematic, BOMs and wiring table.
+- **Contacts:** NC (normally closed) and NO (normally open).
+- **Commits:** imperative mood ("Add…", "Fix…").
 
-## Mantenha tudo em sincronia
+## Keep everything in sync
 
-Ao mudar um componente, um valor ou uma ligação, atualize todos estes:
+When changing a part, a value or a connection, update all of these:
 
-- `hardware/eletronica/esquematico.svg`
-- BOM e tabela de ligações em `docs/eletronica.md`
-- BOM e tabela de funcionamento em `README.md`
-- se mudar alguma dimensão: parâmetros em `hardware/mecanica/caixa.scad` e as tabelas de `docs/mecanica.md`
+- `hardware/electronics/schematic.svg`
+- BOM and wiring table in `docs/electronics.md`
+- BOM and behavior table in `README.md`
+- if a dimension changes: parameters in `hardware/mechanical/enclosure.scad` and the tables in `docs/mechanical.md`
 
-## Mecânica (OpenSCAD)
+## Mechanical (OpenSCAD)
 
-- `caixa.scad` é a fonte da verdade. Os STLs em `stl/` e os PNGs em `docs/img/` são gerados a partir dele e não devem ser editados à mão.
-- A origem e os eixos estão descritos no cabeçalho do arquivo: origem no canto interno frontal-esquerdo, sobre o fundo.
-- Parâmetros ficam em seções do Customizer (`/* [Seção] */`). Valores derivados ficam em `/* [Hidden] */`.
-- A tampa é modelada na posição de uso (z = 0 é a face de baixo da placa) e só é virada para impressão no `parte == "tampa"`.
-- Gerar STL localmente (se o OpenSCAD estiver instalado):
+- `enclosure.scad` is the source of truth. The STLs in `stl/` and the PNGs in `docs/img/` are generated from it and must not be edited by hand.
+- Origin and axes are described in the file header: origin at the inner front-left corner, on top of the floor.
+- Parameters live in Customizer sections (`/* [Section] */`). Derived values live in `/* [Hidden] */`.
+- The lid is modeled in its installed position (z = 0 is the underside of the plate) and is only flipped for printing in `part == "lid"`.
+- Generate STLs locally (if OpenSCAD is installed):
   ```
-  cd hardware/mecanica
-  openscad -o stl/caixa_base.stl  -D "parte=\"base\""  caixa.scad
-  openscad -o stl/caixa_tampa.stl -D "parte=\"tampa\"" caixa.scad
+  cd hardware/mechanical
+  openscad -o stl/enclosure_base.stl -D "part=\"base\"" enclosure.scad
+  openscad -o stl/enclosure_lid.stl  -D "part=\"lid\""  enclosure.scad
   ```
-- Sem OpenSCAD local (é o caso na máquina do usuário): dê push e baixe o artefato do CI com `gh run download <id> --name caixa-render --dir <pasta>`. Depois copie `stl/*.stl` para `hardware/mecanica/stl/` e `img/*.png` para `docs/img/`, e confira os PNGs antes de commitar.
-- O CI roda com `--hardwarnings`: qualquer aviso do OpenSCAD falha o build.
-- No preview (PNGs), gravações finas podem aparecer com artefatos. Na dúvida, confira o STL (bounding box, vértices) em vez da imagem.
-- Folgas críticas que precisam ser conferidas a cada mudança de layout:
-  - fundo do buzzer (z = int_z − buzzer_h = 23) acima do topo do suporte 18650 (sup_z = 21)
-  - corpos da chave e do botão (z até ≈ 30,6) abaixo da aba da tampa (começa em int_z − aba_h = 34)
-  - anel do buzzer afastado da aba da tampa (anel vai até y ≈ 66,9; a aba começa em y = 68,15)
-  - guias do TP4056 (x ≥ 67) sem invadir a placa perfurada (x ≤ 62) e seus espaçadores (x ≤ 63)
-  - relé na metade direita da placa (y ≤ 30,5), fora da área sob o buzzer (y ≥ 33)
-  - nervura do suporte (y = 45,9) atrás dos espaçadores da placa (y ≤ 44)
+- Without local OpenSCAD (the case on the user's machine): push, then download the CI artifact with `gh run download <id> --name enclosure-render --dir <folder>`. Copy `stl/*.stl` to `hardware/mechanical/stl/` and `img/*.png` to `docs/img/`, and check the PNGs before committing.
+- CI runs with `--hardwarnings`: any OpenSCAD warning fails the build.
+- In preview renders (PNGs), thin engravings can show artifacts. When in doubt, check the STL (bounding box, vertices) rather than the image.
+- Critical clearances to re-check on every layout change:
+  - buzzer bottom (z = in_z − buzzer_h = 23) above the 18650 holder top (holder_z = 21)
+  - switch and button bodies (z up to ≈ 30.6) below the lid lip (starts at in_z − lip_h = 34)
+  - buzzer ring clear of the lid lip (ring reaches y ≈ 66.9; the lip starts at y = 68.15)
+  - TP4056 guides (x ≥ 67) clear of the perfboard (x ≤ 62) and its standoffs (x ≤ 63)
+  - relay on the right half of the board (y ≤ 30.5), outside the area under the buzzer (y ≥ 33)
+  - holder rib (y = 45.9) behind the perfboard standoffs (y ≤ 44)
 
-## Esquemático
+## Schematic
 
-- SVG desenhado à mão, numa grade de 10 px. Classes: `u` = fios dos 5 V do USB (laranja), `b` = fios da bateria (azul), `w` = traços de símbolos, `wf` = símbolos preenchidos.
-- Para conferir o desenho: `msedge --headless=new --user-data-dir=<pasta temporária> --screenshot=out.png --window-size=1100,730 file:///<caminho>/esquematico.svg` (o PNG pode levar alguns segundos para aparecer).
-- Quando o circuito crescer (v2), migre para KiCad em `hardware/eletronica/kicad/`.
+- Hand-drawn SVG on a 10 px grid. Classes: `u` = 5 V USB wires (orange), `b` = battery wires (blue), `w` = symbol strokes, `wf` = filled symbols.
+- To check the drawing: `msedge --headless=new --user-data-dir=<temp folder> --screenshot=out.png --window-size=1100,730 file:///<path>/schematic.svg` (the PNG may take a few seconds to appear).
+- When the circuit grows (v2), move to KiCad in `hardware/electronics/kicad/`.

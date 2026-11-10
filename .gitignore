@@ -1,11 +1,11 @@
-# Fatiador / impressão 3D
+# Slicer / 3D printing output
 *.gcode
 *.bgcode
 
-# Saídas temporárias do CI baixadas localmente
-caixa-render/
+# CI artifacts downloaded locally
+enclosure-render/
 
-# Sistema
+# OS files
 Thumbs.db
 desktop.ini
 .DS_Store

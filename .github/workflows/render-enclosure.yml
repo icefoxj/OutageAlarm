@@ -1,0 +1,60 @@
+name: Render enclosure (OpenSCAD)
+
+# Renders the enclosure STLs and images whenever the mechanical model changes.
+# Output: "enclosure-render" artifact on the run page.
+# Download locally:  gh run download <run-id> --name enclosure-render --dir <folder>
+
+on:
+  push:
+    paths:
+      - "hardware/mechanical/*.scad"
+      - ".github/workflows/render-enclosure.yml"
+  pull_request:
+    paths:
+      - "hardware/mechanical/*.scad"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install OpenSCAD
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends openscad fonts-liberation xvfb xauth
+
+      - name: Render STLs
+        working-directory: hardware/mechanical
+        run: |
+          mkdir -p stl
+          openscad --hardwarnings -o stl/enclosure_base.stl -D 'part="base"' enclosure.scad
+          openscad --hardwarnings -o stl/enclosure_lid.stl  -D 'part="lid"'  enclosure.scad
+
+      - name: Render images
+        working-directory: hardware/mechanical
+        run: |
+          mkdir -p img
+          # name  part  rot_x  rot_z
+          render() {
+            xvfb-run -a openscad -o "img/$1.png" -D "part=\"$2\"" \
+              --imgsize=1200,900 --colorscheme=Tomorrow --autocenter --viewall \
+              --camera=0,0,0,$3,0,$4,0 enclosure.scad
+          }
+          render assembled assembled 60 25
+          render side      assembled 60 115
+          render exploded  exploded  65 25
+          render base      base      40 25
+          render lid       lid       40 25
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: enclosure-render
+          path: |
+            hardware/mechanical/stl/*.stl
+            hardware/mechanical/img/*.png
+          if-no-files-found: error
