@@ -29,7 +29,7 @@ Coordenadas a partir do canto interno frontal-esquerdo, sobre o fundo (X para a 
 | LED REDE | tampa, sobre a placa (X 68, Y 50) | entra por baixo; a aba do LED trava na tampa + cola quente |
 | Buzzer SFM-27 | tampa, sobre a bateria (X 18,5, Y 26) | anel centralizador de 4 segmentos + cola quente ou epóxi |
 
-Gravados na peça: "OutageAlarm" e "REDE" na tampa, "ARMAR" abaixo da chave e "5V" acima do USB-C. Na borda esquerda há um entalhe para abrir a tampa com a unha.
+Gravados na peça: "OutageAlarm" e "REDE" na tampa, "ARMAR" à esquerda da chave e "5V" acima do USB-C. Na borda esquerda há um entalhe para abrir a tampa com a unha.
 
 ### Folgas conferidas
 

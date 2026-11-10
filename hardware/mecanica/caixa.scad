@@ -91,7 +91,8 @@ anel_esp = 1.6;
 
 /* [Textos gravados] */
 texto = "OutageAlarm";
-texto_tam = 6;
+texto_tam = 5;
+texto_x = 63;      // centro do texto da tampa (entre o buzzer e a borda direita)
 gravacao = 0.6;    // profundidade da gravação
 fonte = "Liberation Sans:style=Bold";
 
@@ -200,7 +201,7 @@ module furos_base() {
         cube([parede + 2, 16, 2]);
 
     // Textos nas paredes
-    texto_parede("ARMAR", 4, chave_x, fundo + chave_z - 9, "frente");
+    texto_parede("ARMAR", 4, chave_x - 17, fundo + chave_z, "frente");
     texto_parede("5V", 4, usb_x, fundo + usb_z + 8, "tras");
 }
 
@@ -252,7 +253,7 @@ module tampa() {
         translate([led_x, led_y - 8, tampa_esp - gravacao])
             linear_extrude(gravacao + 1)
                 text("REDE", size = 4, font = fonte, halign = "center", valign = "center");
-        translate([pcb_x0 + pcb_x / 2, 22, tampa_esp - gravacao])
+        translate([texto_x, 22, tampa_esp - gravacao])
             linear_extrude(gravacao + 1)
                 text(texto, size = texto_tam, font = fonte, halign = "center", valign = "center");
     }
@@ -311,7 +312,7 @@ if (parte == "base") {
     base();
 } else if (parte == "tampa") {
     // Virada de cabeça para baixo: topo apoiado na mesa da impressora
-    translate([0, 0, tampa_esp]) rotate([180, 0, 0]) tampa();
+    translate([0, int_y, tampa_esp]) rotate([180, 0, 0]) tampa();
 } else if (parte == "explodida") {
     color("Gainsboro") base();
     componentes_base();

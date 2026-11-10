@@ -7,11 +7,11 @@ name: Renderizar caixa (OpenSCAD)
 on:
   push:
     paths:
-      - "hardware/mecanica/**"
+      - "hardware/mecanica/*.scad"
       - ".github/workflows/render-caixa.yml"
   pull_request:
     paths:
-      - "hardware/mecanica/**"
+      - "hardware/mecanica/*.scad"
   workflow_dispatch:
 
 permissions:
@@ -21,7 +21,7 @@ jobs:
   render:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Instalar OpenSCAD
         run: |
@@ -51,7 +51,7 @@ jobs:
           render base      base      40 25
           render tampa     tampa     40 25
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: caixa-render
           path: |
