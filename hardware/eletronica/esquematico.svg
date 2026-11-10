@@ -1,5 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="570" viewBox="0 0 1000 570" font-family="Segoe UI, Helvetica, Arial, sans-serif">
-  <!-- OutageAlarm v1 — esquemático desenhado à mão. Grade de 10 px. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="730" viewBox="0 0 1100 730" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <!-- OutageAlarm v1 — esquemático desenhado à mão. Grade de 10 px.
+       Fios laranja (.u) = 5 V do USB (só existe com energia na tomada).
+       Fios azuis (.b)   = bateria (sempre disponível).                 -->
   <defs>
     <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4" markerHeight="4" orient="auto">
       <path d="M0 0 L10 5 L0 10 z" fill="#1f2328"/>
@@ -7,125 +9,143 @@
   </defs>
   <style>
     .w   { stroke: #1f2328; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .u   { stroke: #bc4c00; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .b   { stroke: #0969da; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     .wf  { stroke: #1f2328; stroke-width: 2; fill: #ffffff; stroke-linejoin: round; }
     .j   { fill: #1f2328; }
+    .ju  { fill: #bc4c00; }
     .ref { fill: #1f2328; font-size: 15px; font-weight: 700; }
     .t   { fill: #1f2328; font-size: 14px; }
     .s   { fill: #57606a; font-size: 12.5px; }
     .mec { stroke: #1f2328; stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
   </style>
 
-  <rect width="1000" height="570" fill="#ffffff"/>
+  <rect width="1100" height="730" fill="#ffffff"/>
 
   <!-- Título -->
   <text x="30" y="40" font-size="22" font-weight="700" fill="#1f2328">OutageAlarm v1 — Esquemático</text>
-  <text x="30" y="64" class="s">Sem microcontrolador · relé com contato NF (normalmente fechado) · falha segura</text>
+  <text x="30" y="64" class="s">Sem microcontrolador · relé com contato NF · bateria Li-ion sempre carregada pelo USB-C · falha segura</text>
 
-  <!-- Zonas -->
-  <rect x="20" y="90" width="465" height="340" rx="10" fill="#fff8e6" stroke="#d4a72c" stroke-width="1.5" stroke-dasharray="6 4"/>
-  <text x="36" y="114" font-size="13" font-weight="700" fill="#9a6700">LADO 5 V — carregador USB ligado na tomada</text>
-  <rect x="515" y="90" width="465" height="340" rx="10" fill="#eef6ff" stroke="#54aeff" stroke-width="1.5" stroke-dasharray="6 4"/>
-  <text x="531" y="114" font-size="13" font-weight="700" fill="#0969da">LADO ALARME — bateria 9 V (isolado do lado 5 V)</text>
+  <!-- ===================== U1: módulo TP4056 ===================== -->
+  <rect class="wf" x="150" y="140" width="120" height="420" rx="6"/>
+  <rect class="wf" x="190" y="132" width="40" height="14" rx="6"/>
+  <text x="210" y="112" class="ref" text-anchor="middle">USB-C</text>
+  <text x="210" y="126" class="s" text-anchor="middle">carregador 5 V</text>
+  <text x="210" y="332" class="ref" text-anchor="middle">U1</text>
+  <text x="210" y="352" class="t" text-anchor="middle">TP4056</text>
+  <text x="210" y="370" class="s" text-anchor="middle">carregador +</text>
+  <text x="210" y="386" class="s" text-anchor="middle">proteção</text>
+  <text x="264" y="175" class="s" text-anchor="end">IN+</text>
+  <text x="264" y="315" class="s" text-anchor="end">IN−</text>
+  <text x="264" y="405" class="s" text-anchor="end">OUT+</text>
+  <text x="264" y="545" class="s" text-anchor="end">OUT−</text>
+  <text x="156" y="305" class="s">B+</text>
+  <text x="156" y="405" class="s">B−</text>
 
-  <!-- ===================== LADO 5 V ===================== -->
+  <!-- ===================== BT1: 18650 ===================== -->
+  <path class="b" d="M150 300 H90 V330"/>
+  <path d="M70 330 H110" stroke="#1f2328" stroke-width="3"/>
+  <path d="M80 342 H100" stroke="#1f2328" stroke-width="6"/>
+  <path d="M70 354 H110" stroke="#1f2328" stroke-width="3"/>
+  <path d="M80 366 H100" stroke="#1f2328" stroke-width="6"/>
+  <path class="b" d="M90 366 V400 H150"/>
+  <text x="116" y="328" class="ref">+</text>
+  <text x="62" y="340" class="ref" text-anchor="end">BT1</text>
+  <text x="62" y="358" class="t" text-anchor="end">18650</text>
+  <text x="62" y="375" class="s" text-anchor="end">3,7 V</text>
 
-  <!-- J1 USB-C -->
-  <rect class="wf" x="40" y="150" width="70" height="250" rx="6"/>
-  <text x="75" y="262" class="ref" text-anchor="middle">J1</text>
-  <text x="75" y="282" class="t" text-anchor="middle">USB-C</text>
-  <text x="75" y="300" class="s" text-anchor="middle">5 V</text>
-  <text x="104" y="164" class="s" text-anchor="end">VBUS</text>
-  <text x="104" y="394" class="s" text-anchor="end">GND</text>
+  <!-- ===================== Detecção de rede (5 V do USB) ===================== -->
+  <path class="u" d="M270 170 H470"/>
+  <path class="u" d="M520 170 H760 V200"/>
+  <path class="u" d="M270 310 H760 V280"/>
+  <text x="290" y="160" class="t">+5 V</text>
+  <text x="290" y="330" class="t">0 V</text>
 
-  <!-- Trilhas +5 V e 0 V -->
-  <path class="w" d="M110 170 H430 V215"/>
-  <path class="w" d="M110 380 H430 V295"/>
-  <text x="126" y="160" class="t">+5 V</text>
-  <text x="126" y="400" class="t">0 V</text>
+  <!-- R1 + LED1 (x = 350) -->
+  <path class="u" d="M350 170 V185"/>
+  <rect class="wf" x="340" y="185" width="20" height="50"/>
+  <path class="u" d="M350 235 V255"/>
+  <path class="wf" d="M335 255 H365 L350 281 Z"/>
+  <path class="w" d="M335 281 H365"/>
+  <path class="u" d="M350 281 V310"/>
+  <path class="w" d="M331 262 L317 252" marker-end="url(#seta)"/>
+  <path class="w" d="M331 274 L317 264" marker-end="url(#seta)"/>
+  <text x="370" y="206" class="ref">R1</text>
+  <text x="370" y="224" class="t">1 kΩ</text>
+  <text x="372" y="266" class="ref">LED1</text>
+  <text x="372" y="284" class="t">verde</text>
 
-  <!-- R1 + LED1 (x = 170) -->
-  <path class="w" d="M170 170 V195"/>
-  <rect class="wf" x="160" y="195" width="20" height="60"/>
-  <path class="w" d="M170 255 V290"/>
-  <path class="wf" d="M155 290 H185 L170 316 Z"/>
-  <path class="w" d="M155 316 H185"/>
-  <path class="w" d="M170 316 V380"/>
-  <path class="w" d="M151 297 L137 287" marker-end="url(#seta)"/>
-  <path class="w" d="M151 309 L137 299" marker-end="url(#seta)"/>
-  <text x="190" y="221" class="ref">R1</text>
-  <text x="190" y="240" class="t">1 kΩ</text>
-  <text x="192" y="302" class="ref">LED1</text>
-  <text x="192" y="320" class="t">verde</text>
+  <!-- SW2: botão TESTE, pulsador NF, em série com a bobina -->
+  <circle class="wf" cx="474" cy="170" r="4"/>
+  <circle class="wf" cx="516" cy="170" r="4"/>
+  <path class="w" d="M468 175 H522"/>
+  <path class="w" d="M495 175 V150"/>
+  <path class="w" d="M483 150 H507"/>
+  <text x="495" y="136" class="ref" text-anchor="middle">SW2</text>
+  <text x="495" y="198" class="s" text-anchor="middle">TESTE</text>
+  <text x="495" y="213" class="s" text-anchor="middle">pulsador NF</text>
 
-  <!-- D1 roda-livre (x = 290), catodo para +5 V -->
-  <path class="w" d="M290 170 V259"/>
-  <path class="w" d="M275 259 H305"/>
-  <path class="wf" d="M275 285 H305 L290 259 Z"/>
-  <path class="w" d="M290 285 V380"/>
-  <text x="312" y="268" class="ref">D1</text>
-  <text x="312" y="287" class="t">1N4007</text>
+  <!-- D1 roda-livre (x = 640), catodo para +5 V -->
+  <path class="u" d="M640 170 V225"/>
+  <path class="w" d="M625 225 H655"/>
+  <path class="wf" d="M625 251 H655 L640 225 Z"/>
+  <path class="u" d="M640 251 V310"/>
+  <text x="662" y="234" class="ref">D1</text>
+  <text x="662" y="252" class="t">1N4007</text>
 
-  <!-- K1 bobina (x = 430) -->
-  <rect class="wf" x="412" y="215" width="36" height="80"/>
-  <text x="404" y="240" class="ref" text-anchor="end">K1</text>
-  <text x="404" y="258" class="s" text-anchor="end">bobina</text>
+  <!-- K1 bobina (x = 760) -->
+  <rect class="wf" x="742" y="200" width="36" height="80"/>
+  <text x="788" y="222" class="ref">K1</text>
+  <text x="788" y="240" class="s">bobina</text>
 
   <!-- Junções -->
-  <circle class="j" cx="170" cy="170" r="4"/>
-  <circle class="j" cx="290" cy="170" r="4"/>
-  <circle class="j" cx="170" cy="380" r="4"/>
-  <circle class="j" cx="290" cy="380" r="4"/>
+  <circle class="ju" cx="350" cy="170" r="4"/>
+  <circle class="ju" cx="640" cy="170" r="4"/>
+  <circle class="ju" cx="350" cy="310" r="4"/>
+  <circle class="ju" cx="640" cy="310" r="4"/>
 
   <!-- Acoplamento mecânico bobina → contato -->
-  <path class="mec" d="M448 245 H584"/>
+  <path class="mec" d="M778 255 H848"/>
 
-  <!-- ===================== LADO ALARME ===================== -->
+  <!-- ===================== Alarme (bateria) ===================== -->
 
-  <!-- K1 contato SPDT -->
-  <path class="w" d="M600 205 L580 262"/>
-  <circle class="j" cx="600" cy="205" r="3.5"/>
-  <circle class="wf" cx="578" cy="266" r="3.5"/>
-  <circle class="wf" cx="626" cy="266" r="3.5"/>
-  <text x="608" y="201" class="s">COM</text>
-  <text x="566" y="271" class="s" text-anchor="end">NF</text>
-  <text x="634" y="271" class="s">NA (livre)</text>
-  <text x="640" y="236" class="ref">K1</text>
-  <text x="664" y="236" class="s">contato</text>
+  <!-- K1 contato SPDT: COM embaixo, NF e NA em cima -->
+  <path class="w" d="M860 290 L842 236"/>
+  <circle class="j" cx="860" cy="290" r="3.5"/>
+  <circle class="wf" cx="840" cy="232" r="3.5"/>
+  <circle class="wf" cx="886" cy="232" r="3.5"/>
+  <text x="868" y="301" class="s">COM</text>
+  <text x="848" y="222" class="s">NF</text>
+  <text x="894" y="236" class="s">NA</text>
+  <text x="900" y="270" class="ref">K1</text>
 
-  <!-- COM → SW1 → BT1+ -->
-  <path class="w" d="M600 205 V170 H698"/>
-  <circle class="wf" cx="702" cy="170" r="4"/>
-  <circle class="wf" cx="752" cy="170" r="4"/>
-  <path class="w" d="M705 167 L748 148"/>
-  <path class="w" d="M756 170 H880 V250"/>
-  <text x="727" y="130" class="ref" text-anchor="middle">SW1</text>
-  <text x="727" y="194" class="s" text-anchor="middle">chave ARMAR</text>
+  <!-- OUT+ → SW1 (ARMAR) → COM -->
+  <path class="b" d="M270 400 H350"/>
+  <circle class="wf" cx="354" cy="400" r="4"/>
+  <circle class="wf" cx="404" cy="400" r="4"/>
+  <path class="w" d="M357 397 L400 378"/>
+  <path class="b" d="M408 400 H860 V290"/>
+  <text x="379" y="366" class="ref" text-anchor="middle">SW1</text>
+  <text x="379" y="424" class="s" text-anchor="middle">ARMAR</text>
 
-  <!-- BT1 9 V (+ em cima) -->
-  <path d="M858 250 H902" stroke="#1f2328" stroke-width="3"/>
-  <path d="M870 262 H890" stroke="#1f2328" stroke-width="6"/>
-  <path d="M858 274 H902" stroke="#1f2328" stroke-width="3"/>
-  <path d="M870 286 H890" stroke="#1f2328" stroke-width="6"/>
-  <text x="908" y="252" class="ref">+</text>
-  <text x="848" y="266" class="ref" text-anchor="end">BT1</text>
-  <text x="848" y="284" class="t" text-anchor="end">9 V</text>
-
-  <!-- BT1− → BZ1− -->
-  <path class="w" d="M880 286 V380 H578 V344"/>
-
-  <!-- NF → BZ1+ -->
-  <path class="w" d="M578 270 V300"/>
-  <circle class="wf" cx="578" cy="322" r="22"/>
-  <circle cx="578" cy="322" r="9" fill="none" stroke="#1f2328" stroke-width="1.5"/>
-  <circle class="j" cx="578" cy="322" r="3"/>
-  <text x="556" y="304" class="ref" text-anchor="end">+</text>
-  <text x="610" y="318" class="ref">BZ1</text>
-  <text x="610" y="336" class="t">buzzer ativo 3–24 V</text>
-  <text x="610" y="353" class="s">SFM-27</text>
+  <!-- NF → BZ1 → OUT− -->
+  <path class="b" d="M840 228 V150 H960 V308"/>
+  <circle class="wf" cx="960" cy="330" r="22"/>
+  <circle cx="960" cy="330" r="9" fill="none" stroke="#1f2328" stroke-width="1.5"/>
+  <circle class="j" cx="960" cy="330" r="3"/>
+  <text x="942" y="314" class="ref" text-anchor="end">+</text>
+  <path class="b" d="M960 352 V540 H270"/>
+  <text x="992" y="324" class="ref">BZ1</text>
+  <text x="992" y="342" class="t">buzzer ativo</text>
+  <text x="992" y="359" class="s">SFM-27</text>
 
   <!-- ===================== LEGENDA ===================== -->
-  <text x="30" y="466" class="t"><tspan font-weight="700" fill="#1a7f37">Com energia:</tspan> K1 energizado → contato NF aberto → buzzer em silêncio. A bateria não fornece corrente.</text>
-  <text x="30" y="490" class="t"><tspan font-weight="700" fill="#cf222e">Sem energia:</tspan> K1 desenergiza → contato NF fecha → buzzer toca até a energia voltar ou SW1 ser desligada.</text>
-  <text x="30" y="520" class="s">K1 = relé 5 V SPDT (ex.: SRD-05VDC-SL-C, bobina ≈ 70 Ω). NF = normalmente fechado · NA = normalmente aberto.</text>
-  <text x="30" y="540" class="s">Linha tracejada = acoplamento mecânico do relé: não há ligação elétrica entre o lado 5 V e o lado da bateria.</text>
+  <path class="u" d="M30 596 H58"/>
+  <text x="66" y="600" class="t">5 V do USB: só existe enquanto há energia na tomada</text>
+  <path class="b" d="M500 596 H528"/>
+  <text x="536" y="600" class="t">bateria: sempre disponível, mantida carregada pelo U1</text>
+  <text x="30" y="630" class="t"><tspan font-weight="700" fill="#1a7f37">Com energia:</tspan> K1 energizado → NF aberto → silêncio. U1 mantém a BT1 carregada.</text>
+  <text x="30" y="654" class="t"><tspan font-weight="700" fill="#cf222e">Sem energia:</tspan> K1 desenergiza → NF fecha → BZ1 toca alimentado pela BT1, até a energia voltar ou SW1 ser desligada.</text>
+  <text x="30" y="678" class="t"><tspan font-weight="700" fill="#9a6700">TESTE:</tspan> segurar SW2 corta a bobina de K1 e simula a falta de energia (testa bateria, relé, chave e buzzer).</text>
+  <text x="30" y="708" class="s">U1 = módulo TP4056 USB-C com proteção DW01 (IN− e OUT− são o mesmo GND). K1 = relé 5 V SPDT (SRD-05VDC-SL-C). NF/NA = normalmente fechado/aberto.</text>
 </svg>

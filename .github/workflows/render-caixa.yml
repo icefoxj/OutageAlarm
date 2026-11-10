@@ -46,7 +46,7 @@ jobs:
               --camera=0,0,0,$3,0,$4,0 caixa.scad
           }
           render montagem  montagem  60 25
-          render traseira  montagem  60 205
+          render lateral   montagem  60 115
           render explodida explodida 65 25
           render base      base      40 25
           render tampa     tampa     40 25

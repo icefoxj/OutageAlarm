@@ -4,13 +4,16 @@ Guia para o Claude Code trabalhar neste repositório.
 
 ## O projeto
 
-OutageAlarm é um alarme sonoro de falta de energia elétrica. Um carregador USB na tomada mantém um relé energizado; quando a energia cai, o contato NF do relé fecha e um buzzer alimentado por bateria toca.
+OutageAlarm é um alarme sonoro de falta de energia elétrica. Um carregador USB na tomada alimenta um módulo TP4056, que mantém uma bateria 18650 carregada, e energiza um relé. Quando a energia cai, o contato NF do relé fecha e o buzzer toca, alimentado pela bateria. Um botão TESTE simula a queda.
 
 Repositório público: https://github.com/icefoxj/OutageAlarm (branch `main`).
 
 ## Fase atual: v1 (simples)
 
-- Circuito sem microcontrolador e sem firmware: carregador USB 5 V → bobina de K1; BT1 9 V → SW1 → K1 COM → K1 NF → BZ1.
+- Circuito sem microcontrolador e sem firmware:
+  - detecção: U1 IN+ → SW2 (TESTE, pulsador NF) → bobina de K1 → U1 IN−; LED1 + R1 ligados direto nos 5 V, antes do SW2;
+  - alarme: U1 OUT+ → SW1 (ARMAR) → K1 COM → K1 NF → BZ1 → U1 OUT−;
+  - bateria: BT1 18650 em U1 B+/B−.
 - Caixa impressa em 3D, modelada em OpenSCAD.
 - Ainda não existe código de software. Quando existir (v2, ESP32), ele vai em `firmware/`.
 
@@ -19,10 +22,12 @@ Repositório público: https://github.com/icefoxj/OutageAlarm (branch `main`).
 Não quebre estes princípios sem discutir com o usuário antes:
 
 1. **Falha segura:** falta de 5 V = alarme tocando. Toda mudança precisa preservar isso.
-2. **Consumo zero da bateria em espera** na v1: com energia presente, o circuito da bateria fica aberto.
-3. **Nenhuma ligação direta à rede 127/220 V.** A rede só entra pelo carregador USB certificado. Se uma versão futura precisar medir a rede diretamente, isso exige isolamento (optoacoplador ou transformador), fusível e uma revisão explícita. Aponte os riscos ao usuário.
-4. **Componentes fáceis de achar no Brasil** (lojas de eletrônica, Mercado Livre, AliExpress).
-5. **Simplicidade antes de recursos.** Recursos novos entram como v2 ou v3, não na v1.
+2. **Bateria sempre pronta:** o USB mantém a bateria carregada. Em espera, nada além da proteção do U1 consome da bateria (µA).
+3. **Teste de ponta a ponta:** o botão TESTE precisa simular a queda real (cortar a bobina), não só ligar o buzzer.
+4. **Nenhuma ligação direta à rede 127/220 V.** A rede só entra pelo carregador USB certificado. Se uma versão futura precisar medir a rede diretamente, isso exige isolamento (optoacoplador ou transformador), fusível e uma revisão explícita. Aponte os riscos ao usuário.
+5. **Bateria Li-ion só através da proteção.** Cargas ligam em OUT+/OUT− do U1, nunca em B+/B−.
+6. **Componentes fáceis de achar no Brasil** (lojas de eletrônica, Mercado Livre, AliExpress).
+7. **Simplicidade antes de recursos.** Recursos novos entram como v2 ou v3, não na v1.
 
 ## Estrutura
 
@@ -41,8 +46,8 @@ hardware/mecanica/stl/            STLs gerados a partir do caixa.scad
 
 - **Idioma:** documentação, comentários e nomes no código em português do Brasil.
 - **Unidades:** mm, V, mA, Ω. No texto use vírgula decimal (5,1 kΩ); no código, ponto.
-- **Designadores:** K1, D1, R1, LED1, BZ1, SW1, BT1, J1. Use os mesmos no esquemático, nas BOMs e na tabela de ligações.
-- **Contatos de relé:** NF (normalmente fechado) e NA (normalmente aberto), nunca NC/NO no texto.
+- **Designadores:** U1, BT1, K1, D1, R1, LED1, BZ1, SW1 (ARMAR), SW2 (TESTE). Use os mesmos no esquemático, nas BOMs e na tabela de ligações.
+- **Contatos:** NF (normalmente fechado) e NA (normalmente aberto), nunca NC/NO no texto.
 - **Commits:** mensagens em português, no imperativo ("Adiciona…", "Corrige…").
 
 ## Mantenha tudo em sincronia
@@ -51,8 +56,8 @@ Ao mudar um componente, um valor ou uma ligação, atualize todos estes:
 
 - `hardware/eletronica/esquematico.svg`
 - BOM e tabela de ligações em `docs/eletronica.md`
-- BOM em `README.md`
-- se mudar alguma dimensão: parâmetros em `hardware/mecanica/caixa.scad` e a tabela de `docs/mecanica.md`
+- BOM e tabela de funcionamento em `README.md`
+- se mudar alguma dimensão: parâmetros em `hardware/mecanica/caixa.scad` e as tabelas de `docs/mecanica.md`
 
 ## Mecânica (OpenSCAD)
 
@@ -66,17 +71,19 @@ Ao mudar um componente, um valor ou uma ligação, atualize todos estes:
   openscad -o stl/caixa_base.stl  -D "parte=\"base\""  caixa.scad
   openscad -o stl/caixa_tampa.stl -D "parte=\"tampa\"" caixa.scad
   ```
-- Sem OpenSCAD local: dê push e baixe o artefato do CI com `gh run download --name caixa-render --dir <pasta>`. Depois copie `stl/*.stl` para `hardware/mecanica/stl/` e `img/*.png` para `docs/img/`.
-- Depois de mudar o `.scad`, commite os STLs e PNGs regenerados.
+- Sem OpenSCAD local (é o caso na máquina do usuário): dê push e baixe o artefato do CI com `gh run download <id> --name caixa-render --dir <pasta>`. Depois copie `stl/*.stl` para `hardware/mecanica/stl/` e `img/*.png` para `docs/img/`, e confira os PNGs antes de commitar.
+- O CI roda com `--hardwarnings`: qualquer aviso do OpenSCAD falha o build.
+- No preview (PNGs), gravações finas podem aparecer com artefatos. Na dúvida, confira o STL (bounding box, vértices) em vez da imagem.
 - Folgas críticas que precisam ser conferidas a cada mudança de layout:
-  - fundo do buzzer (z = int_z − buzzer_h = 21) acima do topo da bateria (17,5)
-  - corpo da chave (z até ≈ 30,6) abaixo da aba da tampa (começa em int_z − aba_h = 32)
-  - anel do buzzer afastado da aba da tampa (anel começa em x ≈ 3,2; a aba vai até x = 1,85)
-  - guias do USB-C sem invadir a placa perfurada (x ≤ 47,35 contra a placa em x = 48)
-  - relé na metade de trás da placa, porque o corpo da chave invade os ~18 mm da frente
+  - fundo do buzzer (z = int_z − buzzer_h = 23) acima do topo do suporte 18650 (sup_z = 21)
+  - corpos da chave e do botão (z até ≈ 30,6) abaixo da aba da tampa (começa em int_z − aba_h = 34)
+  - anel do buzzer afastado da aba da tampa (anel vai até y ≈ 66,9; a aba começa em y = 68,15)
+  - guias do TP4056 (x ≥ 67) sem invadir a placa perfurada (x ≤ 62) e seus espaçadores (x ≤ 63)
+  - relé na metade direita da placa (y ≤ 30,5), fora da área sob o buzzer (y ≥ 33)
+  - nervura do suporte (y = 45,9) atrás dos espaçadores da placa (y ≤ 44)
 
 ## Esquemático
 
-- SVG desenhado à mão, numa grade de 10 px. Fios usam a classe `w`, símbolos preenchidos usam `wf`.
-- Para conferir o desenho: `msedge --headless=new --screenshot=out.png --window-size=1000,570 file:///<caminho>/esquematico.svg`.
+- SVG desenhado à mão, numa grade de 10 px. Classes: `u` = fios dos 5 V do USB (laranja), `b` = fios da bateria (azul), `w` = traços de símbolos, `wf` = símbolos preenchidos.
+- Para conferir o desenho: `msedge --headless=new --user-data-dir=<pasta temporária> --screenshot=out.png --window-size=1100,730 file:///<caminho>/esquematico.svg` (o PNG pode levar alguns segundos para aparecer).
 - Quando o circuito crescer (v2), migre para KiCad em `hardware/eletronica/kicad/`.
