@@ -1,0 +1,11 @@
+# Fatiador / impressão 3D
+*.gcode
+*.bgcode
+
+# Saídas temporárias do CI baixadas localmente
+caixa-render/
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store
