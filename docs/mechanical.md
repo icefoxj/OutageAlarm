@@ -11,7 +11,7 @@ There are three printed parts:
 
 The top and the sides are glued together into the shell, which then screws onto the base from below. Printing the top on its own keeps the two-colour print short: all of the face's colour is in its first 3 layers.
 
-The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../hardware/mechanical/enclosure.scad).
+The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../hardware/mechanical/enclosure.scad). The ready-to-print files are in [`hardware/mechanical/stl/`](../hardware/mechanical/stl/) and [`hardware/mechanical/3mf/`](../hardware/mechanical/3mf/). They are also attached to each [release](https://github.com/icefoxj/OutageAlarm/releases).
 
 ![OutageAlarm](img/hero.png)
 
@@ -67,7 +67,7 @@ Positions in top view (X to the right, Y to the back), measured from the inner f
 |------|-------|---------------|
 | 18650 holder (BT1) | against the back wall (X 8.8–86.8, Y 47.5–69.5) | rib in front of it + foam double-sided tape |
 | 6 × 4 cm perfboard | front left (X 9.5–69.5, Y 4–44), 5 mm above the base | 4 standoffs + M2 × 6 self-tapping screws |
-| Relay K1 | front-right corner of the perfboard | soldered to the board |
+| Relay K1 | front-right corner of the perfboard, 3 mm from its front edge | soldered to the board |
 | TP4056 module (U1) | back right, centered at X = 98.3; USB-C through the back wall, 6 mm above the base | cradle with two L-shaped guides and an end stop + hot glue |
 | SFM-27 buzzer (BZ1) | under the grille, at X 30, Y 38 | 4-segment centering ring + hot glue or epoxy |
 | TEST button (SW2) | face, X 98, Y 19 | its own nut (12.2 mm hole) |
@@ -82,7 +82,7 @@ Positions in top view (X to the right, Y to the back), measured from the inner f
 - "OUTAGE ALARM" on the front;
 - a lightning bolt and "5V" above the USB-C opening.
 
-The one-colour shell has them engraved 0.6 mm deep. The two-colour shell has them inlaid, along with the rest of the livery.
+The one-colour top and sides have them engraved 0.6 mm deep. The two-colour ones have them inlaid, along with the rest of the livery.
 
 ### Checked clearances
 
@@ -115,7 +115,7 @@ The model checks these with `assert()`: if a change breaks one, OpenSCAD (and CI
 | Infill | 15–20 % | 15–20 % | 15–20 % |
 | Supports | **not needed** | **not needed** | **not needed** |
 | Orientation (already in the file) | face on the bed | seam on the bed | bottom on the bed |
-| Height as printed | 6.8 mm | 46 mm | 6 mm |
+| Height as printed | 6.8 mm | 46 mm | 12 mm (6 mm plate + standoffs and rib) |
 
 - **Top:**
   - The face is the first layer, so it takes the texture of your bed: smooth PEI or glass gives a glossy face, textured PEI a matte one.
@@ -206,7 +206,7 @@ Open `enclosure.scad` in OpenSCAD and use **Window → Customizer**. The paramet
 | `unit_code`, `caption`, `logo_text` | "OA-01", "FAIL-SAFE", "OUTAGE ALARM" | your own markings. The font only has the glyphs used so far: add more to `mech_glyphs` |
 | `inlay_depth` | 0.6 mm | depth of the inlay (and of the engraved marks) |
 | `livery_color` | red | the second colour in the renders |
-| `show_livery` | `true` | `false` previews the one-colour shell |
+| `show_livery` | `true` | `false` previews the one-colour top and sides |
 | `part` | `assembled` | to export: `top`, `sides`, `base`, `top_2color`, `sides_2color`, `inlay_face`, `inlay_front`, `inlay_back`. To preview: `exploded`, `cutaway`, `interior`, `joint` |
 
 The livery itself is drawn in `face_art()`, `front_art()` and `back_art()`, in coordinates on each surface.

@@ -95,7 +95,7 @@ The SRD-05VDC has 5 pins. To identify them with a multimeter on continuity or re
 ## Assembly
 
 - **On the perfboard:** K1, D1, R1, and pads for the external wires.
-- **Relay position:** place the relay in the **front-right corner** of the board (about 39 mm from the left edge and 2 mm from the front edge). The buzzer, mounted under the control face, comes down over the middle and back of the board: only parts shorter than 9 mm fit there.
+- **Relay position:** place the relay in the **front-right corner** of the board, about 39 mm from the left edge and 3 mm from the front edge. Don't put it closer to the front: its top would touch the lip under the enclosure's top. The buzzer, mounted under the control face, comes down over the middle and back of the board: only parts shorter than 9 mm fit there.
 - **Wires leaving the board:**
 
   | To | Wires | Suggested length |

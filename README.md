@@ -2,15 +2,26 @@
 
 An audible **power outage alarm**. When the wall outlet loses power, a buzzer running on a rechargeable battery goes off immediately.
 
-> **Status:** v1, the simple version. No microcontroller and no firmware: just a relay, a charger module, an 18650 battery and a buzzer.
+> **Status:** v1, the simple version. No microcontroller and no firmware: just a relay, a charger module, an 18650 battery and a buzzer. The enclosure has not been test-printed yet.
+>
+> **Print files:** download them from the [latest release](https://github.com/icefoxj/OutageAlarm/releases/latest), or take them from [`hardware/mechanical/`](hardware/mechanical/). What changed in each version: [CHANGELOG.md](CHANGELOG.md).
 
 ![OutageAlarm](docs/img/hero.png)
 
-| Face | Cutaway | Back (USB-C) |
-|------|---------|--------------|
-| ![Face](docs/img/face.png) | ![Cutaway](docs/img/cutaway.png) | ![Back](docs/img/back.png) |
+| Face | Exploded: top, sides, base | Back (USB-C) |
+|------|----------------------------|--------------|
+| ![Face](docs/img/face.png) | ![Exploded](docs/img/exploded.png) | ![Back](docs/img/back.png) |
 
-The shell wears a mech-style livery, like the markings on anime mechs, inlaid flush in a second filament from a two-colour 3MF. A one-colour STL is available too. See [docs/mechanical.md](docs/mechanical.md#two-colour-livery-3mf).
+| Cutaway | Joint between the top and the sides |
+|---------|-------------------------------------|
+| ![Cutaway](docs/img/cutaway.png) | ![Joint](docs/img/joint.png) |
+
+The enclosure prints in three parts:
+- **Top:** the control face, with a mech-style livery like the markings on anime mechs, inlaid flush in a second filament. Its colour is all in the first 3 layers of the print.
+- **Sides:** glued to the top with a lip joint.
+- **Base:** dark, screwed on from below.
+
+There are two-colour 3MFs for the top and the sides, and one-colour STLs for all three parts. See [docs/mechanical.md](docs/mechanical.md).
 
 ## How it works
 
@@ -60,6 +71,8 @@ Design principles:
 ```
 OutageAlarm/
 ├── README.md
+├── CHANGELOG.md                    # what changed in each release
+├── LICENSE                         # MIT
 ├── CLAUDE.md                       # context for Claude Code
 ├── docs/
 │   ├── electronics.md              # circuit, calculations, wiring, tests

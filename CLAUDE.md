@@ -45,7 +45,8 @@ hardware/mechanical/enclosure.scad    parametric enclosure: mechanical source of
 hardware/mechanical/make_3mf.py       packs the two-colour parts into the 3MFs (stdlib Python)
 hardware/mechanical/stl/              one-colour STLs generated from enclosure.scad
 hardware/mechanical/3mf/              two-colour top and sides (livery inlaid), generated in CI
-.github/workflows/render-enclosure.yml   CI that renders STLs, the 3MF and PNGs
+.github/workflows/render-enclosure.yml   CI that renders STLs, the 3MFs and PNGs
+CHANGELOG.md                          what changed in each release (Keep a Changelog)
 ```
 
 ## Conventions
@@ -139,6 +140,16 @@ When changing a part, a value or a connection, update all of these:
   - Near the top: buzzer vs. holder and board, relay vs. buzzer and front wall, ARM switch vs. TP4056, TEST button vs. base, holder/cradle/board vs. screw posts, screw heads vs. the undercut.
   - Also near the top: the top's lip vs. the relay, the holder, the buzzer and the ARM switch, and the buzzer ring staying on the top.
   - In the livery layout section: the livery.
+
+## Releases
+
+- Tags are `vMAJOR.MINOR.PATCH` on `main`, annotated. The project phase (v1, v2) is the major version.
+- Before tagging:
+  - check that CI passed on `main` and that the committed STLs, 3MFs and PNGs come from that run;
+  - move the `[Unreleased]` notes in `CHANGELOG.md` to the new version, with the date, and update the compare links at the bottom.
+- Create the GitHub release from the tag with `gh release create`.
+  - Attach the five print files: `stl/enclosure_{top,sides,base}.stl` and `3mf/enclosure_{top,sides}_2color.3mf`.
+  - The release notes are for makers: what's in it, which files to print, what isn't tested yet.
 
 ## Schematic
 
