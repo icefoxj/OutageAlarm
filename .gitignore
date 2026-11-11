@@ -12,3 +12,6 @@ desktop.ini
 
 # Two-colour parts exported on the way to the 3MF
 hardware/mechanical/parts/
+
+# Python
+__pycache__/
