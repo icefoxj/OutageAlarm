@@ -32,8 +32,8 @@ jobs:
         working-directory: hardware/mechanical
         run: |
           mkdir -p stl
-          openscad --hardwarnings -o stl/enclosure_base.stl -D 'part="base"' enclosure.scad
-          openscad --hardwarnings -o stl/enclosure_lid.stl  -D 'part="lid"'  enclosure.scad
+          openscad --hardwarnings -o stl/enclosure_shell.stl -D 'part="shell"' enclosure.scad
+          openscad --hardwarnings -o stl/enclosure_base.stl  -D 'part="base"'  enclosure.scad
 
       - name: Render images
         working-directory: hardware/mechanical
@@ -41,15 +41,18 @@ jobs:
           mkdir -p img
           # name  part  rot_x  rot_z
           render() {
-            xvfb-run -a openscad -o "img/$1.png" -D "part=\"$2\"" \
-              --imgsize=1200,900 --colorscheme=Tomorrow --autocenter --viewall \
+            xvfb-run -a openscad --hardwarnings -o "img/$1.png" -D "part=\"$2\"" \
+              --imgsize=1600,1100 --colorscheme=Tomorrow --autocenter --viewall \
               --camera=0,0,0,$3,0,$4,0 enclosure.scad
           }
-          render assembled assembled 60 25
-          render side      assembled 60 115
-          render exploded  exploded  65 25
-          render base      base      40 25
-          render lid       lid       40 25
+          render hero      assembled 66 36
+          render back      assembled 64 146
+          render profile   assembled 90 270
+          render exploded  exploded  68 36
+          render cutaway   cutaway   72 58
+          render interior  interior  52 36
+          render shell     shell     40 36
+          render base      base      45 36
 
       - uses: actions/upload-artifact@v7
         with:

@@ -65,25 +65,21 @@ When changing a part, a value or a connection, update all of these:
 ## Mechanical (OpenSCAD)
 
 - `enclosure.scad` is the source of truth. The STLs in `stl/` and the PNGs in `docs/img/` are generated from it and must not be edited by hand.
-- Origin and axes are described in the file header: origin at the inner front-left corner, on top of the floor.
+- Origin and axes are described in the file header: origin at the inner front-left corner, on the top face of the base (the shell's walls stand on it at z = 0).
 - Parameters live in Customizer sections (`/* [Section] */`). Derived values live in `/* [Hidden] */`.
-- The lid is modeled in its installed position (z = 0 is the underside of the plate) and is only flipped for printing in `part == "lid"`.
+- Two printed parts: the **shell** (walls, tilted control face and screw posts in one piece) and the **base** (dark, with a 45° undercut). Both are modeled in their installed position; `part == "shell"` flips the shell onto its control face for printing.
+- Shape: the outer and inner surfaces are lofts (`loft()` through `rr()` outlines). Controls on the face are placed in top-view coordinates with `on_face(x, y)`; engravings on the front use `on_front(x, z)`.
+- Every color goes through `paint()`, called with no transform around it, so the `cutaway` view can cut in assembly coordinates.
 - Generate STLs locally (if OpenSCAD is installed):
   ```
   cd hardware/mechanical
-  openscad -o stl/enclosure_base.stl -D "part=\"base\"" enclosure.scad
-  openscad -o stl/enclosure_lid.stl  -D "part=\"lid\""  enclosure.scad
+  openscad -o stl/enclosure_shell.stl -D "part=\"shell\"" enclosure.scad
+  openscad -o stl/enclosure_base.stl  -D "part=\"base\""  enclosure.scad
   ```
 - Without local OpenSCAD (the case on the user's machine): push, then download the CI artifact with `gh run download <id> --name enclosure-render --dir <folder>`. Copy `stl/*.stl` to `hardware/mechanical/stl/` and `img/*.png` to `docs/img/`, and check the PNGs before committing.
 - CI runs with `--hardwarnings`: any OpenSCAD warning fails the build.
 - In preview renders (PNGs), thin engravings can show artifacts. When in doubt, check the STL (bounding box, vertices) rather than the image.
-- Critical clearances to re-check on every layout change:
-  - buzzer bottom (z = in_z − buzzer_h = 23) above the 18650 holder top (holder_z = 21)
-  - switch and button bodies (z up to ≈ 30.6) below the lid lip (starts at in_z − lip_h = 34)
-  - buzzer ring clear of the lid lip (ring reaches y ≈ 66.9; the lip starts at y = 68.15)
-  - TP4056 guides (x ≥ 67) clear of the perfboard (x ≤ 62) and its standoffs (x ≤ 63)
-  - relay on the right half of the board (y ≤ 30.5), outside the area under the buzzer (y ≥ 33)
-  - holder rib (y = 45.9) behind the perfboard standoffs (y ≤ 44)
+- Critical clearances are `assert()`s near the top of `enclosure.scad` (buzzer vs. holder and board, relay vs. buzzer and front wall, ARM switch vs. TP4056, TEST button vs. base, holder/cradle/board vs. screw posts, screw heads vs. the undercut). A layout change that breaks one fails the render. Add an assert for every new clearance.
 
 ## Schematic
 

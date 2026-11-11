@@ -29,9 +29,9 @@ The POWER LED sits **before** the button, so it stays lit during the test. That 
 | 1 | K1   | SRD-05VDC-SL-C relay | 5 V / 0.36 W coil (≈ 70 Ω), 10 A SPDT contact | any 5 V relay with an NC contact works |
 | 1 | D1   | 1N4007 diode | 1 A, 1000 V | 1N4148 also works |
 | 1 | R1   | Resistor | 1 kΩ, 1/4 W | 470 Ω for a brighter LED |
-| 1 | LED1 | Green LED | 5 mm | its base flange stops against the lid |
+| 1 | LED1 | Green LED | 5 mm | its base flange stops against the control face |
 | 1 | BZ1  | SFM-27 active buzzer | 3–24 V, < 20 mA | **active** (built-in oscillator) and **polarized** |
-| 1 | SW1  | MTS-101 toggle switch | SPST on/off, M6 bushing | ARM |
+| 1 | SW1  | KCD1-101 rocker switch | SPST on/off, 2 pins, 21 × 15 mm bezel, snaps into a 19.2 × 12.9 mm cutout | ARM |
 | 1 | SW2  | PBS-11B pushbutton | **NC** (normally closed), momentary, 12 mm hole | TEST. Check with a multimeter: conducts when **released**, opens when **pressed** |
 | 1 | —    | Perfboard | 6 × 4 cm | |
 | 1 | —    | 5 V USB charger | ≥ 1.5 A | certified, plugged straight into the wall |
@@ -95,19 +95,20 @@ The SRD-05VDC has 5 pins. To identify them with a multimeter on continuity or re
 ## Assembly
 
 - **On the perfboard:** K1, D1, R1, and pads for the external wires.
-- **Relay position:** place the relay on the **right half** of the board, in the middle strip. The buzzer, mounted on the lid, comes down over the back-left part of the board: only parts shorter than 16 mm fit there.
+- **Relay position:** place the relay in the **front-right corner** of the board (about 39 mm from the left edge and 2 mm from the front edge). The buzzer, mounted under the control face, comes down over the middle and back of the board: only parts shorter than 9 mm fit there.
 - **Wires leaving the board:**
 
   | To | Wires | Suggested length |
   |----|-------|------------------|
   | U1 (IN+, IN−, OUT+, OUT−) | 4 | 10 cm |
-  | SW1 (ARM) | 2 | 10 cm |
-  | SW2 (TEST) | 2 | 10 cm |
-  | LED1 (lid) | 2 | 15 cm, with slack to open the lid |
-  | BZ1 (lid) | 2 (the buzzer's own leads) | 15 cm |
+  | SW1 (ARM, shell) | 2 | 15 cm |
+  | SW2 (TEST, shell) | 2 | 15 cm |
+  | LED1 (shell) | 2 | 15 cm |
+  | BZ1 (shell) | 2 (the buzzer's own leads) | 15 cm |
 
+- Everything on the shell (switch, button, LED, buzzer) needs about 15 cm of wire, so the shell can sit next to the base while you work on it.
 - The battery holder connects **directly** to U1's B+ and B−, not through the board.
-- Insulate splices with heat-shrink. A dab of hot glue on the wires keeps them from breaking as the lid is opened and closed.
+- Insulate splices with heat-shrink. A dab of hot glue where the wires leave the board keeps them from breaking as the shell is opened and closed.
 
 ## Bench test (before closing the enclosure)
 
