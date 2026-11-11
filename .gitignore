@@ -9,3 +9,6 @@ enclosure-render/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Two-colour parts exported on the way to the 3MF
+hardware/mechanical/parts/

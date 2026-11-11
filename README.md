@@ -6,9 +6,11 @@ An audible **power outage alarm**. When the wall outlet loses power, a buzzer ru
 
 ![OutageAlarm](docs/img/hero.png)
 
-| Cutaway | Back (USB-C) |
-|---------|--------------|
-| ![Cutaway](docs/img/cutaway.png) | ![Back](docs/img/back.png) |
+| Face | Cutaway | Back (USB-C) |
+|------|---------|--------------|
+| ![Face](docs/img/face.png) | ![Cutaway](docs/img/cutaway.png) | ![Back](docs/img/back.png) |
+
+The shell wears a mech-style livery, like the markings on anime mechs, inlaid flush in a second filament from a two-colour 3MF. A one-colour STL is available too. See [docs/mechanical.md](docs/mechanical.md#two-colour-livery-3mf).
 
 ## How it works
 
@@ -48,7 +50,7 @@ Design principles:
 | 1   | SW2  | **NC** (normally closed) momentary pushbutton, PBS-11B, 12 mm hole | TEST |
 | 1   | —    | 6 × 4 cm perfboard                                 |  |
 | 4   | —    | M2 × 6 mm self-tapping screws                      | hold the perfboard |
-| 4   | —    | M3 × 10 mm countersunk self-tapping screws (or 2.9 × 9.5 mm) | close the enclosure, from below |
+| 4   | —    | M3 × 12 mm countersunk self-tapping screws (or 2.9 × 13 mm) | close the enclosure, from below |
 | 1   | —    | 5 V USB charger **≥ 1.5 A** + cable                | **plug it straight into the wall, never into a UPS** |
 | —   | —    | Wire, solder, heat-shrink, hot glue, foam double-sided tape |  |
 
@@ -67,14 +69,18 @@ OutageAlarm/
 │   │   └── schematic.svg
 │   └── mechanical/
 │       ├── enclosure.scad          # parametric enclosure (OpenSCAD), source of truth
-│       └── stl/                    # ready-to-slice STLs
+│       ├── make_3mf.py             # packs the two-colour shell parts into the 3MF
+│       ├── stl/                    # ready-to-slice STLs (one colour)
+│       └── 3mf/                    # ready-to-slice two-colour shell (livery inlaid)
 └── .github/workflows/
-    └── render-enclosure.yml        # renders STLs and images when the .scad changes
+    └── render-enclosure.yml        # renders STLs, the 3MF and images when the model changes
 ```
 
 ## Quick build
 
-1. Print `hardware/mechanical/stl/enclosure_shell.stl` (light color) and `enclosure_base.stl` (dark) in PLA or PETG, no supports. Details in [docs/mechanical.md](docs/mechanical.md).
+1. Print the enclosure in PLA or PETG, without supports. Details in [docs/mechanical.md](docs/mechanical.md).
+   - **Shell (light color):** `hardware/mechanical/3mf/enclosure_shell_2color.3mf` with a second filament for the livery, or `hardware/mechanical/stl/enclosure_shell.stl` in one colour.
+   - **Base (dark):** `hardware/mechanical/stl/enclosure_base.stl`.
 2. Build the circuit following the wiring table in [docs/electronics.md](docs/electronics.md).
 3. Put everything in the enclosure:
    - on the base: 18650 holder at the back, perfboard at the front left, TP4056 module in the cradle at the back right (USB-C facing out the back);
