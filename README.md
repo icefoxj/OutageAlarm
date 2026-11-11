@@ -52,6 +52,7 @@ Design principles:
 | 4   | —    | M2 × 6 mm self-tapping screws                      | hold the perfboard |
 | 4   | —    | M3 × 12 mm countersunk self-tapping screws (or 2.9 × 13 mm) | close the enclosure, from below |
 | 1   | —    | 5 V USB charger **≥ 1.5 A** + cable                | **plug it straight into the wall, never into a UPS** |
+| —   | —    | CA glue (gel) or 5-minute epoxy                    | glue the top of the enclosure onto its sides |
 | —   | —    | Wire, solder, heat-shrink, hot glue, foam double-sided tape |  |
 
 ## Repository layout
@@ -69,18 +70,20 @@ OutageAlarm/
 │   │   └── schematic.svg
 │   └── mechanical/
 │       ├── enclosure.scad          # parametric enclosure (OpenSCAD), source of truth
-│       ├── make_3mf.py             # packs the two-colour shell parts into the 3MF
-│       ├── stl/                    # ready-to-slice STLs (one colour)
-│       └── 3mf/                    # ready-to-slice two-colour shell (livery inlaid)
+│       ├── make_3mf.py             # packs the two-colour parts into the 3MFs
+│       ├── stl/                    # ready-to-slice STLs (one colour): top, sides, base
+│       └── 3mf/                    # ready-to-slice two-colour top and sides (livery inlaid)
 └── .github/workflows/
-    └── render-enclosure.yml        # renders STLs, the 3MF and images when the model changes
+    └── render-enclosure.yml        # renders STLs, the 3MFs and images when the model changes
 ```
 
 ## Quick build
 
-1. Print the enclosure in PLA or PETG, without supports. Details in [docs/mechanical.md](docs/mechanical.md).
-   - **Shell (light color):** `hardware/mechanical/3mf/enclosure_shell_2color.3mf` with a second filament for the livery, or `hardware/mechanical/stl/enclosure_shell.stl` in one colour.
+1. Print the three parts of the enclosure in PLA or PETG, without supports. Details in [docs/mechanical.md](docs/mechanical.md).
+   - **Top (light color):** `hardware/mechanical/3mf/enclosure_top_2color.3mf` with a second filament for the livery, or `hardware/mechanical/stl/enclosure_top.stl` in one colour.
+   - **Sides (light color):** `hardware/mechanical/stl/enclosure_sides.stl`, or `hardware/mechanical/3mf/enclosure_sides_2color.3mf` with the wordmark and "5V" inlaid as well.
    - **Base (dark):** `hardware/mechanical/stl/enclosure_base.stl`.
+   - Glue the top onto the sides to make the shell: a lip under the top fits inside the walls, with room for the glue.
 2. Build the circuit following the wiring table in [docs/electronics.md](docs/electronics.md).
 3. Put everything in the enclosure:
    - on the base: 18650 holder at the back, perfboard at the front left, TP4056 module in the cradle at the back right (USB-C facing out the back);

@@ -1,6 +1,6 @@
 name: Render enclosure (OpenSCAD)
 
-# Renders the enclosure STLs, the two-colour 3MF and the images whenever the
+# Renders the enclosure STLs, the two-colour 3MFs and the images whenever the
 # mechanical model changes.
 # Output: "enclosure-render" artifact on the run page.
 # Download locally:  gh run download <run-id> --name enclosure-render --dir <folder>
@@ -36,38 +36,40 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p stl parts
-          # OpenSCAD reports some failures as ERROR lines and still exits 0, so those
-          # fail the step too. The parts render in parallel; waiting on each job makes
-          # any failure fail the step.
+          # OpenSCAD can exit 0 after an ERROR, or after --hardwarnings stops it at a
+          # WARNING (a PNG then comes out empty), so those lines fail the step too.
+          # The parts render in parallel; waiting on each job makes any failure fail
+          # the step.
           export_part() {
             local log; log=$(mktemp)
             openscad --hardwarnings -o "$1" -D "part=\"$2\"" enclosure.scad 2>&1 | tee "$log"
-            ! grep -q "^ERROR" "$log"
+            ! grep -qE "^(ERROR|WARNING)" "$log"
           }
           pids=()
-          export_part stl/enclosure_shell.stl shell & pids+=($!)
-          export_part stl/enclosure_base.stl  base  & pids+=($!)
-          for p in shell_2color inlay_face inlay_front inlay_back; do
+          for p in top sides base; do
+            export_part "stl/enclosure_$p.stl" "$p" & pids+=($!)
+          done
+          for p in top_2color sides_2color inlay_face inlay_front inlay_back; do
             export_part "parts/$p.stl" "$p" & pids+=($!)
           done
           for pid in "${pids[@]}"; do wait "$pid"; done
 
-      - name: Build the two-colour 3MF
+      - name: Build the two-colour 3MFs
         working-directory: hardware/mechanical
-        run: python3 make_3mf.py parts 3mf/enclosure_shell_2color.3mf
+        run: python3 make_3mf.py parts 3mf
 
       - name: Render images
         working-directory: hardware/mechanical
         run: |
           set -o pipefail
           mkdir -p img
-          # name  part  rot_x  rot_z  [extra options]; fails on ERROR lines too
+          # name  part  rot_x  rot_z  [extra options]; fails on ERROR and WARNING lines too
           render() {
             local log; log=$(mktemp)
             xvfb-run -a openscad --hardwarnings -o "img/$1.png" -D "part=\"$2\"" \
               --imgsize=1600,1100 --colorscheme=Tomorrow --autocenter --viewall \
               --camera=0,0,0,$3,0,$4,0 "${@:5}" enclosure.scad 2>&1 | tee "$log"
-            ! grep -q "^ERROR" "$log"
+            ! grep -qE "^(ERROR|WARNING)" "$log"
           }
           render hero      assembled 66 36
           render face      assembled 20 0  --projection=o
@@ -75,8 +77,10 @@ jobs:
           render profile   assembled 90 270
           render exploded  exploded  68 36
           render cutaway   cutaway   72 58
+          render joint     joint     90 270  --projection=o
           render interior  interior  52 36
-          render shell     shell     40 36
+          render top       top       40 36
+          render sides     sides     40 36
           render base      base      45 36
 
       - uses: actions/upload-artifact@v7

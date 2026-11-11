@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-"""Pack the two-colour shell into a 3MF.
+"""Pack the two-colour top and sides of the shell into 3MFs.
 
-    python3 make_3mf.py <parts dir> <output .3mf>
+    python3 make_3mf.py <parts dir> <output dir>
 
 <parts dir> holds the STLs that enclosure.scad exports, in print orientation, with
-part = "shell_2color", "inlay_face", "inlay_front" and "inlay_back" (see the header
-of enclosure.scad, or .github/workflows/render-enclosure.yml).
+part = "top_2color", "sides_2color", "inlay_face", "inlay_front" and "inlay_back"
+(see the header of enclosure.scad, or .github/workflows/render-enclosure.yml).
+It writes enclosure_top_2color.3mf and enclosure_sides_2color.3mf.
 
-The 3MF follows the core spec (2015/02), with no slicer extensions: one named mesh
+Each 3MF follows the core spec (2015/02), with no slicer extensions: one named mesh
 per part, grouped into a single object. Creality Print, Bambu Studio, OrcaSlicer and
 PrusaSlicer load it as one object whose parts each take their own filament. The
 colours go in as base materials: a hint that the slicer may ignore.
 
 Before writing, it checks that:
 - every mesh is closed and consistently oriented, with a positive volume;
-- the shell's face lies on the bed (z = 0);
+- each printed part lies on the bed (z = 0);
 - every inlay is a slab exactly INLAY_DEPTH thick, so no part of it thins out over
   an edge, a chamfer or a hole.
 It prints the layers that hold each inlay. Each of them costs filament changes.
@@ -31,12 +32,19 @@ from pathlib import Path
 
 INLAY_DEPTH = 0.6   # inlay_depth in enclosure.scad
 LAYER = 0.2         # layer height used to count the two-colour layers
-# Part name in the 3MF, STL file, colour name, colour (as in enclosure.scad)
-PARTS = [
-    ("shell", "shell_2color.stl", "White", "#ECEAE4"),
-    ("face_livery", "inlay_face.stl", "Red", "#D7261E"),
-    ("front_wordmark", "inlay_front.stl", "Red", "#D7261E"),
-    ("back_5v", "inlay_back.stl", "Red", "#D7261E"),
+WHITE, RED = ("White", "#ECEAE4"), ("Red", "#D7261E")   # shell_color, livery_color in enclosure.scad
+# Output file, object name, parts: (name in the 3MF, STL file, colour). The first
+# part is the printed part; the others are the inlays that fill its recesses.
+MODELS = [
+    ("enclosure_top_2color.3mf", "OutageAlarm top", [
+        ("top", "top_2color.stl", WHITE),
+        ("face_livery", "inlay_face.stl", RED),
+    ]),
+    ("enclosure_sides_2color.3mf", "OutageAlarm sides", [
+        ("sides", "sides_2color.stl", WHITE),
+        ("front_wordmark", "inlay_front.stl", RED),
+        ("back_5v", "inlay_back.stl", RED),
+    ]),
 ]
 
 
@@ -182,31 +190,33 @@ def write_3mf(path, meshes, name):
 def main():
     if len(sys.argv) != 3:
         sys.exit(__doc__)
-    parts_dir, out = Path(sys.argv[1]), Path(sys.argv[2])
-    meshes, two_colour = [], set()
-    for part, file, colour, rgb in PARTS:
-        verts, tris = read_stl(parts_dir / file)
-        check_closed(part, tris)
-        vol = volume(verts, tris)
-        if vol <= 0:
-            fail(f"{part}: the mesh is inside out or empty")
-        zs = [v[2] for v in verts]
-        line = f"{part}: {len(tris)} triangles, {vol / 1000:.2f} cm3, z {min(zs):.2f} to {max(zs):.2f} mm"
-        if part == "shell":
-            if abs(min(zs)) > 1e-3:
-                fail(f"shell: its face is not on the bed (lowest z = {min(zs)})")
-        else:
-            t, off = slab_thickness(verts, tris)
-            if abs(t - INLAY_DEPTH) > 0.01 or off > 0.01:
-                fail(f"{part}: not a {INLAY_DEPTH} mm slab everywhere ({t:.3f} mm thick, a vertex "
-                     f"{off:.3f} mm off its faces): it runs onto an edge, a chamfer or a hole")
-            ks = layers(verts, tris)
-            two_colour |= ks
-            line += f", {INLAY_DEPTH} mm deep, in {len(ks)} layers ({z_ranges(ks)})"
-        print(line)
-        meshes.append((part, verts, tris, colour, rgb))
-    write_3mf(out, meshes, "OutageAlarm shell")
-    print(f"{out}: {len(two_colour)} two-colour layers of {LAYER} mm ({z_ranges(two_colour)})")
+    parts_dir, out_dir = Path(sys.argv[1]), Path(sys.argv[2])
+    for file_name, object_name, parts in MODELS:
+        meshes, two_colour = [], set()
+        for i, (part, file, (colour, rgb)) in enumerate(parts):
+            verts, tris = read_stl(parts_dir / file)
+            check_closed(part, tris)
+            vol = volume(verts, tris)
+            if vol <= 0:
+                fail(f"{part}: the mesh is inside out or empty")
+            zs = [v[2] for v in verts]
+            line = f"  {part}: {len(tris)} triangles, {vol / 1000:.2f} cm3, z {min(zs):.2f} to {max(zs):.2f} mm"
+            if i == 0:
+                if abs(min(zs)) > 1e-3:
+                    fail(f"{part}: it does not lie on the bed (lowest z = {min(zs)})")
+            else:
+                t, off = slab_thickness(verts, tris)
+                if abs(t - INLAY_DEPTH) > 0.01 or off > 0.01:
+                    fail(f"{part}: not a {INLAY_DEPTH} mm slab everywhere ({t:.3f} mm thick, a vertex "
+                         f"{off:.3f} mm off its faces): it runs onto an edge, a chamfer or a hole")
+                ks = layers(verts, tris)
+                two_colour |= ks
+                line += f", {INLAY_DEPTH} mm deep, in {len(ks)} layers ({z_ranges(ks)})"
+            meshes.append((part, verts, tris, colour, rgb))
+            print(line)
+        out = out_dir / file_name
+        write_3mf(out, meshes, object_name)
+        print(f"{out}: {len(two_colour)} two-colour layers of {LAYER} mm ({z_ranges(two_colour)})")
 
 
 if __name__ == "__main__":
