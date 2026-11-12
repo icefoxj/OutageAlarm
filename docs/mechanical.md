@@ -9,8 +9,9 @@ There are three printed parts:
 - the **sides**: the walls and the screw posts;
 - the **base**.
 
-The top and the sides are glued together into the shell, which then screws onto the base from below. All the electronics sit on one perfboard that lies on the base, and the same screws clamp it.
- Printing the top on its own keeps the two-colour print short: all of the face's colour is in its first 3 layers.
+The top and the sides are glued together into the shell, which then screws onto the base from below. Printing the top on its own keeps the two-colour print short: all of the face's colour is in its first 3 layers.
+
+All the electronics sit on one perfboard that lies on the base, and the same screws clamp it.
 
 The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../hardware/mechanical/enclosure.scad). The ready-to-print files are in [`hardware/mechanical/stl/`](../hardware/mechanical/stl/) and [`hardware/mechanical/3mf/`](../hardware/mechanical/3mf/). They are also attached to each [release](https://github.com/icefoxj/OutageAlarm/releases).
 
@@ -149,7 +150,7 @@ Two 3MFs hold the top and the sides with the livery inlaid. They need a printer 
 | | `face_livery` | the whole livery and the labels on the face | 2: red | 3 (Z 0.0–0.6 mm) |
 | [`enclosure_sides_2color.3mf`](../hardware/mechanical/3mf/enclosure_sides_2color.3mf) | `sides` | the sides, with the text recessed 0.6 mm | 1: white | — |
 | | `front_wordmark` | "// OUTAGE ALARM //" on the front | 2: red | 27 (Z 7.2–12.6 mm) |
-| | `back_5v` | the bolt and "5V" on the back | 2: red | 29 (Z 29.6–35.4 mm) |
+| | `back_5v` | the bolt and "5V" on the back | 2: red | 29 (Z 30.2–36.0 mm) |
 
 Each inlay fills its recess exactly and sits flush with the surface. The top is the cheap part: its whole livery is in the first 3 layers of a print 6.8 mm tall, so its prime tower stays short too.
 

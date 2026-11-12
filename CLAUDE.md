@@ -78,7 +78,7 @@ When changing a part, a value or a connection, update all of these:
 - Three printed parts, all modeled in their installed position:
   - the **top**: the control face, its chamfer, the buzzer ring and a lip;
   - the **sides**: the walls and the screw posts;
-  - the **base**: dark, with a 45° undercut.
+  - the **base**: dark, with a 45° undercut, and a pocket on top for the perfboard's solder side.
 - The top and the sides are glued into the **shell** (user request: print the top separately to optimise the colour print). `shell(livery)` models the whole shell without the posts. `top()` and `sides()` split it along the crease under the face chamfer: the plane parallel to the face at `split_dz` = −`ce`.
 - **Joint** (user request: a precise fit with room for glue):
   - A lip under the top fits inside the walls, `glue_gap` (0.15 mm) per side, with a lead-in chamfer.
@@ -115,7 +115,7 @@ When changing a part, a value or a connection, update all of these:
   - **Keep the livery on the face.** Face graphics cost 3 layers in all. Every wall layer that holds an inlay costs up to two filament changes.
   - **Layer counts in the docs:** docs/mechanical.md quotes the two-colour layers per part:
     - top: 3, at Z 0.0–0.6 mm;
-    - sides: 27 + 29 = 56, at Z 7.2–12.6 and 29.6–35.4 mm.
+    - sides: 27 + 29 = 56, at Z 7.2–12.6 and 30.2–36.0 mm.
     Update them when they change: `make_3mf.py` prints them in CI.
   - **3MFs:** `make_3mf.py` writes `enclosure_top_2color.3mf` (`top`, `face_livery`) and `enclosure_sides_2color.3mf` (`sides`, `front_wordmark`, `back_5v`).
     - They are core 3MF (2015/02) with no slicer extensions: one named mesh per part, grouped in one object.
