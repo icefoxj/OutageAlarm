@@ -9,7 +9,8 @@ There are three printed parts:
 - the **sides**: the walls and the screw posts;
 - the **base**.
 
-The top and the sides are glued together into the shell, which then screws onto the base from below. Printing the top on its own keeps the two-colour print short: all of the face's colour is in its first 3 layers.
+The top and the sides are glued together into the shell, which then screws onto the base from below. All the electronics sit on one perfboard that lies on the base, and the same screws clamp it.
+ Printing the top on its own keeps the two-colour print short: all of the face's colour is in its first 3 layers.
 
 The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../hardware/mechanical/enclosure.scad). The ready-to-print files are in [`hardware/mechanical/stl/`](../hardware/mechanical/stl/) and [`hardware/mechanical/3mf/`](../hardware/mechanical/3mf/). They are also attached to each [release](https://github.com/icefoxj/OutageAlarm/releases).
 
@@ -23,7 +24,7 @@ The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../
 |---------|----------|
 | ![Cutaway](img/cutaway.png) | ![Exploded](img/exploded.png) |
 
-| Profile | Inside, on the base |
+| Profile | Inside: the perfboard on the base |
 |---------|---------------------|
 | ![Profile](img/profile.png) | ![Interior](img/interior.png) |
 
@@ -46,6 +47,7 @@ The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../
   - All the lettering uses a chamfered, straight-line stroke font, drawn in the model (`mech_glyphs`).
 - **Hidden seam.** The top and the sides meet along the crease under the face chamfer, so the joint is part of an edge the shell already has.
 - **No visible screws.** Four countersunk screws close the enclosure from below, into posts molded in the corners of the sides.
+- **One board, no standoffs.** The perfboard covers the floor. On their way up, the four screws pass through its corners, and the posts press it onto the base. Its solder side sits over a shallow pocket.
 
 ## Dimensions
 
@@ -54,6 +56,9 @@ The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../
 - **Walls and face:** 2.4 mm. **Base:** 6 mm, with a 3 mm undercut.
 - **Chamfer** around the face: 3 mm at 45°. Corner radius in top view: 10 mm.
 - **Inlay / engraving depth:** 0.6 mm.
+- **Perfboard:** 114.3 × 66.0 mm (45 × 26 hole spacings), 1.6 mm thick, corners cut at 45°.
+  - The base's pocket under it is 2 mm deep.
+  - A 3 mm rim under the outer row of holes carries it, with a pad around each screw and a rib under the 18650 holder.
 - **Joint:**
   - Lip: 4 mm high and 1.6 mm thick.
   - Glue gap: 0.15 mm per side.
@@ -65,15 +70,15 @@ Positions in top view (X to the right, Y to the back), measured from the inner f
 
 | Item | Where | How it's held |
 |------|-------|---------------|
-| 18650 holder (BT1) | against the back wall (X 8.8–86.8, Y 47.5–69.5) | rib in front of it + foam double-sided tape |
-| 6 × 4 cm perfboard | front left (X 9.5–69.5, Y 4–44), 5 mm above the base | 4 standoffs + M2 × 6 self-tapping screws |
-| Relay K1 | front-right corner of the perfboard, 3 mm from its front edge | soldered to the board |
-| TP4056 module (U1) | back right, centered at X = 98.3; USB-C through the back wall, 6 mm above the base | cradle with two L-shaped guides and an end stop + hot glue |
+| Perfboard | the whole floor, inside the walls (X 1.85–116.15, Y 1.98–68.02), on the base | clamped by the 4 screw posts; the shell screws pass through it |
+| 18650 holder (BT1) | on the board, against the back wall (X 10.5–88.5, Y 47.5–69.5) | thin double-sided tape |
+| Relay K1, D1, R1 | front middle of the board (relay at X 53.8–73.4, Y 8.3–23.7) | soldered to the board ([layout](../hardware/electronics/perfboard.svg)) |
+| TP4056 module (U1) | on the board, back right, centered at X = 98.3; USB-C through the back wall, 5.4 mm above the base | 1 mm double-sided foam tape |
 | SFM-27 buzzer (BZ1) | under the grille, at X 30, Y 38 | 4-segment centering ring + hot glue or epoxy |
 | TEST button (SW2) | face, X 98, Y 19 | its own nut (12.2 mm hole) |
 | ARM rocker switch (SW1) | face, X 98, Y 44 | snaps into a 19.2 × 12.9 mm cutout; the face is thinned to 2 mm around it so the clips catch |
 | POWER LED (LED1) | face, X 98, Y 61 | inserted from below; its flange stops against the face + hot glue |
-| Screw posts | the 4 inner corners, part of the sides, up to the seam | 4 × M3 × 12 countersunk self-tapping screws from below |
+| Screw posts | the 4 inner corners (X 6.9 and 111.1, Y 7.1 and 62.9), part of the sides, from the board up to the seam | 4 × M3 × 16 countersunk self-tapping screws from below, through the base and the board |
 | Top | on the sides, its lip inside the walls | glued (see [Joint](#joint-between-the-top-and-the-sides)) |
 
 **Marks on both versions:**
@@ -89,9 +94,14 @@ The one-colour top and sides have them engraved 0.6 mm deep. The two-colour ones
 The model checks these with `assert()`: if a change breaks one, OpenSCAD (and CI) stops with an error that names it.
 
 - Buzzer above the 18650 holder (≥ 2 mm) and above the parts on the perfboard.
-- Relay to the right of or in front of the buzzer, and clear of the leaning front wall.
-- ARM switch body above the TP4056 module; TEST button body above the base.
-- Holder, TP4056 cradle, perfboard and standoffs clear of the screw posts.
+- Relay to the right of or in front of the buzzer, and clear of the leaning front wall and of D1.
+- ARM switch body above the TP4056 module; TEST button body above the perfboard, and no part under it.
+- Holder and TP4056 module clear of the screw posts and of each other.
+- The perfboard:
+  - inside the walls, its cut corners clear of the rounded inner corners;
+  - at least 1 mm of board between each screw hole and the cut corner;
+  - its outer row of holes, and only that row, on the rim of the base's pocket.
+- Screws long enough to bite 6 mm into the posts, and no longer than their pilot holes.
 - Screw heads fully on the bottom face, inside the undercut.
 - The top's lip:
   - clear of the relay, the 18650 holder, the buzzer and the ARM switch;
@@ -115,7 +125,7 @@ The model checks these with `assert()`: if a change breaks one, OpenSCAD (and CI
 | Infill | 15–20 % | 15–20 % | 15–20 % |
 | Supports | **not needed** | **not needed** | **not needed** |
 | Orientation (already in the file) | face on the bed | seam on the bed | bottom on the bed |
-| Height as printed | 6.8 mm | 46 mm | 12 mm (6 mm plate + standoffs and rib) |
+| Height as printed | 6.8 mm | 46 mm | 6 mm |
 
 - **Top:**
   - The face is the first layer, so it takes the texture of your bed: smooth PEI or glass gives a glossy face, textured PEI a matte one.
@@ -126,7 +136,7 @@ The model checks these with `assert()`: if a change breaks one, OpenSCAD (and CI
   - The walls lean at most 30°.
   - The posts are bridged over the notches for the lip (2 mm).
   - The seam face is a 2.4 mm wide ring plus the post tops. Use a brim if your bed doesn't hold thin first layers well.
-- **Base:** prints flat. The undercut is 45°. The ribs, standoffs and the TP4056 cradle grow upward.
+- **Base:** prints flat. The undercut is 45°. The pocket for the perfboard is on top, so it needs no support.
 - **Colours:** the intended look is a light shell (white, light gray) on a dark base, with a red livery. Any combination works; a black livery matches the base.
 
 ## Two-colour livery (3MF)
@@ -193,9 +203,10 @@ Open `enclosure.scad` in OpenSCAD and use **Window → Customizer**. The paramet
 | Parameter | Default | When to change |
 |-----------|---------|----------------|
 | `holder_x`, `holder_y`, `holder_z` | 78 × 22 × 21 mm | size of your 18650 holder |
-| `pcb_hole_margin` | 2.0 mm | measure from your board's hole center to its edge |
+| `pcb_t` | 1.6 mm | thickness of your perfboard: the screw posts stop on top of it |
+| `k1_hole`, `d1_hole`, `r1_hole` | [22, 3], [29, 3], [31, 2] | the parts' holes on the board; change them in `perfboard.py` too |
 | `chg_pcb` | [17.4, 29] mm | size of your TP4056 module (width, length) |
-| `chg_z` | 6 mm | connector center height, if your module differs |
+| `chg_lift` | 1 mm | the tape under the module; it sets the USB-C height |
 | `buzzer_d` | 30 mm | the SFM-27 varies between 29 and 30 mm by manufacturer |
 | `rocker_cut` | [12.9, 19.2] mm | cutout of your rocker switch |
 | `rocker_panel_t` | 2.0 mm | the switch's clips don't catch (thinner) or it rattles (thicker) |
@@ -233,7 +244,7 @@ Without OpenSCAD installed: on every push that changes the `.scad` or `make_3mf.
 
 ## Assembly
 
-Extra hardware: 4 × M2 × 6 self-tapping screws (perfboard), 4 × M3 × 12 countersunk self-tapping screws (enclosure; 2.9 × 13 mm also works), CA glue (gel) or epoxy, hot glue, foam double-sided tape and, optionally, 4 small rubber feet.
+Extra hardware: 4 × M3 × 16 countersunk self-tapping screws (2.9 × 16 mm also works), CA glue (gel) or epoxy, hot glue, thin and 1 mm foam double-sided tape and, optionally, 4 small rubber feet.
 
 1. **Check the fit** of the rocker switch and the TEST button in the top, and dry-fit the top on the sides, before wiring anything.
 2. **Glue the top onto the sides** (see [Joint](#joint-between-the-top-and-the-sides)). From here on, the two are the shell.
@@ -242,10 +253,11 @@ Extra hardware: 4 × M2 × 6 self-tapping screws (perfboard), 4 × M3 × 12 coun
    - TEST button: remove the nut, push the button through from the inside, and tighten the nut on the face.
    - LED: push it in from below until the flange seats, and fix it with a dab of hot glue.
    - Buzzer: place its sound face against the face, inside the ring, and fix it with hot glue or epoxy around it.
-4. **Base:**
-   - TP4056 module: slide it into the cradle with the USB-C toward the back edge, against the end stop. Fix it with hot glue on the guides.
-   - Perfboard, already soldered: screw it onto the standoffs with the 4 M2 screws.
-   - Battery holder: against the back edge, behind the rib, with double-sided tape. Insert the cell last, checking the polarity.
-5. Wire everything per [electronics.md](electronics.md). Give the wires to the shell parts about 15 cm, so the shell can lie next to the base while you work.
+4. **Perfboard:** cut, drill and solder it per [electronics.md](electronics.md#perfboard), then stick the battery holder and the TP4056 module on it. Insert the cell last, checking the polarity.
+5. Solder the wires from the shell parts to the board's pads. Give them about 15 cm, so the shell can lie next to the base while you work.
 6. Run the [README](../README.md#test) test.
-7. **Close:** fold the wires in, set the shell on the base, check that a USB-C cable plugs in fully through the back, and drive the 4 M3 screws from below.
+7. **Close:**
+   - Lay the board on the base, solder side down, so its screw holes line up with the base's.
+   - Fold the wires in and set the shell over it: the posts come down on the board's screw holes.
+   - Check that a USB-C cable plugs in fully through the back.
+   - Drive the 4 M3 screws from below: through the base and the board, into the posts.

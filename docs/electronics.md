@@ -25,7 +25,7 @@ The POWER LED sits **before** the button, so it stays lit during the test. That 
 |----:|------|------|---------------|-------|
 | 1 | U1   | TP4056 USB-C module with protection | TP4056 + DW01A + 8205A, 1 A charge, ≈ 29 × 17 mm | IN+, IN−, B+, B−, OUT+, OUT− pads |
 | 1 | BT1  | 18650 Li-ion cell | 3.7 V, 2000–3500 mAh, unprotected | reputable brand (Samsung, LG, Sony/Murata, Panasonic) |
-| 1 | —    | 1 × 18650 holder with wire leads | ≈ 77 × 21 × 20 mm | "protected" cells are longer and may not fit |
+| 1 | —    | 1 × 18650 holder with wire leads | ≈ 77 × 21 × 20 mm | "protected" cells are longer and may not fit. Stuck on the perfboard |
 | 1 | K1   | SRD-05VDC-SL-C relay | 5 V / 0.36 W coil (≈ 70 Ω), 10 A SPDT contact | any 5 V relay with an NC contact works |
 | 1 | D1   | 1N4007 diode | 1 A, 1000 V | 1N4148 also works |
 | 1 | R1   | Resistor | 1 kΩ, 1/4 W | 470 Ω for a brighter LED |
@@ -33,7 +33,8 @@ The POWER LED sits **before** the button, so it stays lit during the test. That 
 | 1 | BZ1  | SFM-27 active buzzer | 3–24 V, < 20 mA | **active** (built-in oscillator) and **polarized** |
 | 1 | SW1  | KCD1-101 rocker switch | SPST on/off, 2 pins, 21 × 15 mm bezel, snaps into a 19.2 × 12.9 mm cutout | ARM |
 | 1 | SW2  | PBS-11B pushbutton | **NC** (normally closed), momentary, 12 mm hole | TEST. Check with a multimeter: conducts when **released**, opens when **pressed** |
-| 1 | —    | Perfboard | 6 × 4 cm | |
+| 1 | —    | Perfboard | 2.54 mm pitch, single-sided with a pad on each hole, 10 × 15 cm | cut to 114.3 × 66.0 mm: see [Perfboard](#perfboard) |
+| — | —    | Bare tinned copper wire | ≈ 0.5 mm, or leftover component leads | the links on the board |
 | 1 | —    | 5 V USB charger | ≥ 1.5 A | certified, plugged straight into the wall |
 
 > **5.1 kΩ CC resistors on USB-C.** A USB-C charger only turns on its 5 V after it detects a connected device, which it does through 5.1 kΩ resistors on the CC pins. Not every TP4056 USB-C module has them. If your module stays dark on a USB-C ↔ USB-C cable, use a **USB-A → USB-C cable**: the 5 V always comes through with it.
@@ -92,23 +93,66 @@ The SRD-05VDC has 5 pins. To identify them with a multimeter on continuity or re
 3. **NC:** the pin with continuity to COM when the relay is **off**.
 4. **NO:** the pin that only connects to COM when you apply 5 V to the coil.
 
-## Assembly
+## Perfboard
 
-- **On the perfboard:** K1, D1, R1, and pads for the external wires.
-- **Relay position:** place the relay in the **front-right corner** of the board, about 39 mm from the left edge and 3 mm from the front edge. Don't put it closer to the front: its top would touch the lip under the enclosure's top. The buzzer, mounted under the control face, comes down over the middle and back of the board: only parts shorter than 9 mm fit there.
-- **Wires leaving the board:**
+[![Perfboard layout](../hardware/electronics/perfboard.svg)](../hardware/electronics/perfboard.svg)
 
-  | To | Wires | Suggested length |
-  |----|-------|------------------|
-  | U1 (IN+, IN−, OUT+, OUT−) | 4 | 10 cm |
-  | SW1 (ARM, shell) | 2 | 15 cm |
-  | SW2 (TEST, shell) | 2 | 15 cm |
-  | LED1 (shell) | 2 | 15 cm |
-  | BZ1 (shell) | 2 (the buzzer's own leads) | 15 cm |
+All the electronics sit on one perfboard that covers the floor of the enclosure:
+- the 18650 holder and U1 at the back;
+- K1, D1 and R1 at the front;
+- a pad for every wire.
 
-- Everything on the shell (switch, button, LED, buzzer) needs about 15 cm of wire, so the shell can sit next to the base while you work on it.
+The four screws that close the enclosure pass through its corners, so the screw posts clamp it to the base. It needs no screws or standoffs of its own.
+
+The layout is drawn 1:1 on an A4 page. Print it at 100 % and check the 50 mm bar: then it is also a template for cutting and drilling. The drawing comes from [`perfboard.py`](../hardware/electronics/perfboard.py), which holds the layout as data.
+
+### Cutting and drilling
+
+1. Cut a 114.3 × 66.0 mm piece (45 × 26 hole spacings) from a 10 × 15 cm perfboard. Cut along lines of holes, so that the edges run through the outer holes: score both sides with a knife and snap it, or saw it.
+2. Cut each corner at 45°, through the second hole along each edge, so the corners clear the rounded inner corners of the enclosure.
+3. Drill the four screw holes to 3.2 mm. They are the holes 2 in from each corner, along both edges.
+4. Drill K1's five holes to 1.3 mm, where the layout shows them. The SRD relay's pins are not on the 2.54 mm grid: four of them sit about 0.4 mm off a hole, and COM falls between two holes.
+
+### Soldering
+
+- **Identify K1's pins first** (see [Identifying the relay pins](#identifying-the-relay-pins)). The layout puts NC at the front, as on the SRD footprint. If NC is the back contact pin on your relay, run the BZ1 + link to that one instead.
+- **Fit K1, D1 and R1.** D1's band (cathode) goes to the back, on the COIL row. D1 and R1 lie flat.
+- **Make the links** on the solder side with bare tinned wire or leftover leads, along the coloured lines in the layout. COM has no pad of its own, so bridge it to the hole next to it with solder.
+- **Trim every lead to 1.5 mm or less.** The solder side sits over a 2 mm pocket in the base.
+- **Keep clear:** don't solder in the outer row of holes, or in the 3 × 3 holes around each screw hole. The outer row rests on the rim of the base's pocket, and the screw posts press on the board around the screws.
+
+What the board connects (holes as (i, j), counted from the front-left corner: i to the right, j to the back):
+
+| Net | On the board |
+|-----|--------------|
+| `+5V`  | pads U1 IN+ (33, 10) and TEST (33, 9) · R1 back lead (31, 10) |
+| `COIL` | pad TEST (33, 8) · K1 back coil pin · D1 cathode (29, 8) |
+| `0V`   | pads U1 IN− (33, 4) and LED1 − (33, 3) · K1 front coil pin · D1 anode (29, 3) |
+| `LED`  | pad LED1 + (33, 2) · R1 front lead (31, 2) |
+| `BAT+` | pads U1 OUT+ (33, 7) and ARM (33, 6) |
+| `ARM`  | pad ARM (33, 5) · K1 COM |
+| `BZ+`  | pad BZ1 + (20, 3) · K1 NC (front contact pin) |
+| `BAT−` | pads U1 OUT− (20, 5) and BZ1 − (20, 4) |
+| —      | K1 NO (back contact pin): soldered, not connected |
+
+### Wires to the board
+
+| From | Wires | Pads | Suggested length |
+|------|-------|------|------------------|
+| U1 (IN+, IN−, OUT+, OUT−) | 4 | labelled U1 | 10 cm |
+| SW1 (ARM, shell) | 2 | ARM | 15 cm |
+| SW2 (TEST, shell) | 2 | TEST | 15 cm |
+| LED1 (shell) | 2 | LED1 + (long leg), LED1 − | 15 cm |
+| BZ1 (shell) | 2 (the buzzer's own leads) | BZ1 + (red), BZ1 − (black) | 15 cm |
+
+- Everything on the shell (switch, button, LED, buzzer) needs about 15 cm of wire, so the shell can lie next to the base while you work on it.
 - The battery holder connects **directly** to U1's B+ and B−, not through the board.
-- Insulate splices with heat-shrink. A dab of hot glue where the wires leave the board keeps them from breaking as the shell is opened and closed.
+- A dab of hot glue where the wires meet the pads keeps them from breaking as the shell is opened and closed.
+
+### Mounting the holder and U1
+
+- **Holder:** at the back left of the board, inside its outline, with thin double-sided tape. Thick foam tape would raise it too close to the buzzer.
+- **U1:** at the back right, on 1 mm double-sided foam tape, with its USB-C toward the back. It overhangs the board's back edge by 1.5 mm, which puts the receptacle 0.5 mm from the back wall and 5.4 mm above the base, centered on the opening.
 
 ## Bench test (before closing the enclosure)
 

@@ -6,6 +6,15 @@ All notable changes to OutageAlarm are listed here.
 
 ## [Unreleased]
 
+### Changed
+
+- **One perfboard for all the electronics.** It covers the floor and holds the 18650 holder, the TP4056 module, K1, D1, R1 and a pad for every wire.
+  - The four shell screws pass through its corners, so the screw posts clamp it to the base. The standoffs and the M2 screws are gone.
+  - The layout is in [hardware/electronics/perfboard.svg](hardware/electronics/perfboard.svg), drawn 1:1 on A4: printed at 100 %, it is a cutting and drilling template.
+- **Base:** flat on top, with a 2 mm pocket for the board's solder side. The holder rib and the TP4056 cradle are gone.
+- **Screw posts:** they moved over the board's holes (6.9 × 7.1 mm from the inner walls) and stop on top of the board. The screws are now M3 × 16.
+- **USB-C opening:** 0.6 mm lower (5.4 mm above the base), for the TP4056 module on 1 mm foam tape on the board.
+
 ## [1.0.0] - 2026-11-11
 
 First release: the simple v1, with no microcontroller and no firmware.

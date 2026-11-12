@@ -14,6 +14,9 @@
 //    sides  the walls and the screw posts
 //    base   the floor; the shell (top + sides) is screwed to it from below
 //
+//  All the electronics sit on one perfboard that covers the floor. The four
+//  shell screws pass through its corners, so the posts clamp it to the base.
+//
 //  Export the STLs from the command line:
 //    openscad -o stl/enclosure_top.stl   -D "part=\"top\""   enclosure.scad
 //    openscad -o stl/enclosure_sides.stl -D "part=\"sides\"" enclosure.scad
@@ -48,15 +51,17 @@
 //
 //                               back
 //    +-----------------------------------------------------+
-//    | o [=========== 18650 holder ===========] [TP4056]  o |==> USB-C
-//    |     -------------- rib --------------               |
-//    |  +-------------------------------+                  |
-//    |  |   6x4 cm perfboard            |                  |
-//    |  |                 [relay]       |                  |
-//    | o+-------------------------------+                o |
+//    | /-------------------------------------------------\ |
+//    | |o  [========= 18650 holder =========] [TP4056]  o| |==> USB-C
+//    | |                                                 | |
+//    | |   perfboard                                     | |
+//    | |                   [relay] D1 R1 :               | |
+//    | |o                                               o| |
+//    | \-------------------------------------------------/ |
 //    +-----------------------------------------------------+
 //                               front
-//    o = screw posts, molded into the shell
+//    o = screw posts, molded into the shell; the screws pass through the board
+//    : = pads for the wires to U1 and to the parts on the shell
 //
 //  On the control face: the speaker grille over the buzzer (left) and a
 //  column with TEST, ARM and POWER (right).
@@ -97,41 +102,44 @@ base_t = 6;          // base thickness
 undercut = 3;        // 45° undercut along the bottom edge (the "floating" shadow)
 base_c = 1;          // chamfer along the top edge (forms a groove with the shell's)
 
-/* [Shell screws: 4 x M3 x 12 countersunk, self-tapping] */
-post_xy = 5.2;       // post center, measured from both inner walls
+/* [Shell screws: 4 x M3 x 16 countersunk, self-tapping] */
+// They go up through the base and the perfboard into the posts, so they also
+// clamp the board. The posts stand over the board's holes 2 in from each corner.
+screw_len = 16;      // overall length, head included
 post_d = 6;          // post diameter
 screw_pilot = 2.5;   // pilot hole in the post
-screw_depth = 10;    // pilot hole depth
-screw_clear = 3.4;   // clearance hole in the base
+screw_depth = 10;    // pilot hole depth, from the bottom of the post
+screw_clear = 3.4;   // clearance hole in the base (drill the board to 3.2)
 screw_head_d = 6.2;  // countersink diameter
+
+/* [Perfboard: all the electronics] */
+// A 2.54 mm perfboard, cut along lines of holes so that its edges run through
+// the centers of the outer holes, with its corners cut at 45° through the
+// second hole. Hole (i, j) counts from its front-left corner: i to the right,
+// j to the back. The layout is in hardware/electronics/perfboard.py.
+pcb_cols = 45;           // width in hole spacings: 114.3 mm
+pcb_rows = 26;           // depth in hole spacings: 66.04 mm
+pcb_t = 1.6;             // board thickness: the screw posts clamp it (measure yours)
+pocket_d = 2;            // pocket in the base under the board, for its solder side
+pocket_rim = 3;          // rim under the board's edge: the outer row of holes rests on it
+k1_hole = [22, 3];       // relay K1: hole of its front-left pin (NC); its pins span 5 x 5 spacings
+d1_hole = [29, 3];       // D1: hole of its anode; the cathode is 5 holes behind it
+r1_hole = [31, 2];       // R1: hole of its front lead; the other one is 8 holes behind it
+board_parts_h = 9;       // tallest part on the board other than the relay, the holder and U1
 
 /* [18650 battery holder] */
 holder_x = 78;       // holder length
 holder_y = 22;       // holder width
 holder_z = 21;       // holder height with the cell
-holder_x0 = 8.8;     // X position of the left end
+holder_x0 = 10.5;    // X position of the left end
 holder_gap = 0.5;    // gap to the back wall
-rib_h = 6;           // rib in front of the holder
-rib_t = 1.6;
-
-/* [6x4 cm perfboard] */
-pcb_x = 60;
-pcb_y = 40;
-pcb_x0 = 9.5;            // front-left corner of the board (X)
-pcb_y0 = 4;              // front-left corner of the board (Y)
-pcb_hole_margin = 2.0;   // mounting hole center to board edge (measure yours!)
-standoff_h = 5;
-standoff_d = 6;
-standoff_hole = 1.8;     // pilot hole for M2 self-tapping screws
-relay_pos = [39, 3];     // relay corner on the board: front-right area
-board_parts_h = 9;       // tallest part on the board other than the relay
 
 /* [TP4056 USB-C charger module] */
 chg_x = 98.3;                // module center (X); the USB-C faces the back wall
 chg_pcb = [17.4, 29];        // module: width (X) x length (Y)
 chg_pcb_t = 1.2;             // module board thickness
 chg_conn_h = 3.2;            // USB-C receptacle height
-chg_z = 6;                   // USB-C center height above the base
+chg_lift = 1;                // module above the perfboard: 1 mm double-sided foam tape
 usb_opening = [12.6, 7.2];   // large enough for the plug overmold to reach the receptacle
 
 /* [Controls on the face (top-view positions)] */
@@ -192,22 +200,42 @@ top0 = front_h - front_y * tan_s;           // control face height at y = 0
 back_h = top0 + (in_y + wall) * tan_s;      // shell height at the back face
 total_h = back_h + base_t;
 
+// Perfboard, centered in the shell
+pitch = 2.54;
+pcb_x = pcb_cols * pitch;
+pcb_y = pcb_rows * pitch;
+pcb_x0 = (in_x - pcb_x) / 2;                // front-left corner of the board
+pcb_y0 = (in_y - pcb_y) / 2;
+pcb_cut = 2;                                // corners cut at 45° through the second hole
+function hole(i, j) = [pcb_x0 + i * pitch, pcb_y0 + j * pitch];
+post_x = pcb_x0 + 2 * pitch;                // the posts stand over the holes 2 in from each corner
+post_y = pcb_y0 + 2 * pitch;
+
+// Relay K1 (SRD footprint, COM on the right). Its pins are off the 2.54 mm
+// grid: they are centered on the 5 x 5 spacings from k1_hole, and COM sits
+// between two holes.
+k1_c = hole(k1_hole[0] + 2.5, k1_hole[1] + 2.5);   // center of the pin field
+relay_size = [19.6, 15.4, 15.3];
+relay_x0 = k1_c[0] - 10.25;                 // body: from 18.3 mm left of COM to 1.3 mm right of it
+relay_x1 = relay_x0 + relay_size[0];
+relay_y0 = k1_c[1] - relay_size[1] / 2;
+relay_y1 = relay_y0 + relay_size[1];
+relay_top = pcb_t + relay_size[2];
+
 holder_y0 = in_y - holder_gap - holder_y;   // front face of the 18650 holder
 chg_y1 = in_y - 0.5;                        // back end of the TP4056 (connector face)
 chg_y0 = chg_y1 - chg_pcb[1];
-chg_ledge = chg_z - chg_conn_h / 2 - chg_pcb_t;   // height where the module rests
+chg_base = pcb_t + chg_lift;                // underside of the module
+chg_z = chg_base + chg_pcb_t + chg_conn_h / 2;   // USB-C center height above the base
 chg_top = chg_z + chg_conn_h / 2;
-guide_t = 1.2;                              // TP4056 cradle guides
-cradle_x0 = chg_x - chg_pcb[0] / 2 - 0.25 - guide_t;
-cradle_x1 = chg_x + chg_pcb[0] / 2 + 0.25 + guide_t;
 ring_r = buzzer_d / 2 + 0.3 + ring_t;       // outer radius of the buzzer ring
 logo_z = (bottom_c + front_h - edge_c) / 2;
 back_z = chg_z + usb_opening[1] / 2 + 5;    // "5V" on the back wall, over the USB-C
 art_areas = ["face", "front", "back"];      // where the marks and livery are
 
 // [x, y, direction to the corner in x, in y]
-posts = [[post_xy, post_xy, -1, -1], [in_x - post_xy, post_xy, 1, -1],
-         [post_xy, in_y - post_xy, -1, 1], [in_x - post_xy, in_y - post_xy, 1, 1]];
+posts = [[post_x, post_y, -1, -1], [in_x - post_x, post_y, 1, -1],
+         [post_x, in_y - post_y, -1, 1], [in_x - post_x, in_y - post_y, 1, 1]];
 
 cut_view = (part == "cutaway");
 cut_x = buzzer_x;                           // the cutaway removes everything at x > cut_x
@@ -218,12 +246,10 @@ explode = (part == "exploded") ? 40 : 0;   // sides up by this, top by twice
 // -----------------------------------------------------------------------------
 
 function top_z(y) = top0 + y * tan_s;                  // outer control face at plan y
-function pcb_holes() = [
-    for (i = [pcb_hole_margin, pcb_x - pcb_hole_margin])
-        for (j = [pcb_hole_margin, pcb_y - pcb_hole_margin])
-            [pcb_x0 + i, pcb_y0 + j]
-];
 function ceil_z(y) = top_z(y) - face_t / cos_s;        // inner control face at plan y
+// A point of the board, near the front-left corner, clears the shell's
+// rounded inner corner by 0.5 mm
+function in_corner(p) = p[0] >= inner_r || p[1] >= inner_r || norm(p - [inner_r, inner_r]) <= inner_r - 0.5;
 
 bz_depth = face_t + buzzer_h;                          // outer face to the buzzer's back end
 bz_back_y = buzzer_y + bz_depth * sin_s;               // center of the buzzer's back end
@@ -231,32 +257,40 @@ bz_back_z = top_z(buzzer_y) - bz_depth * cos_s;
 bz_low_z = bz_back_z - buzzer_d / 2 * sin_s;           // lowest point of the buzzer
 bz_at_holder = bz_back_z + (holder_y0 - bz_back_y) * tan_s;
 bz_front_y = buzzer_y - ring_r * cos_s + face_t * sin_s;
-relay_y1 = pcb_y0 + relay_pos[1] + 15.5;
-relay_top = standoff_h + 1.6 + 15.3;
 rocker_low_z = top_z(arm_y) - rocker_cut[1] / 2 * sin_s - (face_t + 19) * cos_s;
 test_low_z = top_z(test_y) - 6 * sin_s - (face_t + 22) * cos_s;
+holder_top = pcb_t + holder_z;                         // the holder stands on the board
 
-assert(bz_at_holder >= holder_z + 2, str("Buzzer too close to the 18650 holder: ", bz_at_holder));
-assert(bz_low_z >= standoff_h + 1.6 + board_parts_h + 2, str("Buzzer too close to the perfboard: ", bz_low_z));
-assert(pcb_x0 + relay_pos[0] >= buzzer_x + ring_r + 1 || relay_y1 + 2 <= bz_front_y,
+assert(bz_at_holder >= holder_top + 2, str("Buzzer too close to the 18650 holder: ", bz_at_holder));
+assert(bz_low_z >= pcb_t + board_parts_h + 2, str("Buzzer too close to the perfboard: ", bz_low_z));
+assert(relay_x0 >= buzzer_x + ring_r + 1 || relay_y1 + 2 <= bz_front_y,
        "The relay must stay to the right of or in front of the buzzer");
-assert(relay_top + 2 <= ceil_z(pcb_y0 + relay_pos[1]), "The relay hits the control face");
+assert(relay_top + 2 <= ceil_z(relay_y0), "The relay hits the control face");
+assert(relay_y0 >= relay_top * tan_l + 2, "The relay hits the front wall");
+assert(hole(d1_hole[0], 0)[0] - 1.35 >= relay_x1 + 0.3, "D1 hits the relay");
 assert(rocker_low_z >= chg_top + 3, "The ARM switch hits the TP4056 module");
-assert(test_low_z >= 3, "The TEST button hits the base");
-assert(holder_x0 + holder_x + 1 <= cradle_x0, "The 18650 holder overlaps the TP4056 cradle");
-assert(cradle_x1 + 1 <= in_x - post_xy - post_d / 2, "The TP4056 cradle hits a screw post");
-assert(holder_x0 >= post_xy + post_d / 2 + 0.5, "The 18650 holder hits a screw post");
-assert(norm([pcb_x0, pcb_y0] - [post_xy, post_xy]) >= post_d / 2 + 1, "The perfboard hits a screw post");
-assert(norm(pcb_holes()[0] - [post_xy, post_xy]) >= (post_d + standoff_d) / 2, "A standoff hits a screw post");
-assert(pcb_y0 + relay_pos[1] >= relay_top * tan_l + 2, "The relay hits the front wall");
-assert(norm([post_xy, post_xy] - [inner_r, inner_r]) + screw_head_d / 2 <= corner_r - undercut - 0.3,
+assert(test_low_z >= pcb_t + 3, "The TEST button hits the perfboard");
+assert(hole(r1_hole[0], 0)[0] + 1.5 <= ctrl_x - 7, "A part on the perfboard is under the TEST button");
+assert(holder_x0 + holder_x + 1 <= chg_x - chg_pcb[0] / 2, "The 18650 holder overlaps the TP4056 module");
+assert(chg_x + chg_pcb[0] / 2 + 0.5 <= in_x - post_x - post_d / 2, "The TP4056 module hits a screw post");
+assert(holder_x0 >= post_x + post_d / 2 + 0.5, "The 18650 holder hits a screw post");
+assert(norm([post_x, post_y] - [inner_r, inner_r]) + screw_head_d / 2 <= corner_r - undercut - 0.3,
        "The screw heads do not fit on the bottom face");
-assert(pcb_x0 + pcb_x + 2 <= ctrl_x - 7, "The TEST button is above the perfboard");
-assert(pcb_y0 + pcb_y + 1 <= holder_y0 - rib_t, "The perfboard hits the holder rib");
+// The perfboard: inside the walls (the front one leans in over its edge),
+// its cut corners clear of the shell's rounded ones, enough board around the
+// screw holes, the outer row of holes (only) on the base's rim, and the
+// screws long enough to bite into the posts but not past their pilot holes
+assert(pcb_x0 >= 0.5 && pcb_y0 >= 0.5 + pcb_t * tan_l, "The perfboard is too big for the shell");
+assert(in_corner([pcb_x0, pcb_y0 + pcb_cut * pitch]) && in_corner([pcb_x0 + pcb_cut * pitch, pcb_y0]),
+       "The perfboard's cut corners hit the shell's rounded corners");
+assert((4 - pcb_cut) * pitch / sqrt(2) - screw_clear / 2 >= 1, "The screw holes are too close to the board's cut corners");
+assert(pocket_rim >= pitch && pocket_rim <= 2 * pitch - 1, "The base's rim must hold the board's outer row of holes, and only it");
+assert(screw_len - base_t - pcb_t >= 6 && screw_len - base_t - pcb_t <= screw_depth - 0.5,
+       "The screws are too short or too long for the posts");
 // The top's lip, inside the walls (ce: see the helpers)
 assert(relay_top + 1 <= lean_z(0, -ce - lip_h) ||
-       pcb_y0 + relay_pos[1] >= relay_top * tan_l + glue_gap + lip_t + 1, "The relay hits the top's lip");
-assert(top_z(holder_y0) - ce - lip_h >= holder_z + 2, "The top's lip hits the 18650 holder");
+       relay_y0 >= relay_top * tan_l + glue_gap + lip_t + 1, "The relay hits the top's lip");
+assert(top_z(holder_y0) - ce - lip_h >= holder_top + 2, "The top's lip hits the 18650 holder");
 assert(buzzer_x - buzzer_d / 2 >= glue_gap + lip_t + 1, "The buzzer hits the top's lip");
 assert(ctrl_x + rocker_cut[0] / 2 + 1 <= in_x - glue_gap - lip_t - 1, "The ARM switch hits the top's lip");
 assert(lip_t >= 1.2 && glue_gap >= 0.05, "The lip is too thin or has no room for glue");
@@ -691,12 +725,13 @@ module glue_groove_cut() {
     slab_ring(-glue_groove[0], glue_gap, split_dz - 1, split_dz + glue_groove[1]);
 }
 
-// Screw posts in the corners, from the bottom up to the seam, notched for the lip
+// Screw posts in the corners, notched for the lip. They stand on the perfboard
+// (pcb_t above the base) and reach up to the seam.
 module screw_posts() {
     difference() {
         intersection() {
             for (p = posts)
-                linear_extrude(back_h + 10) hull() {
+                translate([0, 0, pcb_t]) linear_extrude(back_h + 10) hull() {
                     translate([p[0], p[1]]) circle(d = post_d);
                     translate([p[0] + 6 * p[2], p[1] + 6 * p[3]]) circle(d = post_d);
                 }
@@ -705,7 +740,7 @@ module screw_posts() {
         above_plane(split_dz);
         slab_ring(-1, glue_gap + lip_t + post_gap, split_dz - lip_h - post_gap, split_dz + 1);
         for (p = posts)
-            translate([p[0], p[1], -1]) cylinder(d = screw_pilot, h = screw_depth + 1, $fn = 24);
+            translate([p[0], p[1], pcb_t - 1]) cylinder(d = screw_pilot, h = screw_depth + 1, $fn = 24);
     }
 }
 
@@ -758,48 +793,37 @@ module shell_holes() {
 }
 
 // -----------------------------------------------------------------------------
-//  Base — the shell stands on it; the components mount on its top face
+//  Base — the shell stands on it, and the perfboard lies on it, inside the walls
 // -----------------------------------------------------------------------------
+
+// The perfboard's outline (2D), with its corners cut at 45°
+module pcb_outline() {
+    c = pcb_cut * pitch;
+    translate([pcb_x0, pcb_y0])
+        polygon([[c, 0], [pcb_x - c, 0], [pcb_x, c], [pcb_x, pcb_y - c],
+                 [pcb_x - c, pcb_y], [c, pcb_y], [0, pcb_y - c], [0, c]]);
+}
 
 module base() {
     difference() {
-        union() {
-            loft([at_z(outer_pts(undercut), -base_t),
-                  at_z(outer_pts(0), -base_t + undercut),
-                  at_z(outer_pts(0), -base_c),
-                  at_z(outer_pts(base_c), 0)]);
-            translate([0, 0, -eps]) base_internals();
-        }
+        loft([at_z(outer_pts(undercut), -base_t),
+              at_z(outer_pts(0), -base_t + undercut),
+              at_z(outer_pts(0), -base_c),
+              at_z(outer_pts(base_c), 0)]);
         base_cuts();
     }
 }
 
-module base_internals() {
-    // Rib that keeps the 18650 holder against the back wall
-    translate([holder_x0 + 6, holder_y0 - rib_t, 0])
-        cube([holder_x - 12, rib_t, rib_h]);
-
-    // Perfboard standoffs
-    for (p = pcb_holes())
-        translate([p[0], p[1], 0]) cylinder(d = standoff_d, h = standoff_h + eps);
-
-    // TP4056 cradle: two L-shaped guides. The module rests on the ledges by
-    // its edges; the middle stays clear for solder joints.
-    for (s = [-1, 1]) {
-        xg = (s < 0) ? cradle_x0 : chg_x + chg_pcb[0] / 2 + 0.25;
-        translate([xg, chg_y0, 0]) cube([guide_t, chg_pcb[1], chg_ledge + chg_pcb_t + 1.5]);
-        xl = (s < 0) ? chg_x - chg_pcb[0] / 2 - 0.25 : chg_x + chg_pcb[0] / 2 + 0.25 - 1.5;
-        translate([xl, chg_y0, 0]) cube([1.5, chg_pcb[1], chg_ledge]);
-    }
-    // End stop: takes the push of the USB plug
-    translate([chg_x - chg_pcb[0] / 2 - 0.25, chg_y0 - 0.25 - 1.6, 0])
-        cube([chg_pcb[0] + 0.5, 1.6, chg_ledge + chg_pcb_t]);
-}
-
 module base_cuts() {
-    // Standoff pilot holes
-    for (p = pcb_holes())
-        translate([p[0], p[1], -3]) cylinder(d = standoff_hole, h = standoff_h + 4, $fn = 16);
+    // Pocket under the perfboard, for its solder joints. The board rests on a
+    // rim under its outer row of holes, on a pad around each screw (the posts
+    // press on it from above) and on a rib under the 18650 holder, which takes
+    // the push when the cell goes in.
+    translate([0, 0, -pocket_d]) linear_extrude(pocket_d + 1) difference() {
+        offset(delta = -pocket_rim) pcb_outline();
+        for (p = posts) translate([p[0], p[1]]) circle(r = 4.5);
+        translate([holder_x0 + 6, holder_y0 + holder_y / 2 - 1]) square([holder_x - 12, 2]);
+    }
 
     // Shell screws: clearance hole + countersink from below
     for (p = posts) translate([p[0], p[1], 0]) {
@@ -813,30 +837,36 @@ module base_cuts() {
 //  Components (visualization only; not printed)
 // -----------------------------------------------------------------------------
 
-module base_components() {
-    // 18650 holder + cell
-    paint([0.1, 0.1, 0.1]) translate([holder_x0, holder_y0, 0]) difference() {
+module board_components() {
+    // Perfboard, drilled for the four shell screws
+    paint("#C49A5A") linear_extrude(pcb_t) difference() {
+        pcb_outline();
+        for (p = posts) translate([p[0], p[1]]) circle(d = 3.2, $fn = 24);
+    }
+
+    // 18650 holder + cell, on the board
+    paint([0.1, 0.1, 0.1]) translate([holder_x0, holder_y0, pcb_t]) difference() {
         cube([holder_x, holder_y, holder_z - 4]);
         translate([2, 1.5, 2]) cube([holder_x - 4, holder_y - 3, holder_z]);
     }
-    paint("#1F8A8A") translate([holder_x0 + 5.5, holder_y0 + holder_y / 2, 2 + 9.2])
+    paint("#1F8A8A") translate([holder_x0 + 5.5, holder_y0 + holder_y / 2, pcb_t + 2 + 9.2])
         rotate([0, 90, 0]) cylinder(d = 18.4, h = 65);
-    paint("Silver") translate([holder_x0 + 4, holder_y0 + holder_y / 2, 2 + 9.2])
+    paint("Silver") translate([holder_x0 + 4, holder_y0 + holder_y / 2, pcb_t + 2 + 9.2])
         rotate([0, 90, 0]) cylinder(d = 12, h = 1.5);
 
-    // Perfboard, relay, diode and resistor
-    paint("#2F6B3A") translate([pcb_x0, pcb_y0, standoff_h]) cube([pcb_x, pcb_y, 1.6]);
-    paint("#2F5FD0") translate([pcb_x0 + relay_pos[0], pcb_y0 + relay_pos[1], standoff_h + 1.6])
-        cube([19, 15.5, 15.3]);
-    paint("Black") translate([pcb_x0 + 10, pcb_y0 + 24, standoff_h + 1.6 + 1.3])
-        rotate([0, 90, 0]) cylinder(d = 2.7, h = 5.2);
-    paint("Tan") translate([pcb_x0 + 22, pcb_y0 + 24, standoff_h + 1.6 + 1.2])
-        rotate([0, 90, 0]) cylinder(d = 2.4, h = 6.3);
+    // Relay, diode and resistor
+    paint("#2F5FD0") translate([relay_x0, relay_y0, pcb_t]) cube(relay_size);
+    d1 = hole(d1_hole[0], d1_hole[1] + 2.5);
+    paint("Black") translate([d1[0], d1[1] - 2.6, pcb_t + 1.35]) rotate([-90, 0, 0]) cylinder(d = 2.7, h = 5.2);
+    paint("Silver") translate([d1[0], d1[1] + 1.8, pcb_t + 1.35]) rotate([-90, 0, 0]) cylinder(d = 2.8, h = 0.6);
+    r1 = hole(r1_hole[0], r1_hole[1] + 4);
+    paint("Tan") translate([r1[0], r1[1] - 3.15, pcb_t + 1.2]) rotate([-90, 0, 0]) cylinder(d = 2.4, h = 6.3);
 
-    // TP4056 module + USB-C receptacle
-    paint("#1D4ED8") translate([chg_x - chg_pcb[0] / 2, chg_y0, chg_ledge])
+    // TP4056 module on foam tape, and its USB-C receptacle
+    paint("#E4E4E4") translate([chg_x - chg_pcb[0] / 2 + 2, chg_y0 + 6, pcb_t]) cube([chg_pcb[0] - 4, 14, chg_lift]);
+    paint("#1D4ED8") translate([chg_x - chg_pcb[0] / 2, chg_y0, chg_base])
         cube([chg_pcb[0], chg_pcb[1], chg_pcb_t]);
-    paint("Silver") translate([chg_x - 4.5, chg_y1 - 7.4, chg_ledge + chg_pcb_t])
+    paint("Silver") translate([chg_x - 4.5, chg_y1 - 7.4, chg_base + chg_pcb_t])
         cube([9, 7.4, chg_conn_h]);
 }
 
@@ -939,7 +969,7 @@ if (part == "top") {
     color(base_color) translate([0, 0, base_t]) base();
 } else if (part == "interior") {
     paint(base_color) base();
-    base_components();
+    board_components();
 } else if (part == "joint") {
     // Seen from the left (-X): the top in white, the sides in gray-blue
     color(shell_color) render() joint_section() top(false);
@@ -947,7 +977,7 @@ if (part == "top") {
     color("#33363B") joint_labels();
 } else {  // assembled, exploded, cutaway
     paint(base_color) base();
-    base_components();
+    board_components();
     // mesh: the preview (OpenCSG) can't resolve the hundreds of small strokes
     // in the recesses and inlays, so the shell parts are computed as meshes.
     translate([0, 0, explode]) {
