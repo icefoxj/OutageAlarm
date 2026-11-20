@@ -15,6 +15,10 @@ All notable changes to OutageAlarm are listed here.
 - **Screw posts:** they moved over the board's holes (6.9 × 7.1 mm from the inner walls) and stop on top of the board. The screws are now M3 × 16.
 - **USB-C opening:** 0.6 mm lower (5.4 mm above the base), for the TP4056 module on 1 mm foam tape on the board.
 
+### Added
+
+- **Theory chapters** (`docs/theory/`, 2026-11-20): 7 chapters that explain the theory used in the kit, from the fundamentals to the kit's own numbers: the fail-safe principle, mains and isolation, the relay, the cell and the charger, the sound, the power budget and the enclosure. `docs/theory/figures.py` draws the 16 simulation and calculation figures into `docs/img/theory/`. Model values that are not in the repository are marked as assumptions; every number is a design value, an estimate or a simulation result. These chapters are the source of the kit's illustrated theory guide (PDF, seven languages).
+
 ## [1.0.0] - 2026-11-11
 
 First release: the simple v1, with no microcontroller and no firmware.
