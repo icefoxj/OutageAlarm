@@ -146,6 +146,38 @@ When changing a part, a value or a connection, update all of these:
   - Also near the top: the top's lip vs. the relay, the holder, the buzzer and the ARM switch, and the buzzer ring staying on the top.
   - In the livery layout section: the livery.
 
+## Theory guide (keep it in step with the kit)
+
+The kit's theory exists in two forms, and both must always describe the kit as it is (user decision 2026-11-20):
+
+- **The course**, `docs/theory/` (English, the source): `README.md` + `NN-*.md`, figures drawn by `docs/theory/figures.py` into
+  `docs/img/theory/`.
+- **The theory guide**: one illustrated PDF per language in `docs/theory/pdf/` (`OA-01_theory_<lang>.pdf`; en, pt,
+  pt-br, es, fr, it, de), in the house mech look. It is built by the 3DTesla website repository
+  `E:\GitHub\3DTeslaWebSite` (`tools/theory/build.mjs`; read its `theory/README.md`), which also keeps the
+  translations (`theory/outage-alarm/<lang>/`), the figure and drawing texts (`theory/outage-alarm/figures.<lang>.json`) and the
+  SVG drawings (`theory/outage-alarm/art/` + `art.json`). The PDFs are not on the website.
+
+**Whenever the kit changes, update the theory in the same piece of work**: any change to design values, parameters or
+defaults, mechanics, electronics, firmware or app behaviour that a chapter, a figure or a drawing states.
+
+1. Here: update the chapters and `docs/theory/figures.py` (run with `E:\GitHub\FilamentRecycler\.venv\Scripts\python.exe`). Facts only
+   from this repository; numbers that are not measured are design values, estimates or simulation results, and the
+   text says so.
+2. In the website repo: `node tools/theory/build.mjs outage-alarm --lang en --figures --art-report`, then fix the drawings in
+   `theory/outage-alarm/art/` that show what changed (`art.json` anchors follow the English headings).
+3. Translate what changed into the six languages (rules: `theory/README.md`, "Translating"; the build lists stale
+   chapters, heading mismatches and untranslated figure texts), then `node tools/theory/build.mjs --stamp outage-alarm <lang>`
+   for each language.
+4. `node tools/theory/build.mjs outage-alarm --figures` writes the seven PDFs into `docs/theory/pdf/` (a guide whose inputs
+   did not change is skipped); look at the changed pages with `--shots <pages>` (PNGs in the website repo's
+   `theory/build/shots/`).
+5. Commit the PDFs and `docs/theory/pdf/.theory-build.json` here with the change, and the translations and drawings in
+   the website repo; push both.
+
+Needs Node (`npm install` once in the website repo's `tools/theory/`), the Python venv above and Microsoft Edge (the
+build starts its own instance; never `taskkill` Edge).
+
 ## Releases
 
 - Tags are `vMAJOR.MINOR.PATCH` on `main`, annotated. The project phase (v1, v2) is the major version.

@@ -17,6 +17,7 @@ All notable changes to OutageAlarm are listed here.
 
 ### Added
 
+- **Theory guide** (`docs/theory/pdf/`, 2026-11-20): the theory course as an illustrated PDF in the house mech look, one per language (`OA-01_theory_<lang>.pdf`: en, pt, pt-br, es, fr, it, de), with the course's figures, drawings and pictures of the kit. Built from `docs/theory/` by the 3DTesla website repository, which keeps the translations and drawings; CLAUDE.md says how to keep it in step with every change to the kit.
 - **Theory chapters** (`docs/theory/`, 2026-11-20): 7 chapters that explain the theory used in the kit, from the fundamentals to the kit's own numbers: the fail-safe principle, mains and isolation, the relay, the cell and the charger, the sound, the power budget and the enclosure. `docs/theory/figures.py` draws the 16 simulation and calculation figures into `docs/img/theory/`. Model values that are not in the repository are marked as assumptions; every number is a design value, an estimate or a simulation result. These chapters are the source of the kit's illustrated theory guide (PDF, seven languages).
 
 ## [1.0.0] - 2026-11-11
