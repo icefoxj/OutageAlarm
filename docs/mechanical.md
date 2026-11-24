@@ -58,7 +58,7 @@ The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../
   - **Hazard stripes** at the front left, then a rule with "FAIL-SAFE" over it. The alarm sounds whenever the 5 V is lost.
   - A **ring around TEST**, **corner brackets** around ARM, and the labels TEST, ARM and POWER.
   - All the lettering uses a chamfered, straight-line stroke font, the same as on the other kits, drawn in the model (`mech_glyphs`).
-- **No visible screws.** Four countersunk screws close the enclosure from below, into posts molded in the corners of the shell.
+- **No visible screws.** Four countersunk M3 machine screws close the enclosure from below, into brass heat-set inserts in posts molded in the corners of the shell. The threads are in brass, so the enclosure can be opened and closed as often as you like.
 - **One board, no standoffs.** The perfboard covers the floor. On their way up, the four screws pass through its corners, and the posts press it onto the base. Its solder side sits over a shallow pocket.
 
 ## Dimensions
@@ -67,6 +67,7 @@ The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../
 - **Inner:** 118 × 70 mm. The shell is 27 mm tall at the front.
 - **Walls and face:** 2.4 mm. **Base:** 6 mm, with a 3 mm undercut.
 - **Chamfer** around the face: 3 mm at 45°. Corners in top view: cut at 45°, 9 mm.
+- **Screw posts:** 7 mm, with a 4.0 mm hole 6.2 mm deep for an M3 × 5.7 × 4.6 mm heat-set insert, flush with the bottom of the post, then a 3.4 mm hole for the screw's tip. 1.5 mm of wall around the insert.
 - **Armor plates:** 2 mm thick, 0.6 mm edge chamfer. Two pegs each, 3 mm × 1.6 mm, into blind holes 3.3 mm × 1.9 mm in the shell.
   - Face plate: 112.8 × 65.2 mm on the face, 2 mm in from the face's flat part. Corners cut 8, 6, 8 and 6 mm (front left, front right, back right, back left).
   - Front plate: 100 × 14 mm, centered on the front wall.
@@ -83,14 +84,14 @@ Positions in top view (X to the right, Y to the back), measured from the inner f
 | Item | Where | How it's held |
 |------|-------|---------------|
 | Perfboard | the whole floor, inside the walls (X 1.85–116.15, Y 1.98–68.02), on the base | clamped by the 4 screw posts; the shell screws pass through it |
-| 18650 holder (BT1) | on the board, against the back wall (X 10.5–88.5, Y 47.5–69.5) | thin double-sided tape |
+| 18650 holder (BT1) | on the board, against the back wall (X 11–89, Y 47.5–69.5) | thin double-sided tape |
 | Relay K1, D1, R1 | front middle of the board (relay at X 53.8–73.4, Y 8.3–23.7) | soldered to the board ([layout](../hardware/electronics/perfboard.svg)) |
 | TP4056 module (U1) | on the board, back right, centered at X = 98.3; USB-C through the back wall, 5.4 mm above the base | 1 mm double-sided foam tape |
 | SFM-27 buzzer (BZ1) | under the grille, at X 30, Y 38 | 4-segment centering ring + hot glue or epoxy |
 | TEST button (SW2) | face, X 98, Y 19 | its own nut, through the face plate and the face (12.2 mm hole, 4.4 mm thick) |
 | ARM rocker switch (SW1) | face, X 98, Y 44 | snaps into a 19.2 × 12.9 mm cutout in the face plate. The face is cut away 1 mm wider under it, so the clips catch under the 2 mm plate |
 | POWER LED (LED1) | face, X 98, Y 61 | inserted from below through the face and the plate; its flange stops against the face + hot glue |
-| Screw posts | the 4 inner corners (X 6.9 and 111.1, Y 7.1 and 62.9), part of the shell, from the board up into the face | 4 × M3 × 16 countersunk self-tapping screws from below, through the base and the board |
+| Screw posts | the 4 inner corners (X 6.9 and 111.1, Y 7.1 and 62.9), part of the shell, from the board up into the face | an M3 heat-set insert in each; 4 × M3 × 16 countersunk machine screws from below, through the base and the board |
 | Armor plates | on the face, the front wall and the back wall | glued, located by two pegs each |
 
 **Marks on both versions of the plates:**
@@ -113,7 +114,7 @@ The model checks these with `assert()`: if a change breaks one, OpenSCAD (and CI
   - inside the walls, its cut corners clear of the shell's cut inner corners;
   - at least 1 mm of board between each screw hole and the cut corner;
   - its outer row of holes, and only that row, on the rim of the base's pocket.
-- Screws long enough to bite 6 mm into the posts, and no longer than their pilot holes.
+- Screws long enough to go through the whole insert, and at least 1.5 mm of wall around each insert.
 - Screw heads fully on the bottom face, inside the undercut.
 - The plates:
   - the face plate at least 1.5 mm inside the flat part of the face, and thin enough for the rocker's clips;
@@ -143,7 +144,7 @@ The model checks these with `assert()`: if a change breaks one, OpenSCAD (and CI
   - It prints face down. The face is the first layer, so it comes out flat: the face plate sits on it without gaps.
   - The face chamfer is exactly 45° in this orientation, and the walls lean at most 30°.
   - The grille slots and holes form in the first layers. The blind holes for the face plate's pegs open on the bed side.
-  - The screw posts grow from the face up to the board; their pilot holes open at the top of the print.
+  - The screw posts grow from the face up to the board; their insert holes open at the top of the print.
   - The bottom edge, which sits on the base, is the last layer. A brim helps if your bed doesn't hold the narrow face edge well.
 - **Base:** prints flat. The undercut is 45°. The pocket for the perfboard is on top, so it needs no support.
 - **Armor plates:**
@@ -199,6 +200,7 @@ Open `enclosure.scad` in OpenSCAD and use **Window → Customizer**. The paramet
 | `plate_t`, `plate_gap` | 2, 2 mm | thickness of the plates; face plate to the edge of the face |
 | `face_plate_cuts`, `front_plate`, `back_plate` | [8, 6, 8, 6], 100 × 14, 34 × 12 mm | shape and size of the plates |
 | `peg_clear` | 0.3 mm | the plates' pegs are tight (more) or loose (less) in their holes |
+| `insert_d`, `insert_l` | 4.0, 5.7 mm | hole and length of your M3 heat-set inserts: the hole is about 0.5 mm under the insert's outer diameter |
 | `unit_code`, `caption`, `logo_text` | "OA-01", "FAIL-SAFE", "OUTAGE ALARM" | your own markings, in upper case (the font has A–Z, 0–9 and a few signs, in `mech_glyphs`) |
 | `inlay_depth` | 0.6 mm | depth of the inlay (and of the engraved marks) |
 | `shell_color`, `base_color`, `plate_color`, `livery_color` | graphite, darker graphite, grey, yellow | the colours in the renders |
@@ -229,20 +231,21 @@ Without OpenSCAD installed: on every push that changes the `.scad` or `make_3mf.
 
 ## Assembly
 
-Extra hardware: 4 × M3 × 16 countersunk self-tapping screws (2.9 × 16 mm also works), CA glue (gel) or epoxy for the plates, hot glue, thin and 1 mm foam double-sided tape and, optionally, 4 small rubber feet.
+Extra hardware: 4 × M3 × 16 countersunk machine screws (ISO 10642 / DIN 7991, or DIN 965), 4 × M3 heat-set inserts (5.7 mm long, 4.6 mm outer diameter), CA glue (gel) or epoxy for the plates, hot glue, thin and 1 mm foam double-sided tape and, optionally, 4 small rubber feet.
 
 1. **Check the fit** of the plates' pegs in their holes, and of the rocker switch and the TEST button in the face plate, before wiring anything.
-2. **Glue the armor plates on.** Put a few small dots of CA gel or epoxy on the back of each plate, away from its edges and holes, push its pegs into their holes, and press it flat until the glue sets. On the face, line the plate's holes up with the face's. For PETG, use epoxy, or CA with a primer.
-3. **Shell** (reach the underside of the face through the open bottom):
+2. **Melt in the inserts.** Lay the shell face down. Put an insert on top of each screw post, its tapered end down if it has one, and press it in with a soldering iron (a conical or insert tip, about 220 °C for PLA, 245 °C for PETG) until it sits flush with the end of the post. Keep it straight, and don't push it deeper: the post, not the insert, should bear on the board.
+3. **Glue the armor plates on.** Put a few small dots of CA gel or epoxy on the back of each plate, away from its edges and holes, push its pegs into their holes, and press it flat until the glue sets. On the face, line the plate's holes up with the face's. For PETG, use epoxy, or CA with a primer.
+4. **Shell** (reach the underside of the face through the open bottom):
    - ARM rocker: snap it into the face plate from the outside, with "I" toward the back.
    - TEST button: remove the nut, push the button through from the inside, and tighten the nut on the face plate.
    - LED: push it in from below until the flange seats, and fix it with a dab of hot glue.
    - Buzzer: place its sound face against the face, inside the ring, and fix it with hot glue or epoxy around it.
-4. **Perfboard:** cut, drill and solder it per [electronics.md](electronics.md#perfboard), then stick the battery holder and the TP4056 module on it. Insert the cell last, checking the polarity.
-5. Solder the wires from the shell parts to the board's pads. Give them about 15 cm, so the shell can lie next to the base while you work.
-6. Run the [README](../README.md#test) test.
-7. **Close:**
+5. **Perfboard:** cut, drill and solder it per [electronics.md](electronics.md#perfboard), then stick the battery holder and the TP4056 module on it. Insert the cell last, checking the polarity.
+6. Solder the wires from the shell parts to the board's pads. Give them about 15 cm, so the shell can lie next to the base while you work.
+7. Run the [README](../README.md#test) test.
+8. **Close:**
    - Lay the board on the base, solder side down, so its screw holes line up with the base's.
    - Fold the wires in and set the shell over it: the posts come down on the board's screw holes.
    - Check that a USB-C cable plugs in fully through the back.
-   - Drive the 4 M3 screws from below: through the base and the board, into the posts.
+   - Drive the 4 M3 screws from below: through the base and the board, into the inserts. Snug is enough: the screws only clamp the board.

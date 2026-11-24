@@ -6,6 +6,12 @@ All notable changes to OutageAlarm are listed here.
 
 ## [Unreleased]
 
+### Changed
+
+- **Heat-set inserts.** Each screw post takes an M3 brass heat-set insert (5.7 mm long, 4.6 mm outer diameter, in a 4.0 mm hole), and the base closes with M3 × 16 countersunk machine screws instead of self-tapping ones. The threads are in brass, so the enclosure can be opened as often as needed.
+  - The posts are 7 mm wide (they were 6), for 1.5 mm of wall around the insert.
+  - The 18650 holder sits 0.5 mm further right (X 11–89) to stay clear of the back-left post.
+
 ## [1.1.0] - 2026-11-24
 
 The enclosure in the house look of the other 3DTesla kits, a one-piece shell, and all the electronics on one perfboard.

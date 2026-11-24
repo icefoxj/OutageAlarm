@@ -61,7 +61,8 @@ Design principles:
 | 1   | SW1  | KCD1-101 rocker switch (on/off, 21 × 15 mm)        | ARM: arms and disarms the alarm |
 | 1   | SW2  | **NC** (normally closed) momentary pushbutton, PBS-11B, 12 mm hole | TEST; a yellow cap matches the livery |
 | 1   | —    | Perfboard, 2.54 mm pitch, 10 × 15 cm               | cut to 114.3 × 66.0 mm; holds all the electronics ([layout](hardware/electronics/perfboard.svg)) |
-| 4   | —    | M3 × 16 mm countersunk self-tapping screws (or 2.9 × 16 mm) | close the enclosure from below and clamp the perfboard |
+| 4   | —    | M3 × 16 mm countersunk machine screws (ISO 10642 / DIN 7991, or DIN 965) | close the enclosure from below and clamp the perfboard |
+| 4   | —    | M3 heat-set inserts, brass, 5.7 mm long × 4.6 mm outer diameter | melted into the shell's screw posts with a soldering iron |
 | 1   | —    | 5 V USB charger **≥ 1.5 A** + cable                | **plug it straight into the wall, never into a UPS** |
 | —   | —    | CA glue (gel) or 5-minute epoxy                    | glue the armor plates on |
 | —   | —    | Wire, bare tinned wire for the links, solder, hot glue, thin and 1 mm foam double-sided tape |  |
@@ -94,14 +95,14 @@ OutageAlarm/
 
 ## Quick build
 
-1. Print the enclosure in PLA or PETG, without supports. Details in [docs/mechanical.md](docs/mechanical.md).
+1. Print the enclosure in PLA or PETG, without supports. Details in [docs/mechanical.md](docs/mechanical.md). Then melt the 4 M3 inserts into the shell's screw posts with a soldering iron.
    - **Shell (graphite):** `hardware/mechanical/stl/enclosure_shell.stl`, face down as stored in the file.
    - **Base (black or a darker graphite):** `hardware/mechanical/stl/enclosure_base.stl`.
    - **Armor plates (light grey + yellow):** `hardware/mechanical/3mf/enclosure_plates_2color.3mf`, all three in one print with a second filament for the livery. Or the three `stl/enclosure_plate_*.stl` in one colour, with the labels engraved.
    - Glue the plates onto the shell: two pegs locate each one.
 2. Build the circuit on the perfboard: cut it to 114.3 × 66.0 mm, solder K1, D1, R1 and the links, and stick the 18650 holder and the TP4056 module on it. Follow the [perfboard layout](hardware/electronics/perfboard.svg) and [docs/electronics.md](docs/electronics.md#perfboard).
 3. Mount the parts on the shell's tilted face: TEST button, ARM switch, POWER LED, and the buzzer under the grille. Solder their wires to the board.
-4. Run the test below. Lay the board on the base, set the shell over it and close it with 4 screws from below: they pass through the board and clamp it.
+4. Run the test below. Lay the board on the base, set the shell over it and close it with 4 screws from below, into the brass inserts in the shell's posts: they pass through the board and clamp it.
 
 ## Test
 

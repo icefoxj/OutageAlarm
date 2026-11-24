@@ -82,8 +82,9 @@ When changing a part, a value or a connection, update all of these:
   - three flat **armor plates** (grey + yellow): on the face, the front and the back. Each is modeled flat in its own frame (visible face at z = `plate_t`, two pegs underneath), placed with `place_plate()` and printed with `plate_pose()`. The pegs go into blind holes in the shell (`peg_holes()`).
 - Outlines are octagons: `co()` cuts the corners of a rectangle, `oc()` gives the cut after an inset, `cut_rect()` cuts each corner by its own amount (the plates). `poly_inset()` and `poly_margin()` inset convex polygons and measure points inside them.
 - **One-piece shell** (user decision 2026-11-24, "pode juntar o topo e a lateral"): from v1.0.0 to the house look the shell was split into a top and sides glued with a lip, to keep the colour print short. With the colour on the armor plates, the split went away. Don't split it again without asking.
-  - `shell()` = `shell_outer()` minus the cavity (the buzzer ring stays), plus `screw_posts()`, minus the holes, the plates' peg holes and the pilot holes.
+  - `shell()` = `shell_outer()` minus the cavity (the buzzer ring stays), plus `screw_posts()`, minus the holes, the plates' peg holes and the insert holes.
   - The posts stand on the perfboard and reach up into the face (`screw_posts()` is clipped by `shell_outer()`).
+  - **M3 heat-set inserts** (user request 2026-11-24, "insert m3 para fechar a tampa"): each post takes an M3 × 5.7 × 4.6 mm brass insert in its bottom (`insert_d` 4.0 mm hole, `insert_l` + 0.5 mm deep, flush with the post's end), then a `screw_clear` hole for the tip of the M3 × 16 countersunk machine screw. `post_d` = 7 gives 1.5 mm of wall around the insert (an assert); it is limited by the 18650 holder and the TP4056 module at the back.
 - **Print orientation:** `shell_pose()`: the shell prints face down. The face is the first layer, the face chamfer is 45° and the walls lean at most 30°; the posts grow from the face. Keep it within 45° overhangs, and check the STLs after a change.
 - Shape:
   - The outer and inner surfaces are lofts (`loft()` through `co()` outlines).
@@ -133,7 +134,7 @@ When changing a part, a value or a connection, update all of these:
 - CI runs with `--hardwarnings`, and also fails on any `ERROR` or `WARNING` line: OpenSCAD 2021 can exit 0 after either. A warning that stops a PNG render leaves an empty image, so check the PNGs.
 - Critical clearances are `assert()`s in `enclosure.scad`. A layout change that breaks one fails the render. Add an assert for every new clearance.
   - Near the top: buzzer vs. holder and board, relay vs. buzzer, front wall and D1, ARM switch vs. TP4056, TEST button vs. the board and its parts, holder and TP4056 vs. screw posts and each other, screw heads vs. the undercut.
-  - Also near the top, the perfboard: inside the walls, its cut corners vs. the shell's cut corners, board around the screw holes, the base's rim under its outer row, screw length vs. the posts.
+  - Also near the top, the perfboard: inside the walls, its cut corners vs. the shell's cut corners, board around the screw holes, the base's rim under its outer row, screw length vs. the inserts, wall around the inserts.
   - In the livery layout section: the plates on their surfaces (the face plate inside the flat part of the face, the front and back plates clear of the corners), the plate thickness vs. the rocker's clips, and the livery.
 
 ## Theory guide (keep it in step with the kit)

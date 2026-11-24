@@ -87,11 +87,11 @@ The glue goes on as a few small dots of CA gel or epoxy, away from the edges and
 
 All the electronics sit on one perfboard, 114.3 × 66.0 mm (45 × 26 hole spacings of 2.54 mm), 1.6 mm thick, with its corners cut at 45° to clear the cut inner corners of the shell. It needs no screws of its own:
 
-- four **M3 × 16 countersunk self-tapping screws** come up from below, through the base and through the board's corner holes, into the screw posts moulded in the shell; they bite 6 mm into the posts;
+- four **M3 × 16 countersunk machine screws** come up from below, through the base and through the board's corner holes, into brass **heat-set inserts** in the screw posts moulded in the shell; each screw goes through the whole 5.7 mm of its insert;
 - the posts stop on top of the board, so tightening the screws **clamps the board** between the posts and a 3 mm rim of the base that carries its outer row of holes;
 - the solder side faces down into a 2 mm pocket in the base, which is why every lead must be trimmed to 1.5 mm or less.
 
-A self-tapping screw forms its own thread in a pilot hole slightly smaller than its diameter (2.5 mm for M3 in the model), displacing the plastic rather than cutting it. Thread-forming in plastic holds well as long as it is not over-tightened and not unscrewed too often; the shell is meant to be closed once, after the test, and opened rarely. The heads sit fully on the bottom face, inside the undercut, so they are invisible and the unit stands flat.
+A heat-set insert is a short brass sleeve with an M3 thread inside and knurls outside. It goes into a hole smaller than itself (4.0 mm for an insert 4.6 mm across) and is pressed in with a soldering iron: the brass heats the plastic around it above its glass transition, the softened plastic flows into the knurls, and it grips them when it cools. The 0.3 mm per side between the hole and the insert is the plastic the knurls displace; the 1.5 mm of wall left around the insert keeps the post from splitting or bulging, and 0.5 mm of extra depth takes the plastic pushed ahead of it. The screw then threads into brass, not into plastic: a thread formed in plastic by a self-tapping screw wears a little every time it is undone, a brass thread does not, so the enclosure can be opened for a new cell or a repair as often as needed. The heads sit fully on the bottom face, inside the undercut, so they are invisible and the unit stands flat.
 
 ## 7.8 Summary
 
@@ -103,6 +103,6 @@ A self-tapping screw forms its own thread in a pilot hole slightly smaller than 
 | Overhang step $h \tan\theta$; 45° is the limit | every part printed without supports, in the orientation stored in the files |
 | Inlay printed flat = 3 layers; on a wall, one layer per 0.2 mm of height | livery on three flat plates printed together: 3 layers, ≈ 6 filament changes |
 | Two pegs per plate, 0.15 mm clearance per side; glue in shear | each plate goes on in one place, within ±0.15 mm and 0.35°; a one-piece shell |
-| Four screws through the board | the board is clamped, no standoffs; leads ≤ 1.5 mm |
+| Four screws through the board, into brass inserts | the board is clamped, no standoffs; leads ≤ 1.5 mm; the enclosure opens as often as needed |
 
 Back to the [index](README.md).
