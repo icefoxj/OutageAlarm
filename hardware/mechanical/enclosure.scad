@@ -4,25 +4,24 @@
 //  A wedge-shaped shell: the control face tilts toward the user and the front
 //  leans back. It sits on a dark base whose undercut makes it look like it floats.
 //  It follows the house style of the 3DTesla kits: a graphite body with 45°
-//  corners, white armor plates with cut corners, and a mech-style livery in
+//  corners, grey armor plates with cut corners, and a mech-style livery in
 //  house yellow (straight lines, 45° cuts, hazard stripes, a unit code knocked
 //  out of a title band, a chamfered stroke font) inlaid in the plates in a
 //  second filament (two-colour 3MF).
 //  Units: millimeters
 //
 //  Printed parts:
-//    top    the control face and its chamfer; a lip underneath fits inside
-//           the walls and is glued to them (graphite)
-//    sides  the walls and the screw posts (graphite)
-//    base   the floor; the shell (top + sides) is screwed to it from below
+//    shell  the control face, the walls and the screw posts, in one piece,
+//           printed face down (graphite)
+//    base   the floor; the shell is screwed to it from below (darker graphite)
 //    plates three flat armor plates glued onto the shell: on the face, the
-//           front and the back (white, with the livery)
+//           front and the back (grey, with the livery)
 //
 //  All the electronics sit on one perfboard that covers the floor. The four
 //  shell screws pass through its corners, so the posts clamp it to the base.
 //
 //  Export the STLs from the command line:
-//    for p in top sides base plate_face plate_front plate_back; do
+//    for p in shell base plate_face plate_front plate_back; do
 //      openscad -o stl/enclosure_$p.stl -D "part=\"$p\"" enclosure.scad
 //    done
 //
@@ -73,10 +72,10 @@
 // =============================================================================
 
 /* [Part to render] */
-part = "assembled"; // [assembled, exploded, cutaway, interior, joint, plates, top, sides, base, plate_face, plate_front, plate_back, plate_face_2color, plate_front_2color, plate_back_2color, inlay_face, inlay_front, inlay_back]
+part = "assembled"; // [assembled, exploded, cutaway, interior, plates, shell, base, plate_face, plate_front, plate_back, plate_face_2color, plate_front_2color, plate_back_2color, inlay_face, inlay_front, inlay_back]
 
 /* [Colors (renders only)] */
-shell_color = "#363840";     // top and sides: graphite
+shell_color = "#363840";     // shell: graphite
 base_color = "#202226";      // base: a darker graphite, for the floating shadow
 accent_color = "#FFCC00";    // TEST button cap: house yellow
 
@@ -91,16 +90,6 @@ face_t = 2.4;        // control face thickness, square to the face
 corner_c = 9;        // 45° cut on the outer corners, top view (leg length)
 edge_c = 3;          // chamfer around the control face
 bottom_c = 1;        // chamfer along the bottom edge
-
-/* [Joint between the top and the sides] */
-// The seam runs along the crease under the face chamfer. A lip under the top
-// fits inside the walls with a gap for the glue on each side.
-lip_h = 4;           // lip height, below the seam
-lip_t = 1.6;         // lip thickness (4 lines of 0.4 mm)
-glue_gap = 0.15;     // lip to walls, each side: room for the glue (0.2-0.25 if your fit is tight)
-lip_chamfer = 0.6;   // lead-in on the lip's outer bottom edge
-glue_groove = [0.8, 0.6];   // groove in the top over the inner edge of the walls: width over the wall, depth
-post_gap = 0.3;      // screw posts to the lip
 
 /* [Base] */
 base_t = 6;          // base thickness
@@ -177,7 +166,7 @@ grille_outline_r = 17.5;     // ring marked around the grille, with four ticks
 // shell: on the face, the front and the back. They print visible face down,
 // so the second colour sits in their first 3 layers.
 show_livery = true;          // renders: show the two-colour plates, livery inlaid
-plate_color = "#EDEDE8";     // armor plates: white
+plate_color = "#A7ABB1";     // armor plates: grey (house rule: grey, never white)
 livery_color = "#FFCC00";    // second filament, house yellow: renders, and a hint stored in the 3MF
 plate_t = 2.0;               // plate thickness (the face plate holds the rocker)
 plate_edge_c = 0.6;          // chamfer around the visible face of the plates
@@ -256,7 +245,7 @@ posts = [[post_x, post_y, -1, -1], [in_x - post_x, post_y, 1, -1],
 
 cut_view = (part == "cutaway");
 cut_x = buzzer_x;                           // the cutaway removes everything at x > cut_x
-explode = (part == "exploded") ? 40 : 0;   // sides up by this, top by twice
+explode = (part == "exploded") ? 40 : 0;   // the shell goes up by this, the plates off it by half
 
 // -----------------------------------------------------------------------------
 //  Clearance checks (the render fails if a layout change breaks one)
@@ -306,16 +295,6 @@ assert((4 - pcb_cut) * pitch / sqrt(2) - screw_clear / 2 >= 1, "The screw holes 
 assert(pocket_rim >= pitch && pocket_rim <= 2 * pitch - 1, "The base's rim must hold the board's outer row of holes, and only it");
 assert(screw_len - base_t - pcb_t >= 6 && screw_len - base_t - pcb_t <= screw_depth - 0.5,
        "The screws are too short or too long for the posts");
-// The top's lip, inside the walls (ce: see the helpers)
-assert(relay_top + 1 <= lean_z(0, -ce - lip_h) ||
-       relay_y0 >= relay_top * tan_l + glue_gap + lip_t + 1, "The relay hits the top's lip");
-assert(top_z(holder_y0) - ce - lip_h >= holder_top + 2, "The top's lip hits the 18650 holder");
-assert(buzzer_x - buzzer_d / 2 >= glue_gap + lip_t + 1, "The buzzer hits the top's lip");
-assert(ctrl_x + rocker_cut[0] / 2 + 1 <= in_x - glue_gap - lip_t - 1, "The ARM switch hits the top's lip");
-assert(lip_t >= 1.2 && glue_gap >= 0.05, "The lip is too thin or has no room for glue");
-assert(buzzer_x - ring_r >= edge_c + 3 && bz_front_y >= edge_c + 3 && bz_back_y + ring_r <= in_y - edge_c - 3,
-       "The buzzer ring is too close to the walls to stay on the top");
-
 echo(str("Enclosure: ", out_x, " x ", out_y, " mm, ", front_h + base_t, " mm tall at the front, ",
          round(total_h * 10) / 10, " mm at the back"));
 
@@ -386,30 +365,6 @@ function lean_z(y0, dz) = (top0 + dz + y0 * tan_s) / (1 - tan_l * tan_s);
 
 // Inner outline inset by d, on the plane parallel to the face dz below it
 function in_ring(d, dz) = at_face(inner_pts(d, lean_z(d, dz)), dz);
-
-// Inside the inner outline inset by d, between the planes parallel to the
-// face dz0 and dz1 below it (dz0 < dz1)
-module slab(d, dz0, dz1) {
-    loft([in_ring(d, dz0), in_ring(d, dz1)]);
-}
-
-// Between the inner outlines inset by d0 (outside) and d1 (inside)
-module slab_ring(d0, d1, dz0, dz1) {
-    difference() {
-        slab(d0, dz0, dz1);
-        slab(d1, dz0 - 1, dz1 + 1);
-    }
-}
-
-// Everything above the plane parallel to the face, dz below it
-module above_plane(dz) {
-    translate([0, 0, dz]) on_face(0, 0) translate([-100, -100, 0]) cube([400, 400, 200]);
-}
-
-// Inside the inner walls inset by d, over the whole height
-module inner_prism(d) {
-    loft([at_z(inner_pts(d, -5), -5), at_z(inner_pts(d, total_h + 10), total_h + 10)]);
-}
 
 // Place children on the control face: origin on the outer surface at plan
 // position (x, y), local Z = outward normal, local Y = up the slope.
@@ -755,16 +710,17 @@ module back_art(livery) {
 }
 
 // -----------------------------------------------------------------------------
-//  Shell — modeled whole, then split along the crease under the face chamfer
-//  into the top (face + chamfer + lip) and the sides (walls + screw posts)
+//  Shell — one piece: the control face, its chamfer, the walls and the screw
+//  posts. It prints face down: the face is the first layer, the chamfer is 45°
+//  and the walls lean at most 30°.
 // -----------------------------------------------------------------------------
 
-split_dz = -ce;                              // the seam: plane parallel to the face, edge_c under it
+crease_dz = -ce;                             // the crease under the face chamfer: plane parallel to the face, edge_c under it
 
 module shell_outer() {
     loft([at_z(outer_pts(bottom_c), 0),
           at_z(outer_pts(0, bottom_c), bottom_c),
-          at_face(outer_pts(0, front_zc), split_dz),
+          at_face(outer_pts(0, front_zc), crease_dz),
           at_face(face_chamfer(outer_pts(0, front_zc), edge_c), 0)]);
 }
 
@@ -775,87 +731,37 @@ module shell_cavity() {
           at_face(face_chamfer(inner_pts(0, lean_z(0, dz)), edge_c), -face_t / cos_s)]);
 }
 
-// The whole shell, without the screw posts: one colour, no marks (they are
-// on the armor plates), with blind holes for the plates' pegs
+// The shell: one colour, no marks (they are on the armor plates), with the
+// screw posts and blind holes for the plates' pegs
 module shell() {
     difference() {
-        shell_outer();
-        difference() {
-            shell_cavity();
-            buzzer_ring();
+        union() {
+            difference() {
+                shell_outer();
+                difference() {
+                    shell_cavity();
+                    buzzer_ring();
+                }
+            }
+            screw_posts();
         }
         shell_holes();
         peg_holes();
-    }
-}
-
-// Top: everything above the seam, the buzzer ring, and the lip. The inner
-// chamfer's ridge under the seam (up to 3.1 mm from the walls, at the back)
-// is left out: the lip takes its place.
-module top() {
-    difference() {
-        union() {
-            intersection() {
-                shell();
-                union() {
-                    above_plane(split_dz);
-                    inner_prism(edge_c + 2);
-                }
-            }
-            lip();
-        }
-        glue_groove_cut();
-    }
-}
-
-// Sides: the walls under the seam, and the screw posts
-module sides() {
-    union() {
-        difference() {
-            shell();
-            above_plane(split_dz);
-            inner_prism(0);
-        }
-        screw_posts();
-    }
-}
-
-// Lip under the top: fits inside the walls with glue_gap on each side and a
-// 45° lead-in on its outer bottom edge. It reaches up into the face: at the
-// front the inner chamfer covers only part of its thickness, and the rest
-// would hang free when the top prints face down.
-module lip() {
-    face_in = -face_t / cos_s;               // underside of the face
-    difference() {
-        loft([in_ring(glue_gap + lip_chamfer, split_dz - lip_h),
-              in_ring(glue_gap, split_dz - lip_h + lip_chamfer),
-              in_ring(glue_gap, face_in + 0.2)]);
-        slab(glue_gap + lip_t, split_dz - lip_h - 1, face_in + 1);
-    }
-}
-
-// Groove in the top's seat, over the inner edge of the walls: it takes the
-// glue that the lip and the seat push out, so it doesn't reach the seam
-module glue_groove_cut() {
-    slab_ring(-glue_groove[0], glue_gap, split_dz - 1, split_dz + glue_groove[1]);
-}
-
-// Screw posts in the corners, notched for the lip. They stand on the perfboard
-// (pcb_t above the base) and reach up to the seam.
-module screw_posts() {
-    difference() {
-        intersection() {
-            for (p = posts)
-                translate([0, 0, pcb_t]) linear_extrude(back_h + 10) hull() {
-                    translate([p[0], p[1]]) circle(d = post_d);
-                    translate([p[0] + 6 * p[2], p[1] + 6 * p[3]]) circle(d = post_d);
-                }
-            inner_prism(-0.2);               // into the walls a little, so they fuse
-        }
-        above_plane(split_dz);
-        slab_ring(-1, glue_gap + lip_t + post_gap, split_dz - lip_h - post_gap, split_dz + 1);
         for (p = posts)
             translate([p[0], p[1], pcb_t - 1]) cylinder(d = screw_pilot, h = screw_depth + 1, $fn = 24);
+    }
+}
+
+// Screw posts in the corners: they stand on the perfboard (pcb_t above the
+// base) and reach up into the face, so they grow from the face in the print
+module screw_posts() {
+    intersection() {
+        for (p = posts)
+            translate([0, 0, pcb_t]) linear_extrude(back_h + 10) hull() {
+                translate([p[0], p[1]]) circle(d = post_d);
+                translate([p[0] + 6 * p[2], p[1] + 6 * p[3]]) circle(d = post_d);
+            }
+        shell_outer();
     }
 }
 
@@ -1106,56 +1012,17 @@ module shell_components(lift = 0) {
 //  Part selection
 // -----------------------------------------------------------------------------
 
-// Print orientations. Top: face down on the bed. Sides: the seam down on the
-// bed (the same orientation, lowered by edge_c), so the seat comes out flat.
-module top_pose() {
+// Print orientation of the shell: face down on the bed
+module shell_pose() {
     translate([0, 0, top0 * cos_s]) rotate([180 - slope, 0, 0]) children();
-}
-
-module sides_pose() {
-    translate([0, 0, -edge_c]) top_pose() children();
-}
-
-// A 10 mm slice through the joint at the back wall
-module joint_section() {
-    intersection() {
-        children();
-        translate([40, in_y - 9, top_z(in_y) + split_dz - 8]) cube([10, 13, 12]);
-    }
-}
-
-// Labels and leaders for the joint view, just in front of the section,
-// readable from -X. [text, label [y, z], halign, target [y, z]]
-module joint_labels() {
-    zb = top_z(in_y) + split_dz;             // the seam at the inner back wall
-    left = in_y + wall + 3.3;                // label columns, either side of the section
-    right = in_y - 3.5;
-    labels = [
-        ["TOP", [right - 2.5, top_z(right - 2.5) + 1.2], "left", [right - 2.5, top_z(right - 2.5) - 1]],
-        ["SEAM", [left, zb + 0.6], "right", [in_y + wall, zb + wall * tan_s]],
-        ["GROOVE", [left, zb + 3], "right", [in_y + 0.3, zb + 0.4]],
-        ["SIDES", [left, zb - 5], "right", [in_y + wall / 2, zb - 4.5]],
-        ["LIP", [right, zb - 3], "left", [in_y - glue_gap - lip_t / 2, zb - 2]],
-        ["GLUE GAP", [right, zb - 5.5], "left", [in_y - glue_gap / 2, zb - 3.5]],
-    ];
-    multmatrix([[0, 0, -1, 39], [-1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1]])   // (u, v) = (-y, z)
-        linear_extrude(0.1) for (l = labels) {
-            p = [-l[1][0], l[1][1]];
-            t = [-l[3][0], l[3][1]];
-            translate(p) mech_text(l[0], 0.7, 0.12, l[2], "center");
-            stroke([p + [l[2] == "right" ? 0.3 : -0.3, 0], t], 0.06);
-            translate(t) circle(r = 0.12, $fn = 16);
-        }
 }
 
 // render(): the previews (and the PNGs) of these parts need meshes too
 plate_part = [for (a = plate_areas)
     if (part == str("plate_", a) || part == str("plate_", a, "_2color") || part == str("inlay_", a)) a];
 
-if (part == "top") {
-    color(shell_color) render() top_pose() top();
-} else if (part == "sides") {
-    color(shell_color) render() sides_pose() sides();
+if (part == "shell") {
+    color(shell_color) render() shell_pose() shell();
 } else if (part == "base") {
     color(base_color) translate([0, 0, base_t]) base();
 } else if (len(plate_part) == 1) {
@@ -1173,23 +1040,14 @@ if (part == "top") {
 } else if (part == "interior") {
     paint(base_color) base();
     board_components();
-} else if (part == "joint") {
-    // Seen from the left (-X): the top in light graphite, the sides in graphite
-    color("#7A7F8A") render() joint_section() top();
-    color("#3A3D44") render() joint_section() sides();
-    color("#1A1C20") joint_labels();
 } else {  // assembled, exploded, cutaway
     paint(base_color) base();
     board_components();
     // mesh: the preview (OpenCSG) can't resolve the hundreds of small strokes
     // in the plates and inlays, so those parts are computed as meshes.
     translate([0, 0, explode]) {
-        paint(shell_color, mesh = true) sides();
-        for (a = ["front", "back"]) plate_assembly(a, explode / 2);
-    }
-    translate([0, 0, 2 * explode]) {
-        paint(shell_color, mesh = true) top();
-        plate_assembly("face", explode / 2);
+        paint(shell_color, mesh = true) shell();
+        for (a = plate_areas) plate_assembly(a, explode / 2);
         shell_components(explode / 2);
     }
 }

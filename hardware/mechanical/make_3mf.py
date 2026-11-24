@@ -34,18 +34,18 @@ from pathlib import Path
 
 INLAY_DEPTH = 0.6   # inlay_depth in enclosure.scad
 LAYER = 0.2         # layer height used to count the two-colour layers
-WHITE, YELLOW = ("White", "#EDEDE8"), ("Yellow", "#FFCC00")   # plate_color, livery_color in enclosure.scad
+GREY, YELLOW = ("Grey", "#A7ABB1"), ("Yellow", "#FFCC00")   # plate_color, livery_color in enclosure.scad
 GAP = 6             # between the plates on the bed (mm)
 # Output file, objects: (object name, parts: (name in the 3MF, STL file, colour)).
 # The first part of an object is the printed plate; the second is the inlay that
 # fills its recess.
 MODELS = [
     ("enclosure_plates_2color.3mf", [
-        ("OutageAlarm face plate", [("face_plate", "plate_face_2color.stl", WHITE),
+        ("OutageAlarm face plate", [("face_plate", "plate_face_2color.stl", GREY),
                                     ("face_livery", "inlay_face.stl", YELLOW)]),
-        ("OutageAlarm front plate", [("front_plate", "plate_front_2color.stl", WHITE),
+        ("OutageAlarm front plate", [("front_plate", "plate_front_2color.stl", GREY),
                                      ("front_livery", "inlay_front.stl", YELLOW)]),
-        ("OutageAlarm back plate", [("back_plate", "plate_back_2color.stl", WHITE),
+        ("OutageAlarm back plate", [("back_plate", "plate_back_2color.stl", GREY),
                                     ("back_livery", "inlay_back.stl", YELLOW)]),
     ]),
 ]
