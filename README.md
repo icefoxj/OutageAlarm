@@ -8,16 +8,16 @@ An audible **power outage alarm**. When the wall outlet loses power, a buzzer ru
 
 ![OutageAlarm](docs/img/hero.png)
 
-| Face | Exploded: base, sides, top, armor plates | Back (USB-C) |
+| Face | Exploded: base, shell, armor plates | Back (USB-C) |
 |------|-----------------------------------------|--------------|
 | ![Face](docs/img/face.png) | ![Exploded](docs/img/exploded.png) | ![Back](docs/img/back.png) |
 
-| Cutaway | Joint between the top and the sides |
-|---------|-------------------------------------|
-| ![Cutaway](docs/img/cutaway.png) | ![Joint](docs/img/joint.png) |
+| Cutaway | The three armor plates |
+|---------|------------------------|
+| ![Cutaway](docs/img/cutaway.png) | ![Armor plates](docs/img/plates.png) |
 
-The enclosure follows the house style of the other 3DTesla kits: a graphite body with 45° corners, white armor plates, and a mech-style livery in yellow, like the markings on anime mechs. It prints in six parts:
-- **Top:** the control face. **Sides:** the walls, glued to the top with a lip joint. **Base:** darker, screwed on from below. All three in one colour.
+The enclosure follows the house style of the other 3DTesla kits: a graphite body with 45° corners, grey armor plates, and a mech-style livery in yellow, like the markings on anime mechs. It prints in five parts:
+- **Shell:** the control face, the walls and the screw posts, in one piece. **Base:** darker, screwed on from below. Both in one colour.
 - **Three armor plates**, glued onto the face, the front and the back. The livery is inlaid in them in a second filament, and all of it is in the first 3 layers of one print.
 
 There is a two-colour 3MF of the plates, and one-colour STLs of every part. See [docs/mechanical.md](docs/mechanical.md).
@@ -63,7 +63,7 @@ Design principles:
 | 1   | —    | Perfboard, 2.54 mm pitch, 10 × 15 cm               | cut to 114.3 × 66.0 mm; holds all the electronics ([layout](hardware/electronics/perfboard.svg)) |
 | 4   | —    | M3 × 16 mm countersunk self-tapping screws (or 2.9 × 16 mm) | close the enclosure from below and clamp the perfboard |
 | 1   | —    | 5 V USB charger **≥ 1.5 A** + cable                | **plug it straight into the wall, never into a UPS** |
-| —   | —    | CA glue (gel) or 5-minute epoxy                    | glue the top of the enclosure onto its sides, and the armor plates on |
+| —   | —    | CA glue (gel) or 5-minute epoxy                    | glue the armor plates on |
 | —   | —    | Wire, bare tinned wire for the links, solder, hot glue, thin and 1 mm foam double-sided tape |  |
 
 ## Repository layout
@@ -86,7 +86,7 @@ OutageAlarm/
 │   └── mechanical/
 │       ├── enclosure.scad          # parametric enclosure (OpenSCAD), source of truth
 │       ├── make_3mf.py             # packs the two-colour armor plates into the 3MF
-│       ├── stl/                    # ready-to-slice STLs (one colour): top, sides, base, the three armor plates
+│       ├── stl/                    # ready-to-slice STLs (one colour): shell, base, the three armor plates
 │       └── 3mf/                    # ready-to-slice two-colour armor plates (livery inlaid)
 └── .github/workflows/
     └── render-enclosure.yml        # renders STLs, the 3MF and images when the model changes
@@ -95,10 +95,10 @@ OutageAlarm/
 ## Quick build
 
 1. Print the enclosure in PLA or PETG, without supports. Details in [docs/mechanical.md](docs/mechanical.md).
-   - **Top and sides (graphite):** `hardware/mechanical/stl/enclosure_top.stl` and `enclosure_sides.stl`.
+   - **Shell (graphite):** `hardware/mechanical/stl/enclosure_shell.stl`, face down as stored in the file.
    - **Base (black or a darker graphite):** `hardware/mechanical/stl/enclosure_base.stl`.
-   - **Armor plates (white + yellow):** `hardware/mechanical/3mf/enclosure_plates_2color.3mf`, all three in one print with a second filament for the livery. Or the three `stl/enclosure_plate_*.stl` in one colour, with the labels engraved.
-   - Glue the top onto the sides to make the shell: a lip under the top fits inside the walls, with room for the glue. Then glue the plates on: two pegs locate each one.
+   - **Armor plates (light grey + yellow):** `hardware/mechanical/3mf/enclosure_plates_2color.3mf`, all three in one print with a second filament for the livery. Or the three `stl/enclosure_plate_*.stl` in one colour, with the labels engraved.
+   - Glue the plates onto the shell: two pegs locate each one.
 2. Build the circuit on the perfboard: cut it to 114.3 × 66.0 mm, solder K1, D1, R1 and the links, and stick the 18650 holder and the TP4056 module on it. Follow the [perfboard layout](hardware/electronics/perfboard.svg) and [docs/electronics.md](docs/electronics.md#perfboard).
 3. Mount the parts on the shell's tilted face: TEST button, ARM switch, POWER LED, and the buzzer under the grille. Solder their wires to the board.
 4. Run the test below. Lay the board on the base, set the shell over it and close it with 4 screws from below: they pass through the board and clamp it.

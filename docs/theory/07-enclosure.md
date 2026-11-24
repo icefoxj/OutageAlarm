@@ -1,6 +1,6 @@
 # 7. The enclosure
 
-OA-01's enclosure is a 3D-printed wedge: the **top** (the control face), the **sides** (the walls and the screw posts) and a darker **base**, all in graphite, with three white **armor plates** glued onto the face, the front and the back. It holds one perfboard with all the electronics, puts the controls where hands and eyes find them, lets the buzzer out, keeps the charger's heat in check and carries the mech livery on its plates, in the house style of the other 3DTesla kits. The model is parametric, in OpenSCAD, and it has not been test-printed yet: the numbers below are the design values of the model, and the thermal results are estimates from a simple model.
+OA-01's enclosure is a 3D-printed wedge: a one-piece **shell** (the control face, the walls and the screw posts) and a darker **base**, both in graphite, with three grey **armor plates** glued onto the face, the front and the back. It holds one perfboard with all the electronics, puts the controls where hands and eyes find them, lets the buzzer out, keeps the charger's heat in check and carries the mech livery on its plates, in the house style of the other 3DTesla kits. The model is parametric, in OpenSCAD, and it has not been test-printed yet: the numbers below are the design values of the model, and the thermal results are estimates from a simple model.
 
 ## 7.1 The wedge
 
@@ -38,7 +38,7 @@ The mean rise is small. The local one is not: the TP4056 chip concentrates its w
 
 ## 7.3 Materials and temperature
 
-The kit prints the top and the sides in graphite PLA or PETG, the base in a darker graphite and the plates in white. The two materials differ mainly in how they behave when warm:
+The kit prints the shell in graphite PLA or PETG, the base in a darker graphite and the plates in light grey. The two materials differ mainly in how they behave when warm:
 
 - **PLA** softens around its glass transition, about 55–60 °C. A PLA box in a room, warmed by a few kelvin, is far from it.
 - **PETG** softens around 75–80 °C. The kit's documentation recommends it "for warm places": an attic, a garage in summer, a shelf in the sun, or next to a heater, where a dark PLA part could creep under the screws over months.
@@ -55,8 +55,7 @@ where $h$ is the layer height. With $h$ = 0.2 mm and a 0.4 mm wide line, a 45° 
 
 All the parts of OA-01 are oriented to stay within that rule:
 
-- **The top** prints **face down**. The face is the first layer, so it comes out flat for its armor plate, and the grille and the holes form in the first layers. In this orientation the face chamfer is exactly 45° and the lip underneath rises at 20° from the vertical. The part is only 6.8 mm tall.
-- **The sides** print **upside down, standing on the seam**. The surface that seats the top is the first layer, so it is flat and true and the top sits on it without gaps. The walls lean at most 30° in this orientation, and the screw posts are bridged over the 2 mm notches made for the lip.
+- **The shell** prints **face down**, in one piece. The face is the first layer, so it comes out flat for its armor plate, and the grille and the holes form in the first layers. In this orientation the face chamfer is exactly 45°, the walls lean at most 30° and the screw posts grow straight up from the face. The part is 49 mm tall as printed.
 - **The base** prints flat; its undercut is a 45° overhang, and the pocket for the perfboard's solder side is on top.
 - **The armor plates** print **visible face down**, all three together. The visible face takes the texture of the bed (glossy on smooth PEI or glass, matt on textured PEI), the 0.6 mm chamfer around it is a 45° overhang, and the locating pegs grow up from the back.
 
@@ -69,27 +68,26 @@ The mech livery (title bands with the unit code OA-01, a reticle around the gril
 - On a **flat plate printed face down**, the inlay is a slab parallel to the layers: 0.6 mm is exactly **3 layers** of 0.2 mm (0.15 or 0.12 mm layers also divide it).
 - On a **wall that stands up in the print**, the inlay would be a thin skin across many layers, one per 0.2 mm of its height. An earlier version of OA-01 had the wordmark on the front wall and "5V" on the back wall: 27 and 29 layers, 56 in all, about 110 changes.
 
-That is why the whole livery sits on three flat **armor plates**, glued onto the shell, and why the three print together: all the second colour is in the same 3 layers, about 6 filament changes for the whole enclosure, and the top, the sides and the base print in one colour on any printer. The plates are a style of the house too: on the other kits, white plates with cut corners stand on a graphite body and carry the livery.
+That is why the whole livery sits on three flat **armor plates**, glued onto the shell, and why the three print together: all the second colour is in the same 3 layers, about 6 filament changes for the whole enclosure, and the shell and the base print in one colour on any printer. The plates are a style of the house too: on the other kits, plates with cut corners stand on a graphite body and carry the livery.
 
 Resolution follows from the same geometry. Printed flat, the lettering is drawn with strokes of 0.8 mm or more, two lines of a 0.4 mm nozzle, so each stroke is whole in each of its 3 layers. On a wall, each layer would cut the inlay into a strip only about 0.7 mm wide, and the lettering would need strokes about twice as wide. A one-colour version of the plates, with the marks engraved 0.6 mm deep instead, needs no second filament at all.
 
-## 7.6 The glued joint
+## 7.6 Plates on pegs
 
-The top and the sides are printed separately and glued into one shell. The joint is designed as a small exercise in tolerances:
+The shell is a single part: with the livery on the plates there is no colour to split it for, so it has no seam and nothing to glue. Only the three armor plates are glued on, and each is located by two pegs, a small exercise in tolerances:
 
-- a **lip** under the top, 4 mm high and 1.6 mm thick, fits inside the walls and locates the top;
-- a **glue gap** of 0.15 mm per side between the lip and the walls: room for the glue film and for the normal dimensional error of a print, which is typically of the order of ±0.1 mm;
-- a 0.6 mm **lead-in chamfer** on the lip's bottom edge guides it in;
-- a **groove** 0.8 × 0.6 mm in the top, over the inner edge of the walls, collects the glue pushed out of the joint, so it does not squeeze out of the visible seam;
-- the **seam** itself runs along the crease under the face chamfer, 3 mm under the face, so the joint hides in an edge the shell already has.
+- each plate has two **pegs** on its back, 3 mm in diameter and 1.6 mm long, that go into **blind holes** in the shell, 3.3 mm wide and 1.9 mm deep;
+- the 0.15 mm of **clearance** per side takes the normal dimensional error of a print, typically of the order of ±0.1 mm, and the glue; the extra 0.3 mm at the bottom of the holes makes sure the plate sits on its face, not on its pegs.
 
-Gap-filling glues work only within a thickness: a CA gel fills up to about 0.3 mm, a 5-minute epoxy more. The kit's documentation gives the corrections: if the dry fit is tight, sand the lip or reprint with a gap of 0.2–0.25 mm; if it is loose, the glue still fills up to about 0.3 mm. A lap joint like this one loads the glue in **shear** over the whole area of the lip, the way adhesives are strongest, rather than in peel.
+Two pegs are exactly enough to locate a flat part on a flat face: the plate lying on the face fixes three degrees of freedom, the first peg fixes its position in the plane, the second its rotation. With 0.3 mm of play between a peg and its hole, the plate can still shift by up to ±0.15 mm and turn by at most the play divided by the distance between the pegs: 0.3 mm over the 49 mm between the face plate's pegs is about 0.35°. A third peg would add nothing but a fit that may not close.
+
+The glue goes on as a few small dots of CA gel or epoxy, away from the edges and the holes, so none squeezes out where it would show. A plate glued flat on a face loads the glue in **shear** when something pushes or rubs along it, the way adhesives are strongest, rather than in peel.
 
 ## 7.7 One board, four screws
 
 All the electronics sit on one perfboard, 114.3 × 66.0 mm (45 × 26 hole spacings of 2.54 mm), 1.6 mm thick, with its corners cut at 45° to clear the cut inner corners of the shell. It needs no screws of its own:
 
-- four **M3 × 16 countersunk self-tapping screws** come up from below, through the base and through the board's corner holes, into the screw posts moulded in the sides; they bite 6 mm into the posts;
+- four **M3 × 16 countersunk self-tapping screws** come up from below, through the base and through the board's corner holes, into the screw posts moulded in the shell; they bite 6 mm into the posts;
 - the posts stop on top of the board, so tightening the screws **clamps the board** between the posts and a 3 mm rim of the base that carries its outer row of holes;
 - the solder side faces down into a 2 mm pocket in the base, which is why every lead must be trimmed to 1.5 mm or less.
 
@@ -104,7 +102,7 @@ A self-tapping screw forms its own thread in a pilot hole slightly smaller than 
 | PLA softens ≈ 55–60 °C, PETG ≈ 75–80 °C | PLA indoors, PETG for warm places |
 | Overhang step $h \tan\theta$; 45° is the limit | every part printed without supports, in the orientation stored in the files |
 | Inlay printed flat = 3 layers; on a wall, one layer per 0.2 mm of height | livery on three flat plates printed together: 3 layers, ≈ 6 filament changes |
-| Lip with 0.15 mm glue gap, groove, hidden seam | precise fit, glue in shear, clean seam |
+| Two pegs per plate, 0.15 mm clearance per side; glue in shear | each plate goes on in one place, within ±0.15 mm and 0.35°; a one-piece shell |
 | Four screws through the board | the board is clamped, no standoffs; leads ≤ 1.5 mm |
 
 Back to the [index](README.md).

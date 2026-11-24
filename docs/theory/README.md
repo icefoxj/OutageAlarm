@@ -16,7 +16,7 @@ OA-01 is **in development**: the circuit is designed and documented, the enclosu
 | 4 | [The cell, the charger and the protection](04-cell-and-charger.md) | Li-ion basics, capacity and energy, CC/CV charging, the program resistor, heat in a linear charger, the DW01A and 8205A protection | chapter 2 |
 | 5 | [The alarm sound](05-the-sound.md) | sound pressure and decibels, A-weighting, piezo buzzers, level vs distance, the grille, the boost option | logarithms |
 | 6 | [Power budget and autonomy](06-power-budget.md) | sizing the charger, the LED, what standby costs, how long the alarm lasts, recharging | chapters 3–5 |
-| 7 | [The enclosure](07-enclosure.md) | the wedge, heat in a closed box, materials, printing without supports, the inlaid livery, the glued joint | chapter 4 |
+| 7 | [The enclosure](07-enclosure.md) | the wedge, heat in a closed box, materials, printing without supports, the inlaid livery, plates on pegs | chapter 4 |
 
 Chapters 1 and 2 are the core idea; 3 to 6 follow the energy through the circuit; 7 is the box around it. Each chapter ends with a summary table.
 

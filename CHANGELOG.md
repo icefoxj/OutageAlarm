@@ -6,18 +6,22 @@ All notable changes to OutageAlarm are listed here.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-24
+
+The enclosure in the house look of the other 3DTesla kits, a one-piece shell, and all the electronics on one perfboard.
+
 ### Changed
 
 - **House look.** The enclosure now looks like the other 3DTesla kits:
   - a graphite body with its corners cut at 45° (they were rounded), on a darker base;
-  - three white armor plates with cut corners, glued onto the face, the front and the back, each located by two pegs;
+  - three grey armor plates with cut corners, glued onto the face, the front and the back, each located by two pegs;
   - the mech livery in house yellow (it was red), inlaid only in the plates. The reticle's ticks are at 45°, brackets frame ARM, the front plate carries the title band with "OA-01", and chevrons on the back plate point at the USB-C.
-  - The top, the sides and the base are now one-colour prints, with no marks. All the second colour is in one print of the three plates: 3 two-colour layers, about 6 filament changes (it was 59 layers, 116 changes, in the top and the sides).
+  - The shell and the base are now one-colour prints, with no marks. All the second colour is in one print of the three plates: 3 two-colour layers, about 6 filament changes (it was 59 layers, 116 changes, in the top and the sides).
   - The face is cut away under the rocker, so the 2 mm face plate alone holds it. TEST now mounts through 4.4 mm.
   - The mech font has the full glyph set of the other kits.
   - Print files: `stl/enclosure_plate_{face,front,back}.stl` and `3mf/enclosure_plates_2color.3mf` are new; `enclosure_top_2color.3mf` and `enclosure_sides_2color.3mf` are gone.
+- **One-piece shell.** The top and the sides are one part again, printed face down: no lip, no glue joint. The screw posts reach up into the face. `stl/enclosure_shell.stl` replaces `enclosure_top.stl` and `enclosure_sides.stl`.
 - **Sheets:** the schematic and the perfboard layout have the house header: "OA-01" on a yellow band, hazard stripes. The perfboard layout uses the monospace font of the other kits' sheets.
-
 - **One perfboard for all the electronics.** It covers the floor and holds the 18650 holder, the TP4056 module, K1, D1, R1 and a pad for every wire.
   - The four shell screws pass through its corners, so the screw posts clamp it to the base. The standoffs and the M2 screws are gone.
   - The layout is in [hardware/electronics/perfboard.svg](hardware/electronics/perfboard.svg), drawn 1:1 on A4: printed at 100 %, it is a cutting and drilling template.
@@ -29,6 +33,13 @@ All notable changes to OutageAlarm are listed here.
 
 - **Theory guide** (`docs/theory/pdf/`, 2026-11-20): the theory course as an illustrated PDF in the house mech look, one per language (`OA-01_theory_<lang>.pdf`: en, pt, pt-br, es, fr, it, de), with the course's figures, drawings and pictures of the kit. Built from `docs/theory/` by the 3DTesla website repository, which keeps the translations and drawings; CLAUDE.md says how to keep it in step with every change to the kit.
 - **Theory chapters** (`docs/theory/`, 2026-11-20): 7 chapters that explain the theory used in the kit, from the fundamentals to the kit's own numbers: the fail-safe principle, mains and isolation, the relay, the cell and the charger, the sound, the power budget and the enclosure. `docs/theory/figures.py` draws the 16 simulation and calculation figures into `docs/img/theory/`. Model values that are not in the repository are marked as assumptions; every number is a design value, an estimate or a simulation result. These chapters are the source of the kit's illustrated theory guide (PDF, seven languages).
+
+### Not tested yet
+
+- The enclosure has not been printed in this version either. Check on your parts:
+  - the TEST button through 4.4 mm (the face and its plate) and the rocker's clips in the 2 mm face plate;
+  - the fit of the plates' pegs in their holes (`peg_clear`);
+  - the perfboard and the relay's off-grid pins against the 1:1 template.
 
 ## [1.0.0] - 2026-11-11
 
@@ -75,5 +86,6 @@ First release: the simple v1, with no microcontroller and no firmware.
   - the rocker switch cutout and the TEST button hole (they vary by vendor);
   - the fit of the top's lip in the sides (`glue_gap`).
 
-[Unreleased]: https://github.com/icefoxj/OutageAlarm/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/icefoxj/OutageAlarm/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/icefoxj/OutageAlarm/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/icefoxj/OutageAlarm/releases/tag/v1.0.0
