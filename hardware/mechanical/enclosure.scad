@@ -64,7 +64,8 @@
 //    | \-------------------------------------------------/ |
 //    +-----------------------------------------------------+
 //                               front
-//    o = screw posts, molded into the shell; the screws pass through the board
+//    o = screw posts, molded into the shell, with M3 heat-set inserts; the
+//        screws pass through the board
 //    : = pads for the wires to U1 and to the parts on the shell
 //
 //  On the control face, under its armor plate: the speaker grille over the
@@ -96,14 +97,15 @@ base_t = 6;          // base thickness
 undercut = 3;        // 45° undercut along the bottom edge (the "floating" shadow)
 base_c = 1;          // chamfer along the top edge (forms a groove with the shell's)
 
-/* [Shell screws: 4 x M3 x 16 countersunk, self-tapping] */
-// They go up through the base and the perfboard into the posts, so they also
-// clamp the board. The posts stand over the board's holes 2 in from each corner.
-screw_len = 16;      // overall length, head included
-post_d = 6;          // post diameter
-screw_pilot = 2.5;   // pilot hole in the post
-screw_depth = 10;    // pilot hole depth, from the bottom of the post
-screw_clear = 3.4;   // clearance hole in the base (drill the board to 3.2)
+/* [Shell screws: 4 x M3 x 16 countersunk machine screws, into heat-set inserts] */
+// They go up through the base and the perfboard into brass inserts melted into
+// the posts, so they also clamp the board. The posts stand over the board's
+// holes 2 in from each corner.
+screw_len = 16;      // overall length, head included (ISO 10642 / DIN 7991 or DIN 965)
+post_d = 7;          // post diameter: 1.5 mm of wall around the insert
+insert_d = 4.0;      // hole for the insert: M3 x 5.7 x 4.6 mm (other inserts: about 0.5 mm under their outer diameter)
+insert_l = 5.7;      // insert length; it goes in flush with the bottom of the post
+screw_clear = 3.4;   // clearance hole in the base and, above the insert, for the screw's tip (drill the board to 3.2)
 screw_head_d = 6.2;  // countersink diameter
 
 /* [Perfboard: all the electronics] */
@@ -125,7 +127,7 @@ board_parts_h = 9;       // tallest part on the board other than the relay, the 
 holder_x = 78;       // holder length
 holder_y = 22;       // holder width
 holder_z = 21;       // holder height with the cell
-holder_x0 = 10.5;    // X position of the left end
+holder_x0 = 11;      // X position of the left end
 holder_gap = 0.5;    // gap to the back wall
 
 /* [TP4056 USB-C charger module] */
@@ -277,7 +279,7 @@ assert(hole(d1_hole[0], 0)[0] - 1.35 >= relay_x1 + 0.3, "D1 hits the relay");
 assert(rocker_low_z >= chg_top + 3, "The ARM switch hits the TP4056 module");
 assert(test_low_z >= pcb_t + 3, "The TEST button hits the perfboard");
 assert(hole(r1_hole[0], 0)[0] + 1.5 <= ctrl_x - 7, "A part on the perfboard is under the TEST button");
-assert(holder_x0 + holder_x + 1 <= chg_x - chg_pcb[0] / 2, "The 18650 holder overlaps the TP4056 module");
+assert(holder_x0 + holder_x + 0.5 <= chg_x - chg_pcb[0] / 2, "The 18650 holder overlaps the TP4056 module");
 assert(chg_x + chg_pcb[0] / 2 + 0.5 <= in_x - post_x - post_d / 2, "The TP4056 module hits a screw post");
 assert(holder_x0 >= post_x + post_d / 2 + 0.5, "The 18650 holder hits a screw post");
 // The bottom face is the outline inset by the undercut: its corner cut is
@@ -286,15 +288,15 @@ assert(post_x + post_y - 2 * (undercut - wall) - oc(corner_c, undercut) >= sqrt(
        "The screw heads do not fit on the bottom face");
 // The perfboard: inside the walls (the front one leans in over its edge),
 // its cut corners clear of the shell's cut ones, enough board around the
-// screw holes, the outer row of holes (only) on the base's rim, and the
-// screws long enough to bite into the posts but not past their pilot holes
+// screw holes, the outer row of holes (only) on the base's rim, the screws
+// long enough to go through the whole insert, and enough wall around it
 assert(pcb_x0 >= 0.5 && pcb_y0 >= 0.5 + pcb_t * tan_l, "The perfboard is too big for the shell");
 assert(in_corner([pcb_x0, pcb_y0 + pcb_cut * pitch]) && in_corner([pcb_x0 + pcb_cut * pitch, pcb_y0]),
        "The perfboard's cut corners hit the shell's cut corners");
 assert((4 - pcb_cut) * pitch / sqrt(2) - screw_clear / 2 >= 1, "The screw holes are too close to the board's cut corners");
 assert(pocket_rim >= pitch && pocket_rim <= 2 * pitch - 1, "The base's rim must hold the board's outer row of holes, and only it");
-assert(screw_len - base_t - pcb_t >= 6 && screw_len - base_t - pcb_t <= screw_depth - 0.5,
-       "The screws are too short or too long for the posts");
+assert(screw_len - base_t - pcb_t >= insert_l, "The screws are too short to go through the inserts");
+assert(post_d / 2 - insert_d / 2 >= 1.5, "Too little wall around the heat-set inserts");
 echo(str("Enclosure: ", out_x, " x ", out_y, " mm, ", front_h + base_t, " mm tall at the front, ",
          round(total_h * 10) / 10, " mm at the back"));
 
@@ -747,13 +749,17 @@ module shell() {
         }
         shell_holes();
         peg_holes();
-        for (p = posts)
-            translate([p[0], p[1], pcb_t - 1]) cylinder(d = screw_pilot, h = screw_depth + 1, $fn = 24);
+        for (p = posts) translate([p[0], p[1], pcb_t]) {
+            // the insert, with 0.5 mm to spare, then room for the screw's tip
+            translate([0, 0, -1]) cylinder(d = insert_d, h = insert_l + 1.5, $fn = 32);
+            cylinder(d = screw_clear, h = screw_len - base_t - pcb_t + 1.5, $fn = 24);
+        }
     }
 }
 
 // Screw posts in the corners: they stand on the perfboard (pcb_t above the
-// base) and reach up into the face, so they grow from the face in the print
+// base) and reach up into the face, so they grow from the face in the print.
+// An M3 heat-set insert goes into the bottom of each one.
 module screw_posts() {
     intersection() {
         for (p = posts)
@@ -981,6 +987,13 @@ module shell_components(lift = 0) {
         linear_extrude(1.5) difference() {
             hull() for (s = [-1, 1]) translate([17 * s, 0]) circle(d = 7);
             for (s = [-1, 1]) translate([17 * s, 0]) circle(d = 3);
+        }
+
+    // M3 heat-set inserts in the bottoms of the screw posts
+    for (q = posts) paint("#C9A44A") translate([q[0], q[1], pcb_t])
+        difference() {
+            cylinder(d = 4.6, h = insert_l, $fn = 24);
+            translate([0, 0, -1]) cylinder(d = 2.6, h = insert_l + 2, $fn = 16);
         }
 
     // TEST button (PBS-11B): body below the face; nut, collar and cap above the plate

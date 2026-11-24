@@ -30,7 +30,7 @@ D1 = (29, 3)                 # anode; the cathode (band) is 5 holes behind it
 R1 = (31, 2)                 # front lead; the other one is 8 holes behind it
 
 # Outlines of the parts stuck on the board, in enclosure mm: x, y, width, depth
-HOLDER = (10.5, 47.5, 78, 22)
+HOLDER = (11, 47.5, 78, 22)
 U1 = (98.3 - 17.4 / 2, 69.5 - 29, 17.4, 29)
 
 
@@ -365,7 +365,7 @@ def svg():
         "Stick the holder and U1 inside their outlines. Put U1 on 1 mm foam tape, "
         "with its USB-C at the back edge.",
         "Lay the board on the base. The 4 M3 × 16 screws go through the base and the board "
-        "into the posts.",
+        "into the inserts in the posts.",
     ], width=54)
     out.append("</svg>")
     return "\n".join(out) + "\n"
