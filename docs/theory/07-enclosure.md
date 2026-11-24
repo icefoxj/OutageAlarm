@@ -87,7 +87,7 @@ Gap-filling glues work only within a thickness: a CA gel fills up to about 0.3 m
 
 ## 7.7 One board, four screws
 
-All the electronics sit on one perfboard, 114.3 × 66.0 mm (45 × 26 hole spacings of 2.54 mm), 1.6 mm thick, with its corners cut at 45° to clear the rounded inner corners of the shell. It needs no screws of its own:
+All the electronics sit on one perfboard, 114.3 × 66.0 mm (45 × 26 hole spacings of 2.54 mm), 1.6 mm thick, with its corners cut at 45° to clear the cut inner corners of the shell. It needs no screws of its own:
 
 - four **M3 × 16 countersunk self-tapping screws** come up from below, through the base and through the board's corner holes, into the screw posts moulded in the sides; they bite 6 mm into the posts;
 - the posts stop on top of the board, so tightening the screws **clamps the board** between the posts and a 3 mm rim of the base that carries its outer row of holes;
