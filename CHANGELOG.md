@@ -6,6 +6,10 @@ All notable changes to OutageAlarm are listed here.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-24
+
+The enclosure closes with M3 heat-set inserts and machine screws.
+
 ### Changed
 
 - **Heat-set inserts.** Each screw post takes an M3 brass heat-set insert (5.7 mm long, 4.6 mm outer diameter, in a 4.0 mm hole), and the base closes with M3 × 16 countersunk machine screws instead of self-tapping ones. The threads are in brass, so the enclosure can be opened as often as needed.
@@ -92,6 +96,7 @@ First release: the simple v1, with no microcontroller and no firmware.
   - the rocker switch cutout and the TEST button hole (they vary by vendor);
   - the fit of the top's lip in the sides (`glue_gap`).
 
-[Unreleased]: https://github.com/icefoxj/OutageAlarm/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/icefoxj/OutageAlarm/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/icefoxj/OutageAlarm/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/icefoxj/OutageAlarm/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/icefoxj/OutageAlarm/releases/tag/v1.0.0
