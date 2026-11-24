@@ -8,6 +8,16 @@ All notable changes to OutageAlarm are listed here.
 
 ### Changed
 
+- **House look.** The enclosure now looks like the other 3DTesla kits:
+  - a graphite body with its corners cut at 45° (they were rounded), on a darker base;
+  - three white armor plates with cut corners, glued onto the face, the front and the back, each located by two pegs;
+  - the mech livery in house yellow (it was red), inlaid only in the plates. The reticle's ticks are at 45°, brackets frame ARM, the front plate carries the title band with "OA-01", and chevrons on the back plate point at the USB-C.
+  - The top, the sides and the base are now one-colour prints, with no marks. All the second colour is in one print of the three plates: 3 two-colour layers, about 6 filament changes (it was 59 layers, 116 changes, in the top and the sides).
+  - The face is cut away under the rocker, so the 2 mm face plate alone holds it. TEST now mounts through 4.4 mm.
+  - The mech font has the full glyph set of the other kits.
+  - Print files: `stl/enclosure_plate_{face,front,back}.stl` and `3mf/enclosure_plates_2color.3mf` are new; `enclosure_top_2color.3mf` and `enclosure_sides_2color.3mf` are gone.
+- **Sheets:** the schematic and the perfboard layout have the house header: "OA-01" on a yellow band, hazard stripes. The perfboard layout uses the monospace font of the other kits' sheets.
+
 - **One perfboard for all the electronics.** It covers the floor and holds the 18650 holder, the TP4056 module, K1, D1, R1 and a pad for every wire.
   - The four shell screws pass through its corners, so the screw posts clamp it to the base. The standoffs and the M2 screws are gone.
   - The layout is in [hardware/electronics/perfboard.svg](hardware/electronics/perfboard.svg), drawn 1:1 on A4: printed at 100 %, it is a cutting and drilling template.

@@ -87,6 +87,9 @@ PAGE_W, PAGE_H = 297, 210
 VIEW_Y = 37                                  # back edge of both boards
 VIEW_X = (16, PAGE_W - 16 - COLS * PITCH)    # component side, solder side
 
+CODE = "OA-01"                               # unit code, on the title band
+FONT = "Consolas, 'DejaVu Sans Mono', 'Courier New', monospace"   # as on the other kits' sheets
+YELLOW, YELLOW_INK = "#FFCC00", "#15171A"    # house yellow, and the ink drawn on it
 INK, MUTED = "#1f2328", "#57606a"
 U_COL, B_COL = "#bc4c00", "#0969da"
 BOARD, EDGE, HOLE, COPPER = "#f3e6c8", "#8c6a3a", "#8f7a55", "#d9a15f"
@@ -246,6 +249,20 @@ def draw_view(view, solder):
     return out
 
 
+def title_band(title, subtitle):
+    """House header of the kits' sheets: the unit code on a yellow band with 45 deg ends, the title, hazard
+    stripes on the right and a rule under it."""
+    out = [f'<polygon points="16,8 50,8 58,16 24,16" fill="{YELLOW}"/>',
+           text(26, 14.2, CODE, 5.6, fill=YELLOW_INK, weight=700),
+           text(62, 11.6, f"OUTAGE ALARM - {title}", 4.4, weight=700),
+           text(62, 15.6, subtitle, 2.3, fill=MUTED)]
+    for i in range(10):
+        x = PAGE_W - 16 - 10 * 4.4 - 8 + i * 4.4
+        out.append(f'<polygon points="{f(x)},16 {f(x + 2.2)},16 {f(x + 10.2)},8 {f(x + 8)},8" fill="{YELLOW}"/>')
+    out.append(f'<line x1="16" y1="19.5" x2="{PAGE_W - 16}" y2="19.5" stroke="{INK}" stroke-width="0.3"/>')
+    return out
+
+
 def notes_block(x, y, title, items, width=58):
     out = [text(x, y, title, 3.0, weight=700)]
     y += 5
@@ -262,7 +279,7 @@ def notes_block(x, y, title, items, width=58):
 def svg():
     comp, sold = View(VIEW_X[0], False), View(VIEW_X[1], True)
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{PAGE_W}mm" height="{PAGE_H}mm" '
-           f'viewBox="0 0 {PAGE_W} {PAGE_H}" font-family="Segoe UI, Helvetica, Arial, sans-serif">',
+           f'viewBox="0 0 {PAGE_W} {PAGE_H}" font-family="{FONT}">',
            "  <!-- OutageAlarm v1 — perfboard layout. Drawn by perfboard.py: edit the layout there.",
            "       1:1 on A4 landscape, in mm. Orange (.u) = the 5 V side, blue (.b) = the battery side. -->",
            "<defs>"]
@@ -283,10 +300,11 @@ def svg():
             "  .halo { paint-order: stroke; stroke: #ffffff; stroke-width: 0.7; stroke-linejoin: round; }",
             f"  .clear {{ fill: none; stroke: {EDGE}; stroke-width: 0.25; stroke-dasharray: 1.2 0.8; }}",
             "</style>",
-            f'<rect width="{PAGE_W}" height="{PAGE_H}" fill="#ffffff"/>',
-            text(16, 15, "OutageAlarm v1 — Perfboard layout", 6, weight=700),
-            text(16, 21.5, "All the electronics on one 2.54 mm perfboard, clamped in the enclosure by its "
-                 "four screws. 1:1 on A4 landscape: print at 100 % and check the 50 mm bar.", 2.8, fill=MUTED),
+            f'<rect width="{PAGE_W}" height="{PAGE_H}" fill="#ffffff"/>']
+    out += title_band("PERFBOARD LAYOUT",
+                      "All the electronics on one 2.54 mm perfboard, clamped by the enclosure's four screws. "
+                      "Print 1:1 (100 %), check the 50 mm bar.")
+    out += [
             text(VIEW_X[0], 32, "COMPONENT SIDE", 3.0, weight=700),
             text(VIEW_X[0] + 33, 32, "back of the enclosure at the top", 2.4, fill=MUTED),
             text(VIEW_X[1], 32, "SOLDER SIDE", 3.0, weight=700),
@@ -300,7 +318,7 @@ def svg():
     yd = y0 + 7.5
     out += [f'<path d="M{f(x0)},{f(yd - 1.5)} V{f(yd + 1.5)} M{f(x1)},{f(yd - 1.5)} V{f(yd + 1.5)} '
             f'M{f(x0)},{f(yd)} H{f(x1)}" stroke="{MUTED}" stroke-width="0.25"/>',
-            f'<rect x="{f((x0 + x1) / 2 - 24)}" y="{f(yd - 2)}" width="48" height="4" fill="#ffffff"/>',
+            f'<rect x="{f((x0 + x1) / 2 - 30)}" y="{f(yd - 2)}" width="60" height="4" fill="#ffffff"/>',
             text((x0 + x1) / 2, yd + 0.9, f"{COLS * PITCH:.1f} × {ROWS * PITCH:.1f} mm "
                  f"({COLS} × {ROWS} hole spacings)", 2.4, "middle", MUTED)]
 
@@ -308,17 +326,17 @@ def svg():
     ly = 124
     lx = VIEW_X[0]
     out += [f'<line x1="{lx}" y1="{ly}" x2="{lx + 8}" y2="{ly}" class="u"/>',
-            text(lx + 10, ly + 0.9, "5 V side: +5V, COIL, 0V, LED (live only while the outlet has power)", 2.4),
+            text(lx + 10, ly + 0.9, "5 V side: +5V, COIL, 0V, LED (only while there is power)", 2.4),
             f'<line x1="{lx}" y1="{ly + 5}" x2="{lx + 8}" y2="{ly + 5}" class="b"/>',
             text(lx + 10, ly + 5.9, "battery side: BAT+, ARM, BZ+, BAT−", 2.4),
             f'<circle cx="{lx + 4}" cy="{ly + 10}" r="0.85" fill="#ffffff" stroke="{INK}" stroke-width="0.4"/>',
             f'<circle cx="{lx + 4}" cy="{ly + 10}" r="0.36" fill="{INK}"/>',
             text(lx + 10, ly + 10.9, "pad for a wire", 2.4),
-            f'<line x1="{lx + 92}" y1="{ly}" x2="{lx + 100}" y2="{ly}" class="clear"/>',
-            text(lx + 102, ly + 0.9, "keep clear outside: the outer row rests on the base, and the posts", 2.4),
-            text(lx + 102, ly + 4.2, "press on the 3 × 3 holes around each screw hole", 2.4),
-            f'<circle cx="{lx + 96}" cy="{ly + 10}" r="1.6" fill="#ffffff" stroke="{INK}" stroke-width="0.35"/>',
-            text(lx + 102, ly + 10.9, "drill 3.2 mm for the M3 screws (4 ×)", 2.4)]
+            f'<line x1="{lx + 104}" y1="{ly}" x2="{lx + 112}" y2="{ly}" class="clear"/>',
+            text(lx + 114, ly + 0.9, "keep clear outside: the outer row rests on the base,", 2.4),
+            text(lx + 114, ly + 4.2, "and the posts press on the 3 × 3 holes around each screw", 2.4),
+            f'<circle cx="{lx + 108}" cy="{ly + 10}" r="1.6" fill="#ffffff" stroke="{INK}" stroke-width="0.35"/>',
+            text(lx + 114, ly + 10.9, "drill 3.2 mm for the M3 screws (4 ×)", 2.4)]
     sx = PAGE_W - 16 - 50
     out += [f'<path d="M{sx},{ly + 8.5} V{ly + 10} H{sx + 50} V{ly + 8.5} M{sx + 25},{ly + 9} V{ly + 10}" '
             f'stroke="{INK}" stroke-width="0.3" fill="none"/>',

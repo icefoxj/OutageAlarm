@@ -22,9 +22,21 @@
 
   <rect width="1100" height="730" fill="#ffffff"/>
 
-  <!-- Title -->
-  <text x="30" y="40" font-size="22" font-weight="700" fill="#1f2328">OutageAlarm v1 — Schematic</text>
-  <text x="30" y="64" class="s">No microcontroller · relay with NC contact · Li-ion battery kept charged over USB-C · fail-safe</text>
+  <!-- Title: the house header of the kits' sheets (unit code on a yellow band, hazard stripes) -->
+  <g font-family="Consolas, 'DejaVu Sans Mono', 'Courier New', monospace">
+    <polygon points="24,18 150,18 168,52 42,52" fill="#ffcc00"/>
+    <text x="58" y="44" font-size="24" font-weight="700" fill="#15171a">OA-01</text>
+    <text x="186" y="34" font-size="20" font-weight="700" fill="#1f2328">OUTAGE ALARM - SCHEMATIC</text>
+    <text x="186" y="52" font-size="12" fill="#57606a">No microcontroller · relay with NC contact · 18650 kept charged over USB-C · fail-safe</text>
+    <g fill="#ffcc00">
+      <polygon points="840,52 850,52 870,18 860,18"/><polygon points="862,52 872,52 892,18 882,18"/>
+      <polygon points="884,52 894,52 914,18 904,18"/><polygon points="906,52 916,52 936,18 926,18"/>
+      <polygon points="928,52 938,52 958,18 948,18"/><polygon points="950,52 960,52 980,18 970,18"/>
+      <polygon points="972,52 982,52 1002,18 992,18"/><polygon points="994,52 1004,52 1024,18 1014,18"/>
+      <polygon points="1016,52 1026,52 1046,18 1036,18"/><polygon points="1038,52 1048,52 1068,18 1058,18"/>
+    </g>
+    <line x1="24" y1="64" x2="1076" y2="64" stroke="#1f2328" stroke-width="1.2"/>
+  </g>
 
   <!-- ===================== U1: TP4056 module ===================== -->
   <rect class="wf" x="150" y="140" width="120" height="420" rx="6"/>

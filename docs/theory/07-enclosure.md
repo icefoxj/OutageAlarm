@@ -1,17 +1,17 @@
 # 7. The enclosure
 
-OA-01's enclosure is a 3D-printed wedge in three parts: the **top** (the control face), the **sides** (the walls and the screw posts) and a dark **base**. It holds one perfboard with all the electronics, puts the controls where hands and eyes find them, lets the buzzer out, keeps the charger's heat in check and carries the mech livery. The model is parametric, in OpenSCAD, and it has not been test-printed yet: the numbers below are the design values of the model, and the thermal results are estimates from a simple model.
+OA-01's enclosure is a 3D-printed wedge: the **top** (the control face), the **sides** (the walls and the screw posts) and a darker **base**, all in graphite, with three white **armor plates** glued onto the face, the front and the back. It holds one perfboard with all the electronics, puts the controls where hands and eyes find them, lets the buzzer out, keeps the charger's heat in check and carries the mech livery on its plates, in the house style of the other 3DTesla kits. The model is parametric, in OpenSCAD, and it has not been test-printed yet: the numbers below are the design values of the model, and the thermal results are estimates from a simple model.
 
 ## 7.1 The wedge
 
-Seen from the side, the shell is a wedge: the control face tilts **20°** toward the user and the front leans back **10°**. The outer footprint is 122.8 × 74.8 mm, with corners rounded to 10 mm in top view; the whole unit is 33 mm tall at the front and 58.5 mm at the back, base included. Walls and face are 2.4 mm thick (six lines of a 0.4 mm nozzle), and a 3 mm, 45° chamfer runs around the face.
+Seen from the side, the shell is a wedge: the control face tilts **20°** toward the user and the front leans back **10°**. The outer footprint is 122.8 × 74.8 mm, with its corners cut at 45° (9 mm) in top view; the whole unit is 33 mm tall at the front and 58.5 mm at the back, base included. Walls and face are 2.4 mm thick (six lines of a 0.4 mm nozzle), and a 3 mm, 45° chamfer runs around the face.
 
 The shape follows the parts and the user:
 
 - **The tilt** turns the face toward someone standing or sitting in front of a desk or a shelf, so the POWER LED is seen and the TEST button and the ARM switch are reached without lifting the unit. A face tilted by $\theta$ is foreshortened by $\cos\theta$ seen from above and by $\sin\theta$ seen from the front; 20° keeps it readable from both.
 - **The tall back** gives room for the tallest parts: the 18650 holder (about 21 mm high with the cell) against the back wall, and the TP4056 module with its USB-C receptacle facing the back, 5.4 mm above the base.
 - **The buzzer** (30 mm wide, 15 mm deep) hangs under the grille where the face is high enough, and the relay sits in front and to its right. The model checks every one of these clearances with `assert()` statements, so a change of a parameter that makes two parts collide stops the build.
-- **The base** is 6 mm thick with a 45° undercut of 3 mm along its bottom edge: from normal viewing angles its own shadow separates the white shell from the table, and the unit seems to float.
+- **The base** is 6 mm thick with a 45° undercut of 3 mm along its bottom edge: from normal viewing angles its own shadow separates the shell from the table, and the unit seems to float.
 
 ## 7.2 Heat inside a closed box
 
@@ -38,12 +38,12 @@ The mean rise is small. The local one is not: the TP4056 chip concentrates its w
 
 ## 7.3 Materials and temperature
 
-The kit prints the top and the sides in PLA or PETG, light-coloured, and the base in a dark one. The two materials differ mainly in how they behave when warm:
+The kit prints the top and the sides in graphite PLA or PETG, the base in a darker graphite and the plates in white. The two materials differ mainly in how they behave when warm:
 
-- **PLA** softens around its glass transition, about 55–60 °C. A light-coloured PLA box in a room, warmed by a few kelvin, is far from it.
+- **PLA** softens around its glass transition, about 55–60 °C. A PLA box in a room, warmed by a few kelvin, is far from it.
 - **PETG** softens around 75–80 °C. The kit's documentation recommends it "for warm places": an attic, a garage in summer, a shelf in the sun, or next to a heater, where a dark PLA part could creep under the screws over months.
 
-The colours are not only for the look. A light shell absorbs less sunlight than a dark one; the dark base is in the shadow of the shell. The cell inside cares too: lithium-ion cells are generally charged between about 0 and 45 °C and age faster when kept hot at full charge (chapter 4). An outage alarm should live somewhere a person would be comfortable.
+Colour matters in the sun. A graphite shell absorbs most of the sunlight that falls on it, where a white one would reflect most of it. Out of the sun it hardly matters: the box loses its heat by convection and by infrared radiation, and in the infrared most plastics are nearly black, whatever their visible colour. So a graphite box in direct sun runs much warmer than the model above, which is one more reason for PETG in sunny places, or better, for a spot in the shade. The cell inside cares too: lithium-ion cells are generally charged between about 0 and 45 °C and age faster when kept hot at full charge (chapter 4). An outage alarm should live somewhere a person would be comfortable.
 
 ## 7.4 Printing without supports: the 45° rule
 
@@ -53,26 +53,29 @@ $$\Delta = h \tan\theta$$
 
 where $h$ is the layer height. With $h$ = 0.2 mm and a 0.4 mm wide line, a 45° overhang steps out 0.2 mm per layer: each new line rests on half of the one below, which is about the limit that prints cleanly without supports. Steeper overhangs droop; horizontal ones need **bridges** (lines stretched between two supports, which work over short spans) or supports.
 
-All three parts of OA-01 are oriented to stay within that rule:
+All the parts of OA-01 are oriented to stay within that rule:
 
-- **The top** prints **face down**. The face is the first layer, so it takes the texture of the bed (glossy on smooth PEI or glass, matt on textured PEI) and the grille, the holes and the livery form in the first layers. In this orientation the face chamfer is exactly 45° and the lip underneath rises at 20° from the vertical. The part is only 6.8 mm tall.
+- **The top** prints **face down**. The face is the first layer, so it comes out flat for its armor plate, and the grille and the holes form in the first layers. In this orientation the face chamfer is exactly 45° and the lip underneath rises at 20° from the vertical. The part is only 6.8 mm tall.
 - **The sides** print **upside down, standing on the seam**. The surface that seats the top is the first layer, so it is flat and true and the top sits on it without gaps. The walls lean at most 30° in this orientation, and the screw posts are bridged over the 2 mm notches made for the lip.
 - **The base** prints flat; its undercut is a 45° overhang, and the pocket for the perfboard's solder side is on top.
+- **The armor plates** print **visible face down**, all three together. The visible face takes the texture of the bed (glossy on smooth PEI or glass, matt on textured PEI), the 0.6 mm chamfer around it is a 45° overhang, and the locating pegs grow up from the back.
 
 No supports means no support scars, no post-processing and exact surfaces where parts meet. The orientations are already in the print files.
 
 ## 7.5 A livery in three layers
 
-The mech livery (a title band with the unit code OA-01, a reticle around the grille, hazard stripes with "FAIL-SAFE", the labels TEST, ARM and POWER, the wordmark on the front and "5V" on the back) is **inlaid** flush in a second filament, 0.6 mm deep. A printer with a multi-material unit changes filament within a layer; every layer that holds a second colour costs up to two filament changes and some purged plastic, so the geometry of the inlay decides the cost.
+The mech livery (title bands with the unit code OA-01, a reticle around the grille, hazard stripes with "FAIL-SAFE", brackets around ARM, the labels TEST, ARM and POWER, the wordmark on the front and "5V" on the back) is **inlaid** flush in a second filament, 0.6 mm deep, in house yellow. A printer with a multi-material unit changes filament within a layer; every layer that holds a second colour costs up to two filament changes and some purged plastic, so the geometry of the inlay decides the cost.
 
-- On **the face**, printed flat on the bed, the inlay is a slab parallel to the layers: 0.6 mm is exactly **3 layers** of 0.2 mm (0.15 or 0.12 mm layers also divide it). The whole face livery costs 3 two-colour layers, about 6 filament changes.
-- On **the walls**, which stand up in the print, the inlay is a thin skin across many layers: the wordmark on the front spans 27 layers, the "5V" on the back 29, 56 in all, about 110 changes. That is why the kit keeps the decorative livery on the face and puts only the essential marks on the walls.
+- On a **flat plate printed face down**, the inlay is a slab parallel to the layers: 0.6 mm is exactly **3 layers** of 0.2 mm (0.15 or 0.12 mm layers also divide it).
+- On a **wall that stands up in the print**, the inlay would be a thin skin across many layers, one per 0.2 mm of its height. An earlier version of OA-01 had the wordmark on the front wall and "5V" on the back wall: 27 and 29 layers, 56 in all, about 110 changes.
 
-Resolution follows from the same geometry. On the face the lettering is drawn with 0.8 mm strokes and gaps of at least 0.8 mm, two lines of a 0.4 mm nozzle, so each stroke is whole in each of its 3 layers. On a wall, each layer cuts the inlay into a strip only about 0.7 mm wide, so the wall lettering uses wider 1.4 mm strokes and gaps of at least 0.7 mm. A one-colour version, with the marks engraved 0.6 mm deep instead, needs no second filament at all.
+That is why the whole livery sits on three flat **armor plates**, glued onto the shell, and why the three print together: all the second colour is in the same 3 layers, about 6 filament changes for the whole enclosure, and the top, the sides and the base print in one colour on any printer. The plates are a style of the house too: on the other kits, white plates with cut corners stand on a graphite body and carry the livery.
+
+Resolution follows from the same geometry. Printed flat, the lettering is drawn with strokes of 0.8 mm or more, two lines of a 0.4 mm nozzle, so each stroke is whole in each of its 3 layers. On a wall, each layer would cut the inlay into a strip only about 0.7 mm wide, and the lettering would need strokes about twice as wide. A one-colour version of the plates, with the marks engraved 0.6 mm deep instead, needs no second filament at all.
 
 ## 7.6 The glued joint
 
-The top and the sides are printed separately (so that the two-colour face print is only 6.8 mm tall) and glued into one shell. The joint is designed as a small exercise in tolerances:
+The top and the sides are printed separately and glued into one shell. The joint is designed as a small exercise in tolerances:
 
 - a **lip** under the top, 4 mm high and 1.6 mm thick, fits inside the walls and locates the top;
 - a **glue gap** of 0.15 mm per side between the lip and the walls: room for the glue film and for the normal dimensional error of a print, which is typically of the order of ±0.1 mm;
@@ -100,7 +103,7 @@ A self-tapping screw forms its own thread in a pilot hole slightly smaller than 
 | Closed box: $\Delta T = P / (hA)$, $\tau \approx C_{th}/(hA)$ | ≈ 1.5 K in standby, ≈ 6 K peak while recharging at 1 A (model); the TP4056 itself runs hot |
 | PLA softens ≈ 55–60 °C, PETG ≈ 75–80 °C | PLA indoors, PETG for warm places |
 | Overhang step $h \tan\theta$; 45° is the limit | every part printed without supports, in the orientation stored in the files |
-| Face inlay = 3 layers; wall inlays = 56 layers | livery on the face; ≈ 6 vs ≈ 110 filament changes |
+| Inlay printed flat = 3 layers; on a wall, one layer per 0.2 mm of height | livery on three flat plates printed together: 3 layers, ≈ 6 filament changes |
 | Lip with 0.15 mm glue gap, groove, hidden seam | precise fit, glue in shear, clean seam |
 | Four screws through the board | the board is clamped, no standoffs; leads ≤ 1.5 mm |
 

@@ -32,7 +32,7 @@ The POWER LED sits **before** the button, so it stays lit during the test. That 
 | 1 | LED1 | Green LED | 5 mm | its base flange stops against the control face |
 | 1 | BZ1  | SFM-27 active buzzer | 3–24 V, < 20 mA | **active** (built-in oscillator) and **polarized** |
 | 1 | SW1  | KCD1-101 rocker switch | SPST on/off, 2 pins, 21 × 15 mm bezel, snaps into a 19.2 × 12.9 mm cutout | ARM |
-| 1 | SW2  | PBS-11B pushbutton | **NC** (normally closed), momentary, 12 mm hole | TEST. Check with a multimeter: conducts when **released**, opens when **pressed** |
+| 1 | SW2  | PBS-11B pushbutton | **NC** (normally closed), momentary, 12 mm hole | TEST. Check with a multimeter: conducts when **released**, opens when **pressed**. It mounts through 4.4 mm (the face and its armor plate); a yellow cap matches the livery |
 | 1 | —    | Perfboard | 2.54 mm pitch, single-sided with a pad on each hole, 10 × 15 cm | cut to 114.3 × 66.0 mm: see [Perfboard](#perfboard) |
 | — | —    | Bare tinned copper wire | ≈ 0.5 mm, or leftover component leads | the links on the board |
 | 1 | —    | 5 V USB charger | ≥ 1.5 A | certified, plugged straight into the wall |
@@ -109,7 +109,7 @@ The layout is drawn 1:1 on an A4 page. Print it at 100 % and check the 50 mm bar
 ### Cutting and drilling
 
 1. Cut a 114.3 × 66.0 mm piece (45 × 26 hole spacings) from a 10 × 15 cm perfboard. Cut along lines of holes, so that the edges run through the outer holes: score both sides with a knife and snap it, or saw it.
-2. Cut each corner at 45°, through the second hole along each edge, so the corners clear the rounded inner corners of the enclosure.
+2. Cut each corner at 45°, through the second hole along each edge, so the corners clear the cut inner corners of the enclosure.
 3. Drill the four screw holes to 3.2 mm. They are the holes 2 in from each corner, along both edges.
 4. Drill K1's five holes to 1.3 mm, where the layout shows them. The SRD relay's pins are not on the 2.54 mm grid: four of them sit about 0.4 mm off a hole, and COM falls between two holes.
 
