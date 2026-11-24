@@ -3,28 +3,33 @@
 //
 //  A wedge-shaped shell: the control face tilts toward the user and the front
 //  leans back. It sits on a dark base whose undercut makes it look like it floats.
-//  The shell wears a mech-style livery, like the markings on anime mechs:
-//  straight lines, 45° cuts, hazard stripes, a unit code and a chamfered
-//  stroke font. It is inlaid in a second filament (two-colour 3MF).
+//  It follows the house style of the 3DTesla kits: a graphite body with 45°
+//  corners, white armor plates with cut corners, and a mech-style livery in
+//  house yellow (straight lines, 45° cuts, hazard stripes, a unit code knocked
+//  out of a title band, a chamfered stroke font) inlaid in the plates in a
+//  second filament (two-colour 3MF).
 //  Units: millimeters
 //
-//  Three printed parts:
+//  Printed parts:
 //    top    the control face and its chamfer; a lip underneath fits inside
-//           the walls and is glued to them
-//    sides  the walls and the screw posts
+//           the walls and is glued to them (graphite)
+//    sides  the walls and the screw posts (graphite)
 //    base   the floor; the shell (top + sides) is screwed to it from below
+//    plates three flat armor plates glued onto the shell: on the face, the
+//           front and the back (white, with the livery)
 //
 //  All the electronics sit on one perfboard that covers the floor. The four
 //  shell screws pass through its corners, so the posts clamp it to the base.
 //
 //  Export the STLs from the command line:
-//    openscad -o stl/enclosure_top.stl   -D "part=\"top\""   enclosure.scad
-//    openscad -o stl/enclosure_sides.stl -D "part=\"sides\"" enclosure.scad
-//    openscad -o stl/enclosure_base.stl  -D "part=\"base\""  enclosure.scad
+//    for p in top sides base plate_face plate_front plate_back; do
+//      openscad -o stl/enclosure_$p.stl -D "part=\"$p\"" enclosure.scad
+//    done
 //
-//  Two colours: export the top and the sides with the livery recessed and the
-//  inlays that fill it, then pack them into 3MFs with make_3mf.py:
-//    for p in top_2color sides_2color inlay_face inlay_front inlay_back; do
+//  Two colours: export the plates with the livery recessed and the inlays that
+//  fill it, then pack them into one 3MF with make_3mf.py:
+//    for p in plate_face_2color plate_front_2color plate_back_2color \
+//             inlay_face inlay_front inlay_back; do
 //      openscad -o parts/$p.stl -D "part=\"$p\"" enclosure.scad
 //    done
 //    python3 make_3mf.py parts 3mf
@@ -40,10 +45,10 @@
 //
 //                                       ___---|
 //                   control face ___---       |
-//                          ___---             |  back: USB-C, "5V"
+//                          ___---             |  back: USB-C, "5V" plate
 //                  ___---                     |
 //            /---                             |
-//     front /  OUTAGE ALARM                   |
+//     front / [OA-01] OUTAGE ALARM plate      |
 //          /__________________________________|
 //          \_________ base (dark) ____________/   <- undercut
 //
@@ -63,17 +68,17 @@
 //    o = screw posts, molded into the shell; the screws pass through the board
 //    : = pads for the wires to U1 and to the parts on the shell
 //
-//  On the control face: the speaker grille over the buzzer (left) and a
-//  column with TEST, ARM and POWER (right).
+//  On the control face, under its armor plate: the speaker grille over the
+//  buzzer (left) and a column with TEST, ARM and POWER (right).
 // =============================================================================
 
 /* [Part to render] */
-part = "assembled"; // [assembled, exploded, cutaway, interior, joint, top, sides, base, top_2color, sides_2color, inlay_face, inlay_front, inlay_back]
+part = "assembled"; // [assembled, exploded, cutaway, interior, joint, plates, top, sides, base, plate_face, plate_front, plate_back, plate_face_2color, plate_front_2color, plate_back_2color, inlay_face, inlay_front, inlay_back]
 
 /* [Colors (renders only)] */
-shell_color = "#ECEAE4";
-base_color = "#2A2C30";
-accent_color = "#D7261E";    // TEST button cap
+shell_color = "#363840";     // top and sides: graphite
+base_color = "#202226";      // base: a darker graphite, for the floating shadow
+accent_color = "#FFCC00";    // TEST button cap: house yellow
 
 /* [Shell] */
 in_x = 118;          // inner width
@@ -83,7 +88,7 @@ slope = 20;          // tilt of the control face (degrees)
 lean = 10;           // the front face leans back by this angle (degrees)
 wall = 2.4;          // side walls (6 lines of 0.4 mm)
 face_t = 2.4;        // control face thickness, square to the face
-corner_r = 10;       // outer corner radius, top view
+corner_c = 9;        // 45° cut on the outer corners, top view (leg length)
 edge_c = 3;          // chamfer around the control face
 bottom_c = 1;        // chamfer along the bottom edge
 
@@ -146,10 +151,10 @@ usb_opening = [12.6, 7.2];   // large enough for the plug overmold to reach the 
 ctrl_x = 98;                 // X of the control column
 test_y = 19;                 // TEST button (PBS-11B, NC)
 test_d = 12.2;               // 12 mm bushing hole
-test_ring_r = 12.5;          // ring marked around TEST
+test_ring_r = 11;            // ring marked around TEST
 arm_y = 44;                  // ARM rocker switch (KCD1-101)
 rocker_cut = [12.9, 19.2];   // rocker cutout: across x along the face
-rocker_panel_t = 2.0;        // face thinned to this around the rocker, for the snap clips
+rocker_panel_t = 2.0;        // the most the rocker's snap clips take; the face is cut away under it, so the plate alone holds it
 led_y = 61;                  // POWER LED
 led_d = 5.2;
 label_x = 82;                // right edge of the TEST/ARM/POWER labels
@@ -167,30 +172,44 @@ grille_bridge = 1.6;         // bridges between slots
 grille_center_d = 3.4;
 grille_outline_r = 17.5;     // ring marked around the grille, with four ticks
 
-/* [Marks and two-colour livery] */
-show_livery = true;          // renders: show the two-colour shell, livery inlaid
-livery_color = "#D7261E";    // second filament: renders, and a hint stored in the 3MF
+/* [Armor plates and two-colour livery] */
+// The marks and the livery are on three flat armor plates glued onto the
+// shell: on the face, the front and the back. They print visible face down,
+// so the second colour sits in their first 3 layers.
+show_livery = true;          // renders: show the two-colour plates, livery inlaid
+plate_color = "#EDEDE8";     // armor plates: white
+livery_color = "#FFCC00";    // second filament, house yellow: renders, and a hint stored in the 3MF
+plate_t = 2.0;               // plate thickness (the face plate holds the rocker)
+plate_edge_c = 0.6;          // chamfer around the visible face of the plates
+plate_gap = 2.0;             // face plate to the flat part of the face
+face_plate_cuts = [8, 6, 8, 6];   // its 45° corner cuts: front-left, front-right, back-right, back-left
+front_plate = [100, 14];     // front plate: width x height, centered on the front wall
+back_plate = [34, 12];       // back plate: width x height, over the USB-C
+back_plate_x = 92;           // its center (X)
+peg_d = 3;                   // locating pegs under the plates, into blind holes in the shell
+peg_h = 1.6;
+peg_clear = 0.3;             // peg holes: this much wider and deeper than the pegs
+grille_window_r = 13.6;      // round window in the face plate over the grille
 inlay_depth = 0.6;           // depth of the recessed marks = inlay thickness (3 layers of 0.2 mm)
-livery_gap = 1.8;            // livery to the face edges and to other features
+livery_gap = 1.8;            // livery to the plate edges and to other features
 mark_w = 1.2;                // rings and ticks
 label_cap = 4;               // TEST / ARM / POWER: cap height
 label_stroke = 0.8;
-logo_text = "OUTAGE ALARM";  // wordmark on the front
-logo_cap = 6;                // also the size of the "5V" on the back
-logo_stroke = 1.4;
-unit_code = "OA-01";         // cut out of the title band
+logo_text = "OUTAGE ALARM";  // wordmark on the front plate
+logo_cap = 5;                // also the "5V" on the back plate, at 6
+logo_stroke = 1.0;
+unit_code = "OA-01";         // knocked out of the title bands
 caption = "FAIL-SAFE";       // over the rule beside the hazard stripes
 band_h = 7;                  // title band at the back of the face
-hazard_h = 8;                // hazard stripes at the front of the face
+hazard_h = 7;                // hazard stripes at the front of the face
 
 /* [Hidden] */
 $fn = 48;
 eps = 0.01;
-corner_n = 12;               // segments per rounded corner of the shell outline
 
 out_x = in_x + 2 * wall;
 out_y = in_y + 2 * wall;
-inner_r = corner_r - wall;
+inner_c = corner_c - (2 - sqrt(2)) * wall;  // 45° cut on the inner corners
 sin_s = sin(slope);
 cos_s = cos(slope);
 tan_s = tan(slope);
@@ -229,9 +248,7 @@ chg_base = pcb_t + chg_lift;                // underside of the module
 chg_z = chg_base + chg_pcb_t + chg_conn_h / 2;   // USB-C center height above the base
 chg_top = chg_z + chg_conn_h / 2;
 ring_r = buzzer_d / 2 + 0.3 + ring_t;       // outer radius of the buzzer ring
-logo_z = (bottom_c + front_h - edge_c) / 2;
-back_z = chg_z + usb_opening[1] / 2 + 5;    // "5V" on the back wall, over the USB-C
-art_areas = ["face", "front", "back"];      // where the marks and livery are
+plate_areas = ["face", "front", "back"];    // where the armor plates are
 
 // [x, y, direction to the corner in x, in y]
 posts = [[post_x, post_y, -1, -1], [in_x - post_x, post_y, 1, -1],
@@ -247,9 +264,9 @@ explode = (part == "exploded") ? 40 : 0;   // sides up by this, top by twice
 
 function top_z(y) = top0 + y * tan_s;                  // outer control face at plan y
 function ceil_z(y) = top_z(y) - face_t / cos_s;        // inner control face at plan y
-// A point of the board, near the front-left corner, clears the shell's
-// rounded inner corner by 0.5 mm
-function in_corner(p) = p[0] >= inner_r || p[1] >= inner_r || norm(p - [inner_r, inner_r]) <= inner_r - 0.5;
+// A point of the board, near the front-left corner, clears the shell's cut
+// inner corner by 0.5 mm, at the board's top face (the front wall leans in)
+function in_corner(p) = (p[0] + p[1] - pcb_t * tan_l - inner_c) / sqrt(2) >= 0.5;
 
 bz_depth = face_t + buzzer_h;                          // outer face to the buzzer's back end
 bz_back_y = buzzer_y + bz_depth * sin_s;               // center of the buzzer's back end
@@ -274,15 +291,17 @@ assert(hole(r1_hole[0], 0)[0] + 1.5 <= ctrl_x - 7, "A part on the perfboard is u
 assert(holder_x0 + holder_x + 1 <= chg_x - chg_pcb[0] / 2, "The 18650 holder overlaps the TP4056 module");
 assert(chg_x + chg_pcb[0] / 2 + 0.5 <= in_x - post_x - post_d / 2, "The TP4056 module hits a screw post");
 assert(holder_x0 >= post_x + post_d / 2 + 0.5, "The 18650 holder hits a screw post");
-assert(norm([post_x, post_y] - [inner_r, inner_r]) + screw_head_d / 2 <= corner_r - undercut - 0.3,
+// The bottom face is the outline inset by the undercut: its corner cut is
+// x + y = 2 (undercut - wall) + oc(corner_c, undercut)
+assert(post_x + post_y - 2 * (undercut - wall) - oc(corner_c, undercut) >= sqrt(2) * (screw_head_d / 2 + 0.3),
        "The screw heads do not fit on the bottom face");
 // The perfboard: inside the walls (the front one leans in over its edge),
-// its cut corners clear of the shell's rounded ones, enough board around the
+// its cut corners clear of the shell's cut ones, enough board around the
 // screw holes, the outer row of holes (only) on the base's rim, and the
 // screws long enough to bite into the posts but not past their pilot holes
 assert(pcb_x0 >= 0.5 && pcb_y0 >= 0.5 + pcb_t * tan_l, "The perfboard is too big for the shell");
 assert(in_corner([pcb_x0, pcb_y0 + pcb_cut * pitch]) && in_corner([pcb_x0 + pcb_cut * pitch, pcb_y0]),
-       "The perfboard's cut corners hit the shell's rounded corners");
+       "The perfboard's cut corners hit the shell's cut corners");
 assert((4 - pcb_cut) * pitch / sqrt(2) - screw_clear / 2 >= 1, "The screw holes are too close to the board's cut corners");
 assert(pocket_rim >= pitch && pocket_rim <= 2 * pitch - 1, "The base's rim must hold the board's outer row of holes, and only it");
 assert(screw_len - base_t - pcb_t >= 6 && screw_len - base_t - pcb_t <= screw_depth - 0.5,
@@ -304,23 +323,43 @@ echo(str("Enclosure: ", out_x, " x ", out_y, " mm, ", front_h + base_t, " mm tal
 //  Helpers
 // -----------------------------------------------------------------------------
 
-// Rounded rectangle outline, counterclockwise, 4 * (n + 1) points
-function rr(x0, y0, x1, y1, r, n = corner_n) =
-    let (c = [[x1 - r, y1 - r], [x0 + r, y1 - r], [x0 + r, y0 + r], [x1 - r, y0 + r]])
-    [for (k = [0 : 3]) for (i = [0 : n])
-        let (a = 90 * k + 90 * i / n) [c[k][0] + r * cos(a), c[k][1] + r * sin(a)]];
+// Rectangle with its corners cut at 45° by k (leg length): 8 points, counterclockwise
+function co(x0, y0, x1, y1, k) =
+    [[x1 - k, y0], [x1, y0 + k], [x1, y1 - k], [x1 - k, y1],
+     [x0 + k, y1], [x0, y1 - k], [x0, y0 + k], [x0 + k, y0]];
+// Leg of a 45° corner cut k once the outline is inset by d
+function oc(k, d) = k - (2 - sqrt(2)) * d;
+
+// Rectangle with its corners cut at 45° by k = [front-left, front-right,
+// back-right, back-left]: 8 points, counterclockwise
+function cut_rect(u0, v0, u1, v1, k) =
+    [[u0 + k[0], v0], [u1 - k[1], v0], [u1, v0 + k[1]], [u1, v1 - k[2]],
+     [u1 - k[2], v1], [u0 + k[3], v1], [u0, v1 - k[3]], [u0, v0 + k[0]]];
 
 // Outlines inset by d; the front edge moves back with the lean at height z
-function outer_pts(d, z = 0) = rr(-wall + d, -wall + d + z * tan_l, in_x + wall - d, in_y + wall - d, corner_r - d);
-function inner_pts(d, z = 0) = rr(d, d + z * tan_l, in_x - d, in_y - d, inner_r - d);
+function outer_pts(d, z = 0) = co(-wall + d, -wall + d + z * tan_l, in_x + wall - d, in_y + wall - d, oc(corner_c, d));
+function inner_pts(d, z = 0) = co(d, d + z * tan_l, in_x - d, in_y - d, oc(corner_c, wall + d));
 function at_z(pts, z) = [for (p = pts) [p[0], p[1], z]];
 function at_face(pts, dz) = [for (p = pts) [p[0], p[1], top_z(p[1]) + dz]];
 
+// Convex counterclockwise polygon inset by d (outset if d < 0), and the
+// distance of a point inside one (negative outside)
+function cross2(a, b) = a[0] * b[1] - a[1] * b[0];
+function _nrm(e) = [-e[1], e[0]] / norm(e);
+function poly_inset(p, d) = let (n = len(p))
+    [for (i = [0 : n - 1])
+        let (r = p[i] - p[(i + n - 1) % n], s = p[(i + 1) % n] - p[i],
+             a = p[(i + n - 1) % n] + d * _nrm(r), b = p[i] + d * _nrm(s))
+        a + cross2(b - a, s) / cross2(r, s) * r];
+function poly_margin(q, p) = min([for (i = [0 : len(p) - 1])
+    let (e = p[(i + 1) % len(p)] - p[i]) cross2(e, q - p[i]) / norm(e)]);
+
 // Chamfer around the control face, 45° to the face, so it also prints at 45°
-// with the face on the bed. Given the outline where the walls cross a plane
-// c below the face (square to it), returns the outline of the chamfer on the face.
-function face_chamfer(x0, y0, x1, y1, r, c) =
-    rr(x0 + c, y0 + c * (cos_s - sin_s), x1 - c, y1 - c * (cos_s + sin_s), r - c);
+// with the face on the bed. Given the outline (top view) where the walls cross
+// a plane c below the face (square to it), returns the outline of the chamfer
+// on the face: that outline projected square onto the face, then inset by c.
+function face_chamfer(pts, c) =
+    [for (p = poly_inset([for (q = pts) [q[0], (q[1] - c * sin_s) / cos_s]], c)) [p[0], p[1] * cos_s]];
 ce = edge_c / cos_s;                         // chamfer depth, measured vertically
 front_zc = front_h - ce / (1 - tan_l * tan_s);   // where the chamfer meets the front, on its lean plane
 
@@ -448,29 +487,52 @@ module paint(c, mesh = false) {
 // -----------------------------------------------------------------------------
 
 // [character, width in grid units, polylines]; a polyline that ends where it
-// starts is closed
+// starts is closed. The same glyphs as the other kits (cad/mech.py).
 mech_glyphs = [
     [" ", 3, []],
     ["-", 3, [[[0, 3], [3, 3]]]],
+    ["/", 3, [[[0, 0], [3, 6]]]],
+    [".", 0, [[[0, 0], [0, 0.6]]]],
+    [":", 0, [[[0, 0.6], [0, 1.4]], [[0, 4.0], [0, 4.8]]]],
+    [">", 3, [[[0, 6], [3, 3], [0, 0]]]],
+    ["<", 3, [[[3, 6], [0, 3], [3, 0]]]],
+    ["+", 4, [[[0, 3], [4, 3]], [[2, 1], [2, 5]]]],
     ["0", 4, [[[1, 0], [4, 0], [4, 5], [3, 6], [0, 6], [0, 1], [1, 0]]]],
-    ["1", 1.5, [[[0, 4.5], [1.5, 6], [1.5, 0]]]],
+    ["1", 2, [[[0, 4.5], [2, 6], [2, 0]]]],
+    ["2", 4, [[[0, 6], [3, 6], [4, 5], [4, 4], [0, 0]], [[0, 0], [4, 0]]]],
+    ["3", 4, [[[0, 6], [3, 6], [4, 5], [4, 1], [3, 0], [0, 0]], [[1.5, 3], [4, 3]]]],
+    ["4", 4, [[[3, 0], [3, 6], [0, 2]], [[0, 2], [4, 2]]]],
     ["5", 4, [[[4, 6], [0, 6], [0, 3], [3, 3], [4, 2], [4, 1], [3, 0], [0, 0]]]],
+    ["6", 4, [[[4, 6], [1, 6], [0, 5], [0, 0], [4, 0], [4, 3]], [[4, 3], [0, 3]]]],
+    ["7", 4, [[[0, 6], [4, 6], [4, 5], [1.5, 0]]]],
+    ["8", 4, [[[1, 0], [3, 0], [4, 1], [4, 5], [3, 6], [1, 6], [0, 5], [0, 1], [1, 0]], [[0, 3], [4, 3]]]],
+    ["9", 4, [[[0, 0], [3, 0], [4, 1], [4, 6], [0, 6], [0, 3]], [[0, 3], [4, 3]]]],
     ["A", 4, [[[0, 0], [0, 5], [1, 6], [3, 6], [4, 5], [4, 0]], [[0, 2.5], [4, 2.5]]]],
+    ["B", 4, [[[0, 0], [0, 6]], [[0, 6], [3, 6], [4, 5], [4, 4], [3, 3], [0, 3]], [[3, 3], [4, 2], [4, 1], [3, 0], [0, 0]]]],
+    ["C", 4, [[[4, 6], [1, 6], [0, 5], [0, 1], [1, 0], [4, 0]]]],
     ["D", 4, [[[0, 0], [3, 0], [4, 1], [4, 5], [3, 6], [0, 6], [0, 0]]]],
     ["E", 4, [[[4, 6], [0, 6], [0, 0], [4, 0]], [[0, 3], [3, 3]]]],
     ["F", 4, [[[4, 6], [0, 6], [0, 0]], [[0, 3], [3, 3]]]],
-    ["G", 4, [[[4, 6], [1, 6], [0, 5], [0, 1], [1, 0], [4, 0], [4, 3], [2, 3]]]],
+    ["G", 4, [[[4, 5], [3, 6], [1, 6], [0, 5], [0, 1], [1, 0], [4, 0], [4, 3], [2, 3]]]],
+    ["H", 4, [[[0, 0], [0, 6]], [[4, 0], [4, 6]], [[0, 3], [4, 3]]]],
     ["I", 0, [[[0, 0], [0, 6]]]],
+    ["J", 4, [[[4, 6], [4, 1], [3, 0], [1, 0], [0, 1]]]],
+    ["K", 4, [[[0, 0], [0, 6]], [[4, 6], [1, 3], [4, 0]], [[0, 3], [1, 3]]]],
     ["L", 4, [[[0, 6], [0, 0], [4, 0]]]],
-    ["M", 4, [[[0, 0], [0, 6], [2, 3], [4, 6], [4, 0]]]],
+    ["M", 4, [[[0, 0], [0, 6], [2, 3.5], [4, 6], [4, 0]]]],
+    ["N", 4, [[[0, 0], [0, 6], [4, 0], [4, 6]]]],
     ["O", 4, [[[1, 0], [3, 0], [4, 1], [4, 5], [3, 6], [1, 6], [0, 5], [0, 1], [1, 0]]]],
-    ["P", 4, [[[0, 0], [0, 6], [3, 6], [4, 5], [4, 4], [3, 3], [0, 3]]]],
-    ["R", 4, [[[0, 0], [0, 6], [3, 6], [4, 5], [4, 4], [3, 3], [0, 3]], [[3, 3], [4, 2], [4, 0]]]],
+    ["P", 4, [[[0, 0], [0, 6]], [[0, 6], [3, 6], [4, 5], [4, 4], [3, 3], [0, 3]]]],
+    ["Q", 4, [[[1, 0], [3, 0], [4, 1], [4, 5], [3, 6], [1, 6], [0, 5], [0, 1], [1, 0]], [[2.5, 1.5], [4, 0]]]],
+    ["R", 4, [[[0, 0], [0, 6]], [[0, 6], [3, 6], [4, 5], [4, 4], [3, 3], [0, 3]], [[3, 3], [4, 2], [4, 0]]]],
     ["S", 4, [[[4, 6], [1, 6], [0, 5], [0, 4], [1, 3], [3, 3], [4, 2], [4, 1], [3, 0], [0, 0]]]],
     ["T", 4, [[[0, 6], [4, 6]], [[2, 6], [2, 0]]]],
     ["U", 4, [[[0, 6], [0, 1], [1, 0], [3, 0], [4, 1], [4, 6]]]],
     ["V", 4, [[[0, 6], [0, 2], [2, 0], [4, 2], [4, 6]]]],
-    ["W", 4, [[[0, 6], [0, 0], [2, 3], [4, 0], [4, 6]]]],
+    ["W", 4, [[[0, 6], [0, 0], [2, 2], [4, 0], [4, 6]]]],
+    ["X", 4, [[[0, 0], [4, 6]], [[0, 6], [4, 0]]]],
+    ["Y", 4, [[[0, 6], [2, 3], [4, 6]], [[2, 3], [2, 0]]]],
+    ["Z", 4, [[[0, 6], [4, 6], [0, 0], [4, 0]]]],
 ];
 
 function _psum(v, n) = n <= 0 ? 0 : v[n - 1] + _psum(v, n - 1);   // sum of the first n
@@ -521,24 +583,37 @@ module mech_text(s, cap, w, halign = "left", valign = "bottom") {
 }
 
 // -----------------------------------------------------------------------------
-//  Livery layout, in face coordinates (u, v): u = X, v = distance up the slope
-//  from plan y = 0. on_face(0, 0) maps them onto the face.
+//  Livery layout. The face plate is drawn in face coordinates (u, v): u = X,
+//  v = distance up the slope from plan y = 0; on_face(0, 0) maps them onto the
+//  face. The front and back plates are drawn around their centers.
 // -----------------------------------------------------------------------------
 
 function fv(y) = y / cos_s;
-face_u0 = -wall + edge_c;                                   // flat part of the face
+face_u0 = -wall + edge_c;                                   // flat part of the face: its box
 face_u1 = in_x + wall - edge_c;
 face_v0 = fv(-wall + front_zc * tan_l + edge_c * (cos_s - sin_s));
 face_v1 = fv(in_y + wall - edge_c * (cos_s + sin_s));
-face_r = corner_r - edge_c;                                 // its corner radius, top view
+face_poly = [for (p = face_chamfer(outer_pts(0, front_zc), edge_c)) [p[0], fv(p[1])]];   // and its outline
+
+// Face plate: its outline, and its flat visible face inside the edge chamfer
+fp_outline = cut_rect(face_u0 + plate_gap, face_v0 + plate_gap, face_u1 - plate_gap, face_v1 - plate_gap,
+                      face_plate_cuts);
+fp_flat = poly_inset(fp_outline, plate_edge_c);
+pu1 = face_u1 - plate_gap - plate_edge_c;                   // box of the flat visible face
+pv0 = face_v0 + plate_gap + plate_edge_c;
+pv1 = face_v1 - plate_gap - plate_edge_c;
 grille_c = [buzzer_x, fv(buzzer_y)];
 test_c = [ctrl_x, fv(test_y)];
-tick_r = [grille_outline_r - 2, grille_outline_r + 3];      // reticle ticks: inner, outer radius
+arm_c = [ctrl_x, fv(arm_y)];
+led_c = [ctrl_x, fv(led_y)];
+tick_r = [grille_outline_r - 1.5, grille_outline_r + 3];    // reticle ticks, at 45°: inner, outer radius
+ret_r = max(grille_outline_r + mark_w / 2, tick_r[1] / sqrt(2) + mark_w);   // reticle: reach from its center
+arm_brackets = [9.9, 12.4];                                 // corner brackets around the ARM rocker: half sizes
 
 // Title band at the back of the face: three speed dashes, then the band with
-// the unit code cut out, two panel breaks, and a 45° end short of POWER
+// the unit code knocked out, two panel breaks, and a 45° end short of POWER
 power_u = label_x - mech_width("POWER", label_cap, label_stroke);
-band_v1 = face_v1 - 3;
+band_v1 = pv1 - livery_gap;
 band_v0 = band_v1 - band_h;
 dash_w = [2, 3, 4.5];
 dash_u = [for (i = [0 : 2]) face_u0 + 6 + _psum(dash_w, i) + 2 * i];
@@ -550,47 +625,97 @@ code_u0 = band_u0 + band_h + 1;
 code_u1 = code_u0 + mech_width(unit_code, code_cap, code_w);
 
 // Hazard stripes at the front of the face, then a rule with the caption over it
-haz_v0 = face_v0 + 2.8;
+haz_v0 = pv0 + livery_gap;
 haz_v1 = haz_v0 + hazard_h;
 haz_w = 2.2;
-haz_u = [for (i = [0 : 4]) face_u0 + 7.4 + 2 * haz_w * i];
+haz_u = [for (i = [0 : 4]) face_u0 + 11.4 + 2 * haz_w * i];
 rule_u0 = haz_u[4] + haz_w + 2.4;
 rule_u1 = label_x - 6;
 caption_u0 = haz_u[4] + haz_w + hazard_h + 2.4;
 
-assert(band_v0 - (grille_c[1] + tick_r[1]) >= livery_gap, "The title band is too close to the grille");
-assert(band_v1 <= face_v1 - livery_gap, "The title band runs into the face chamfer");
-assert(dash_u[0] + (face_v1 - face_r / cos_s - band_v0) >= face_u0 + face_r,
-       "The speed dashes run into the face's corner");
+// Front plate: the title band with the unit code, then the wordmark, centered
+fr_u1 = front_plate[0] / 2 - plate_edge_c - livery_gap;    // half the room for the livery
+fr_v1 = front_plate[1] / 2 - plate_edge_c - livery_gap;
+fband_h = 8;
+fcode_cap = 4.4;
+fcode_w = 0.8;
+fband_len = mech_width(unit_code, fcode_cap, fcode_w) + fband_h + fcode_cap + 3.2;   // room for the knocked-out code
+logo_w = mech_width(logo_text, logo_cap, logo_stroke);
+fband_u0 = -(fband_len + 2.5 + logo_w) / 2;
+logo_u0 = fband_u0 + fband_len + 2.5;
+
+// Back plate, over the USB-C: chevrons pointing at it, a bolt and "5V"
+bk_u1 = back_plate[0] / 2 - plate_edge_c - livery_gap;
+bk_v1 = back_plate[1] / 2 - plate_edge_c - livery_gap;
+port_u = back_plate_x - chg_x;                              // the USB-C, in plate coordinates (they run to -X)
+v5_cap = 6;
+v5_u0 = 4.4;
+
+// The face plate on the flat part of the face, and its livery on it
+assert(min([for (q = fp_outline) poly_margin(q, face_poly)]) >= 1.5, "The face plate runs into the face chamfer");
+assert(band_v0 - (grille_c[1] + ret_r) >= livery_gap, "The title band is too close to the reticle");
+assert(poly_margin([dash_u[0], band_v0], fp_flat) >= livery_gap - eps &&
+       poly_margin([dash_u[0] + band_h, band_v1], fp_flat) >= livery_gap - eps,
+       "The speed dashes run into the plate's corner");
 assert(code_u1 + 2.4 + 1.2 + 2 <= band_u1, "The unit code does not fit in the title band");
-assert(haz_v0 - face_v0 >= livery_gap && haz_u[0] >= face_u0 + face_r,
-       "The hazard stripes run into the face's edge");
-assert(grille_c[1] - tick_r[1] - haz_v1 >= livery_gap, "The hazard stripes are too close to the grille");
+assert(poly_margin([haz_u[0], haz_v0], fp_flat) >= livery_gap - eps, "The hazard stripes run into the plate's corner");
+assert(grille_c[1] - ret_r - haz_v1 >= livery_gap, "The hazard stripes are too close to the reticle");
 assert(caption_u0 + mech_width(caption, label_cap, label_stroke) + livery_gap <= rule_u1,
        "The caption is longer than its rule");
 assert(norm([rule_u1 + 1.2, haz_v0 + 1.2] - test_c) >= test_ring_r + mark_w / 2 + livery_gap,
        "The rule runs into the TEST ring");
 assert(fv(test_y) - label_cap / 2 - haz_v1 >= livery_gap, "The caption is too close to the TEST label");
-assert(mech_width(logo_text, logo_cap, logo_stroke) / 2 + 12.8 <= in_x / 2 + wall - corner_r - livery_gap,
-       "The wordmark is too wide for the front");
-// The face prints on the bed, so its inlay is whole in each of its 3 layers.
-// On the walls each layer cuts the inlay into a strip about 0.7 mm wide, so
-// strokes need 1.4 mm across and the gaps between them 0.7 mm.
+assert(min([for (a = [0 : 15 : 345]) poly_margin(test_c + (test_ring_r + mark_w / 2) * [cos(a), sin(a)], fp_flat)])
+       >= livery_gap, "The TEST ring runs into the plate's edge");
+assert(test_ring_r - mark_w / 2 >= 16.5 / 2 + 0.8, "The TEST ring is under the button's nut");
+assert(min([for (a = [0 : 15 : 345]) poly_margin(grille_c + ret_r * [cos(a), sin(a)], fp_flat)]) >= livery_gap,
+       "The reticle runs into the plate's edge");
+assert(tick_r[0] - mark_w / 2 - grille_window_r >= livery_gap, "The reticle's ticks run into the grille window");
+assert(grille_window_r >= grille_r[2] + grille_w / 2 + 0.6, "The face plate's window covers the grille");
+assert(arm_c[1] - arm_brackets[1] - 0.45 >= test_c[1] + test_ring_r + mark_w / 2 + livery_gap &&
+       arm_c[1] + arm_brackets[1] + 0.45 <= led_c[1] - led_d / 2 - livery_gap &&
+       arm_c[0] + arm_brackets[0] + 0.45 <= pu1 - livery_gap, "The brackets around ARM run into their neighbours");
+assert(poly_margin(led_c + [0, led_d / 2], fp_flat) >= 1.5, "The LED hole is too close to the plate's edge");
+assert(plate_t <= rocker_panel_t, "The face plate is too thick for the rocker's clips");
+// The front and back plates on the flat parts of their walls, and their livery
+assert(front_plate[0] / 2 + 1.5 <= in_x / 2 + wall - corner_c, "The front plate is wider than the front wall");
+assert(fband_len + 2.5 + logo_w <= 2 * fr_u1 && fband_h <= 2 * fr_v1 + eps && logo_cap <= 2 * fr_v1,
+       "The band and the wordmark do not fit on the front plate");
+assert(back_plate_x + back_plate[0] / 2 + 1.5 <= in_x + wall - corner_c, "The back plate runs into the corner");
+assert(v5_u0 + mech_width("5V", v5_cap, logo_stroke) <= bk_u1 && port_u - 2.9 >= -bk_u1 && v5_cap <= 2 * bk_v1,
+       "The back plate's livery does not fit");
+// Everything prints face down on the bed, so each stroke is whole in each of
+// the inlay's 3 layers: strokes and gaps of 0.8 mm at least
 assert(label_stroke >= 0.8 && (label_cap - label_stroke) / 2 - label_stroke >= 0.75,
        "The face lettering is too fine to print");
-assert(logo_stroke >= 1.4 && (logo_cap - logo_stroke) / 2 - logo_stroke >= 0.7,
-       "The wall lettering is too fine to print");
+assert(logo_stroke >= 0.8 && (logo_cap - logo_stroke) / 2 - logo_stroke >= 0.75, "The wordmark is too fine to print");
 
 // -----------------------------------------------------------------------------
-//  Marks and livery (2D). The marks (labels, rings, wordmark, "5V") are on both
-//  shells; the livery only on the two-colour one.
+//  Marks and livery (2D), in plate coordinates. The marks (labels, rings,
+//  wordmark, "5V") are on both versions of the plates; the livery only on the
+//  two-colour one.
 // -----------------------------------------------------------------------------
+
+// n chevrons of height `size`, "right" or "down"; c = the center of the first one
+module chevrons(c, n, size, w, gap, dir = "right") {
+    for (i = [0 : n - 1]) {
+        o = i * (size / 2 + gap);
+        if (dir == "right") stroke([c + [o - size / 4, size / 2], c + [o + size / 4, 0], c + [o - size / 4, -size / 2]], w);
+        if (dir == "down") stroke([c + [-size / 2, -o + size / 4], c + [0, -o - size / 4], c + [size / 2, -o + size / 4]], w);
+    }
+}
+
+// Corner brackets around a rectangle (center c, half sizes h), arms of length l
+module brackets(c, h, l, w) {
+    for (sx = [-1, 1], sy = [-1, 1])
+        stroke([c + [sx * h[0], sy * (h[1] - l)], c + [sx * h[0], sy * h[1]], c + [sx * (h[0] - l), sy * h[1]]], w);
+}
 
 module face_art(livery) {
-    // Reticle around the grille: a ring crossed by four ticks
+    // Reticle around the grille: a ring crossed by four ticks at 45°
     translate(grille_c) {
         ring_2d(grille_outline_r, mark_w);
-        for (a = [0 : 90 : 270]) rotate(a)
+        for (a = [45 : 90 : 315]) rotate(a)
             translate([tick_r[0], -mark_w / 2]) square([tick_r[1] - tick_r[0], mark_w]);
     }
     translate(test_c) ring_2d(test_ring_r, mark_w);
@@ -609,32 +734,24 @@ module face_art(livery) {
         for (u = haz_u) slant(u, u + haz_w, haz_v0, haz_v1);
         slant(rule_u0, rule_u1, haz_v0, haz_v0 + 1.2);
         translate([caption_u0, haz_v1 - label_cap]) mech_text(caption, label_cap, label_stroke);
+        // Corner brackets around the ARM rocker
+        brackets(arm_c, arm_brackets, 3, 0.9);
     }
 }
 
 module front_art(livery) {
-    mech_text(logo_text, logo_cap, logo_stroke, "center", "center");
-    if (livery) {   // two slashes on each side
-        hw = mech_width(logo_text, logo_cap, logo_stroke) / 2;
-        for (k = [0, 1]) {
-            slant(-hw - 2 - logo_cap - 1.6 - 3.2 * k, -hw - 2 - logo_cap - 3.2 * k, -logo_cap / 2, logo_cap / 2);
-            slant(hw + 2 + 3.2 * k, hw + 3.6 + 3.2 * k, -logo_cap / 2, logo_cap / 2);
+    translate([logo_u0, 0]) mech_text(logo_text, logo_cap, logo_stroke, "left", "center");
+    if (livery)   // title band with the unit code knocked out
+        difference() {
+            slant(fband_u0, fband_u0 + fband_len - fband_h, -fband_h / 2, fband_h / 2);
+            translate([fband_u0 + fband_len / 2, 0]) mech_text(unit_code, fcode_cap, fcode_w, "center", "center");
         }
-    }
 }
 
-module back_art() {
-    translate([-6, 0]) lightning_bolt(logo_cap);
-    translate([-2.4, 0]) mech_text("5V", logo_cap, logo_stroke, "left", "center");
-}
-
-// Recess for one area's marks (and livery), from inlay_depth under the surface
-// to 1 mm above it
-module art_recess(area, livery) {
-    module recess() translate([0, 0, -inlay_depth]) linear_extrude(inlay_depth + 1, convexity = 10) children();
-    if (area == "face") on_face(0, 0) recess() face_art(livery);
-    if (area == "front") on_front(in_x / 2, logo_z) recess() front_art(livery);
-    if (area == "back") on_back(chg_x, back_z) recess() back_art();
+module back_art(livery) {
+    translate([0.5, 0]) lightning_bolt(v5_cap);
+    translate([v5_u0, 0]) mech_text("5V", v5_cap, logo_stroke, "left", "center");
+    if (livery) chevrons([port_u, 1.5], 2, 4.5, 0.9, 0.8, "down");   // pointing at the USB-C
 }
 
 // -----------------------------------------------------------------------------
@@ -648,21 +765,19 @@ module shell_outer() {
     loft([at_z(outer_pts(bottom_c), 0),
           at_z(outer_pts(0, bottom_c), bottom_c),
           at_face(outer_pts(0, front_zc), split_dz),
-          at_face(face_chamfer(-wall, -wall + front_zc * tan_l, in_x + wall, in_y + wall,
-                               corner_r, edge_c), 0)]);
+          at_face(face_chamfer(outer_pts(0, front_zc), edge_c), 0)]);
 }
 
 module shell_cavity() {
     dz = -face_t / cos_s - ce;               // where the inner chamfer starts
     loft([at_z(inner_pts(0, -1), -1),
           in_ring(0, dz),
-          at_face(face_chamfer(0, lean_z(0, dz) * tan_l, in_x, in_y, inner_r, edge_c), -face_t / cos_s)]);
+          at_face(face_chamfer(inner_pts(0, lean_z(0, dz)), edge_c), -face_t / cos_s)]);
 }
 
-// The whole shell, without the screw posts.
-// livery = false: one colour, with the marks engraved.
-// livery = true: recessed for the two-colour inlays (marks and livery).
-module shell(livery = false) {
+// The whole shell, without the screw posts: one colour, no marks (they are
+// on the armor plates), with blind holes for the plates' pegs
+module shell() {
     difference() {
         shell_outer();
         difference() {
@@ -670,18 +785,18 @@ module shell(livery = false) {
             buzzer_ring();
         }
         shell_holes();
-        for (a = art_areas) art_recess(a, livery);
+        peg_holes();
     }
 }
 
 // Top: everything above the seam, the buzzer ring, and the lip. The inner
 // chamfer's ridge under the seam (up to 3.1 mm from the walls, at the back)
 // is left out: the lip takes its place.
-module top(livery = false) {
+module top() {
     difference() {
         union() {
             intersection() {
-                shell(livery);
+                shell();
                 union() {
                     above_plane(split_dz);
                     inner_prism(edge_c + 2);
@@ -694,10 +809,10 @@ module top(livery = false) {
 }
 
 // Sides: the walls under the seam, and the screw posts
-module sides(livery = false) {
+module sides() {
     union() {
         difference() {
-            shell(livery);
+            shell();
             above_plane(split_dz);
             inner_prism(0);
         }
@@ -744,15 +859,6 @@ module screw_posts() {
     }
 }
 
-// The second-filament part for one area: fills its recess flush with the surface.
-// The face inlay goes with the top, the front and back inlays with the sides.
-module inlay(area) {
-    intersection() {
-        shell_outer();
-        art_recess(area, true);
-    }
-}
-
 // Buzzer centering ring: 4 segments; the gaps at 0/90/180/270° leave
 // room for glue and for the SFM-27 wires.
 module buzzer_ring() {
@@ -775,14 +881,10 @@ module shell_holes() {
     // TEST button
     on_face(ctrl_x, test_y) translate([0, 0, -face_t - 1]) cylinder(d = test_d, h = face_t + 2);
 
-    // ARM rocker switch, with the face thinned from inside around it
-    on_face(ctrl_x, arm_y) {
-        translate([0, 0, -face_t - 1]) linear_extrude(face_t + 2)
-            offset(r = 0.5) square(rocker_cut - [1, 1], center = true);
-        if (rocker_panel_t < face_t)
-            translate([0, 0, -face_t - 10]) linear_extrude(10 + face_t - rocker_panel_t)
-                offset(r = 1) square(rocker_cut + [2, 2], center = true);
-    }
+    // ARM rocker switch: the face is cut away 1 mm around the plate's cutout,
+    // so the rocker's clips catch under the plate alone
+    on_face(ctrl_x, arm_y) translate([0, 0, -face_t - 1]) linear_extrude(face_t + 2)
+        offset(r = 1) square(rocker_cut + [2, 2], center = true);
 
     // POWER LED (goes in from below; its flange stops against the face)
     on_face(ctrl_x, led_y) translate([0, 0, -face_t - 1]) cylinder(d = led_d, h = face_t + 2);
@@ -790,6 +892,100 @@ module shell_holes() {
     // USB-C opening in the back wall
     translate([chg_x, in_y - 1, chg_z]) rotate([-90, 0, 0])
         linear_extrude(wall + 2) offset(r = 2) square(usb_opening - [4, 4], center = true);
+}
+
+// -----------------------------------------------------------------------------
+//  Armor plates. Each is modeled flat in its own frame: (u, v) on its visible
+//  face, which is at z = plate_t, with its pegs underneath. place_plate()
+//  puts it on the shell; plate_pose() turns it visible face down on the bed.
+// -----------------------------------------------------------------------------
+
+front_zm = (bottom_c + front_zc) / 2;                       // center of the front plate (height)
+back_zm = chg_z + usb_opening[1] / 2 + 2 + back_plate[1] / 2;   // center of the back plate, over the USB-C
+
+function plate_outline(area) =
+    area == "face" ? fp_outline :
+    area == "front" ? cut_rect(-front_plate[0] / 2, -front_plate[1] / 2, front_plate[0] / 2, front_plate[1] / 2, [4, 2, 4, 2]) :
+                      cut_rect(-back_plate[0] / 2, -back_plate[1] / 2, back_plate[0] / 2, back_plate[1] / 2, [2, 4, 2, 4]);
+function plate_pegs(area) =
+    area == "face" ? [[66, fv(14)], [66, fv(60)]] : area == "front" ? [[-30, 0], [30, 0]] : [[-11, 0], [11, 0]];
+
+// Holes through the face plate: a window over the grille, TEST, ARM, POWER
+module plate_holes_2d(area) {
+    if (area == "face") {
+        translate(grille_c) circle(r = grille_window_r, $fn = 120);
+        translate(test_c) circle(d = test_d);
+        translate(arm_c) offset(r = 0.5) square(rocker_cut - [1, 1], center = true);
+        translate(led_c) circle(d = led_d);
+    }
+}
+
+module plate_art(area, livery) {
+    if (area == "face") face_art(livery);
+    if (area == "front") front_art(livery);
+    if (area == "back") back_art(livery);
+}
+
+// The plate without its marks: a chamfered slab (the outline is convex), the
+// holes, and the pegs
+module plate_blank(area) {
+    o = plate_outline(area);
+    difference() {
+        union() {
+            hull() {
+                linear_extrude(plate_t - plate_edge_c) polygon(o);
+                linear_extrude(plate_t) polygon(poly_inset(o, plate_edge_c));
+            }
+            for (q = plate_pegs(area)) translate([q[0], q[1], -peg_h]) cylinder(d = peg_d, h = peg_h + eps, $fn = 24);
+        }
+        translate([0, 0, -1]) linear_extrude(plate_t + 2, convexity = 4) plate_holes_2d(area);
+    }
+}
+
+// Recess for the marks (and the livery), from inlay_depth under the visible face to 1 mm above it
+module plate_recess(area, livery) {
+    translate([0, 0, plate_t - inlay_depth]) linear_extrude(inlay_depth + 1, convexity = 10) plate_art(area, livery);
+}
+
+// livery = false: one colour, with the marks engraved.
+// livery = true: recessed for the two-colour inlay (marks and livery).
+module plate(area, livery = false) {
+    difference() {
+        plate_blank(area);
+        plate_recess(area, livery);
+    }
+}
+
+// The second-filament part: fills the recess flush with the visible face
+module plate_inlay(area) {
+    intersection() {
+        plate_blank(area);
+        plate_recess(area, true);
+    }
+}
+
+// On the shell; lift moves it off along its normal (exploded view)
+module place_plate(area, lift = 0) {
+    if (area == "face") on_face(0, 0) translate([0, 0, lift]) children();
+    if (area == "front") on_front(in_x / 2, front_zm) translate([0, 0, lift]) children();
+    if (area == "back") on_back(back_plate_x, back_zm) translate([0, 0, lift]) children();
+}
+
+// Blind holes in the shell for the pegs (the face and the walls are 2.4 mm)
+module peg_holes() {
+    for (a = plate_areas) place_plate(a)
+        for (q = plate_pegs(a)) translate([q[0], q[1], -peg_h - peg_clear])
+            cylinder(d = peg_d + peg_clear, h = peg_h + peg_clear + 1, $fn = 24);
+}
+
+module plate_pose() {
+    translate([0, 0, plate_t]) rotate([180, 0, 0]) children();
+}
+
+// A plate and its inlay, in place on the shell
+module plate_assembly(area, lift = 0) {
+    paint(plate_color, mesh = true) place_plate(area, lift) plate(area, show_livery);
+    if (show_livery) paint(livery_color, mesh = true) place_plate(area, lift) plate_inlay(area);
 }
 
 // -----------------------------------------------------------------------------
@@ -870,7 +1066,8 @@ module board_components() {
         cube([9, 7.4, chg_conn_h]);
 }
 
-module shell_components() {
+// lift: the parts above the face plate move off with it (exploded view)
+module shell_components(lift = 0) {
     // SFM-27 buzzer, sound face glued against the face, mounting ears at its back end
     paint("#1C1C1E") on_face(buzzer_x, buzzer_y) translate([0, 0, -face_t - buzzer_h])
         cylinder(d = buzzer_d, h = buzzer_h, $fn = 64);
@@ -880,27 +1077,28 @@ module shell_components() {
             for (s = [-1, 1]) translate([17 * s, 0]) circle(d = 3);
         }
 
-    // TEST button (PBS-11B): body below the face; nut, collar and cap above
+    // TEST button (PBS-11B): body below the face; nut, collar and cap above the plate
+    t = plate_t + lift;
     paint("#202022") on_face(ctrl_x, test_y) translate([0, 0, -face_t - 17]) cylinder(d = 12, h = 17);
-    paint("#A8A9AD") on_face(ctrl_x, test_y) cylinder(d = 16.5, h = 2, $fn = 6);
-    paint("#202022") on_face(ctrl_x, test_y) cylinder(d = 12.6, h = 3.6);
-    paint(accent_color) on_face(ctrl_x, test_y) translate([0, 0, 3.6]) cylinder(d = 9.6, h = 4.5);
+    paint("#A8A9AD") on_face(ctrl_x, test_y) translate([0, 0, t]) cylinder(d = 16.5, h = 2, $fn = 6);
+    paint("#202022") on_face(ctrl_x, test_y) translate([0, 0, t]) cylinder(d = 12.6, h = 3.6);
+    paint(accent_color) on_face(ctrl_x, test_y) translate([0, 0, t + 3.6]) cylinder(d = 9.6, h = 4.5);
 
-    // ARM rocker switch (KCD1-101): body, bezel, rocker and its "I" mark
+    // ARM rocker switch (KCD1-101): body, bezel on the plate, rocker and its "I" mark
     paint("#151515") on_face(ctrl_x, arm_y) translate([0, 0, -face_t - 13])
         linear_extrude(13) square(rocker_cut - [0.4, 0.4], center = true);
-    paint("#151515") on_face(ctrl_x, arm_y)
+    paint("#151515") on_face(ctrl_x, arm_y) translate([0, 0, t])
         linear_extrude(2) offset(r = 1) square([13, 19], center = true);
-    paint("#2B2B2B") on_face(ctrl_x, arm_y) translate([0, 0, 1.5]) rotate([8, 0, 0])
+    paint("#2B2B2B") on_face(ctrl_x, arm_y) translate([0, 0, t + 1.5]) rotate([8, 0, 0])
         linear_extrude(2.5) square([11, 16.5], center = true);
-    paint("White") on_face(ctrl_x, arm_y) translate([0, 0, 1.5]) rotate([8, 0, 0])
+    paint("White") on_face(ctrl_x, arm_y) translate([0, 0, t + 1.5]) rotate([8, 0, 0])
         translate([0, 4.5, 2.6]) cube([1, 4, 0.4], center = true);
 
-    // POWER LED: flange under the face, dome sticking out
+    // POWER LED: flange under the face, dome sticking out of the plate
     paint("#36D16A") on_face(ctrl_x, led_y) union() {
         translate([0, 0, -face_t - 1]) cylinder(d = 5.8, h = 1);
-        translate([0, 0, -face_t]) cylinder(d = 5, h = face_t + 1.2);
-        translate([0, 0, 1.2]) sphere(d = 5);
+        translate([0, 0, -face_t]) cylinder(d = 5, h = face_t + plate_t + 1.2);
+        translate([0, 0, plate_t + 1.2]) sphere(d = 5);
     }
 }
 
@@ -951,42 +1149,47 @@ module joint_labels() {
 }
 
 // render(): the previews (and the PNGs) of these parts need meshes too
+plate_part = [for (a = plate_areas)
+    if (part == str("plate_", a) || part == str("plate_", a, "_2color") || part == str("inlay_", a)) a];
+
 if (part == "top") {
-    color(shell_color) render() top_pose() top(false);
+    color(shell_color) render() top_pose() top();
 } else if (part == "sides") {
-    color(shell_color) render() sides_pose() sides(false);
-} else if (part == "top_2color") {
-    color(shell_color) render() top_pose() top(true);
-} else if (part == "sides_2color") {
-    color(shell_color) render() sides_pose() sides(true);
-} else if (part == "inlay_face") {
-    color(livery_color) render() top_pose() inlay("face");
-} else if (part == "inlay_front") {
-    color(livery_color) render() sides_pose() inlay("front");
-} else if (part == "inlay_back") {
-    color(livery_color) render() sides_pose() inlay("back");
+    color(shell_color) render() sides_pose() sides();
 } else if (part == "base") {
     color(base_color) translate([0, 0, base_t]) base();
+} else if (len(plate_part) == 1) {
+    a = plate_part[0];
+    if (part == str("inlay_", a))
+        color(livery_color) render() plate_pose() plate_inlay(a);
+    else
+        color(plate_color) render() plate_pose() plate(a, part == str("plate_", a, "_2color"));
+} else if (part == "plates") {
+    // The three plates side by side, visible face up, livery inlaid
+    for (l = [["face", [0, 0]], ["front", [in_x / 2, -14]], ["back", [in_x / 2, -32]]]) translate(l[1]) {
+        color(plate_color) render() plate(l[0], true);
+        color(livery_color) render() plate_inlay(l[0]);
+    }
 } else if (part == "interior") {
     paint(base_color) base();
     board_components();
 } else if (part == "joint") {
-    // Seen from the left (-X): the top in white, the sides in gray-blue
-    color(shell_color) render() joint_section() top(false);
-    color("#A9B4BE") render() joint_section() sides(false);
-    color("#33363B") joint_labels();
+    // Seen from the left (-X): the top in light graphite, the sides in graphite
+    color("#7A7F8A") render() joint_section() top();
+    color("#3A3D44") render() joint_section() sides();
+    color("#1A1C20") joint_labels();
 } else {  // assembled, exploded, cutaway
     paint(base_color) base();
     board_components();
     // mesh: the preview (OpenCSG) can't resolve the hundreds of small strokes
-    // in the recesses and inlays, so the shell parts are computed as meshes.
+    // in the plates and inlays, so those parts are computed as meshes.
     translate([0, 0, explode]) {
-        paint(shell_color, mesh = true) sides(show_livery);
-        if (show_livery) for (a = ["front", "back"]) paint(livery_color, mesh = true) inlay(a);
+        paint(shell_color, mesh = true) sides();
+        for (a = ["front", "back"]) plate_assembly(a, explode / 2);
     }
     translate([0, 0, 2 * explode]) {
-        paint(shell_color, mesh = true) top(show_livery);
-        if (show_livery) paint(livery_color, mesh = true) inlay("face");
-        shell_components();
+        paint(shell_color, mesh = true) top();
+        plate_assembly("face", explode / 2);
+        shell_components(explode / 2);
     }
 }

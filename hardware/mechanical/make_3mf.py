@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-"""Pack the two-colour top and sides of the shell into 3MFs.
+"""Pack the two-colour armor plates of the enclosure into one 3MF.
 
     python3 make_3mf.py <parts dir> <output dir>
 
 <parts dir> holds the STLs that enclosure.scad exports, in print orientation, with
-part = "top_2color", "sides_2color", "inlay_face", "inlay_front" and "inlay_back"
-(see the header of enclosure.scad, or .github/workflows/render-enclosure.yml).
-It writes enclosure_top_2color.3mf and enclosure_sides_2color.3mf.
+part = "plate_face_2color", "plate_front_2color", "plate_back_2color", "inlay_face",
+"inlay_front" and "inlay_back" (see the header of enclosure.scad, or
+.github/workflows/render-enclosure.yml). It writes enclosure_plates_2color.3mf.
 
-Each 3MF follows the core spec (2015/02), with no slicer extensions: one named mesh
-per part, grouped into a single object. Creality Print, Bambu Studio, OrcaSlicer and
-PrusaSlicer load it as one object whose parts each take their own filament. The
-colours go in as base materials: a hint that the slicer may ignore.
+The 3MF follows the core spec (2015/02), with no slicer extensions. Each plate is
+one object made of two named meshes, the plate and its inlay, and the three plates
+are laid out side by side on the bed, so they print together. Creality Print, Bambu
+Studio, OrcaSlicer and PrusaSlicer load each plate as one object whose parts each
+take their own filament. The colours go in as base materials: a hint that the
+slicer may ignore.
 
 Before writing, it checks that:
 - every mesh is closed and consistently oriented, with a positive volume;
@@ -32,18 +34,19 @@ from pathlib import Path
 
 INLAY_DEPTH = 0.6   # inlay_depth in enclosure.scad
 LAYER = 0.2         # layer height used to count the two-colour layers
-WHITE, RED = ("White", "#ECEAE4"), ("Red", "#D7261E")   # shell_color, livery_color in enclosure.scad
-# Output file, object name, parts: (name in the 3MF, STL file, colour). The first
-# part is the printed part; the others are the inlays that fill its recesses.
+WHITE, YELLOW = ("White", "#EDEDE8"), ("Yellow", "#FFCC00")   # plate_color, livery_color in enclosure.scad
+GAP = 6             # between the plates on the bed (mm)
+# Output file, objects: (object name, parts: (name in the 3MF, STL file, colour)).
+# The first part of an object is the printed plate; the second is the inlay that
+# fills its recess.
 MODELS = [
-    ("enclosure_top_2color.3mf", "OutageAlarm top", [
-        ("top", "top_2color.stl", WHITE),
-        ("face_livery", "inlay_face.stl", RED),
-    ]),
-    ("enclosure_sides_2color.3mf", "OutageAlarm sides", [
-        ("sides", "sides_2color.stl", WHITE),
-        ("front_wordmark", "inlay_front.stl", RED),
-        ("back_5v", "inlay_back.stl", RED),
+    ("enclosure_plates_2color.3mf", [
+        ("OutageAlarm face plate", [("face_plate", "plate_face_2color.stl", WHITE),
+                                    ("face_livery", "inlay_face.stl", YELLOW)]),
+        ("OutageAlarm front plate", [("front_plate", "plate_front_2color.stl", WHITE),
+                                     ("front_livery", "inlay_front.stl", YELLOW)]),
+        ("OutageAlarm back plate", [("back_plate", "plate_back_2color.stl", WHITE),
+                                    ("back_livery", "inlay_back.stl", YELLOW)]),
     ]),
 ]
 
@@ -153,24 +156,33 @@ def num(x):
     return "0" if s in ("", "-0") else s
 
 
-def write_3mf(path, meshes, name):
+def write_3mf(path, objects):
+    """objects: (object name, meshes: (part, verts, tris, colour, rgb))."""
     model = ['<?xml version="1.0" encoding="UTF-8"?>\n<model unit="millimeter" xml:lang="en-US" '
              'xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02"><resources>'
              '<basematerials id="1">']
-    colours = list(dict.fromkeys((colour, rgb) for _, _, _, colour, rgb in meshes))
+    colours = list(dict.fromkeys((m[3], m[4]) for _, meshes in objects for m in meshes))
     model += [f'<base name="{colour}" displaycolor="{rgb}FF"/>' for colour, rgb in colours]
     model.append("</basematerials>")
-    for i, (part, verts, tris, colour, rgb) in enumerate(meshes):
-        model.append(f'<object id="{i + 2}" name="{part}" type="model" pid="1" '
-                     f'pindex="{colours.index((colour, rgb))}"><mesh><vertices>')
-        model += [f'<vertex x="{num(x)}" y="{num(y)}" z="{num(z)}"/>' for x, y, z in verts]
-        model.append("</vertices><triangles>")
-        model += [f'<triangle v1="{a}" v2="{b}" v3="{c}"/>' for a, b, c in tris]
-        model.append("</triangles></mesh></object>")
-    group = len(meshes) + 2
-    model.append(f'<object id="{group}" name="{name}" type="model"><components>')
-    model += [f'<component objectid="{i}"/>' for i in range(2, group)]
-    model.append(f'</components></object></resources><build><item objectid="{group}"/></build></model>')
+    next_id, groups = 2, []
+    for name, meshes in objects:
+        first = next_id
+        for part, verts, tris, colour, rgb in meshes:
+            model.append(f'<object id="{next_id}" name="{part}" type="model" pid="1" '
+                         f'pindex="{colours.index((colour, rgb))}"><mesh><vertices>')
+            model += [f'<vertex x="{num(x)}" y="{num(y)}" z="{num(z)}"/>' for x, y, z in verts]
+            model.append("</vertices><triangles>")
+            model += [f'<triangle v1="{a}" v2="{b}" v3="{c}"/>' for a, b, c in tris]
+            model.append("</triangles></mesh></object>")
+            next_id += 1
+        model.append(f'<object id="{next_id}" name="{name}" type="model"><components>')
+        model += [f'<component objectid="{i}"/>' for i in range(first, next_id)]
+        model.append("</components></object>")
+        groups.append(next_id)
+        next_id += 1
+    model.append("</resources><build>")
+    model += [f'<item objectid="{g}"/>' for g in groups]
+    model.append("</build></model>")
     types = ('<?xml version="1.0" encoding="UTF-8"?>\n'
              '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
              '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
@@ -191,31 +203,40 @@ def main():
     if len(sys.argv) != 3:
         sys.exit(__doc__)
     parts_dir, out_dir = Path(sys.argv[1]), Path(sys.argv[2])
-    for file_name, object_name, parts in MODELS:
-        meshes, two_colour = [], set()
-        for i, (part, file, (colour, rgb)) in enumerate(parts):
-            verts, tris = read_stl(parts_dir / file)
-            check_closed(part, tris)
-            vol = volume(verts, tris)
-            if vol <= 0:
-                fail(f"{part}: the mesh is inside out or empty")
-            zs = [v[2] for v in verts]
-            line = f"  {part}: {len(tris)} triangles, {vol / 1000:.2f} cm3, z {min(zs):.2f} to {max(zs):.2f} mm"
-            if i == 0:
-                if abs(min(zs)) > 1e-3:
-                    fail(f"{part}: it does not lie on the bed (lowest z = {min(zs)})")
-            else:
-                t, off = slab_thickness(verts, tris)
-                if abs(t - INLAY_DEPTH) > 0.01 or off > 0.01:
-                    fail(f"{part}: not a {INLAY_DEPTH} mm slab everywhere ({t:.3f} mm thick, a vertex "
-                         f"{off:.3f} mm off its faces): it runs onto an edge, a chamfer or a hole")
-                ks = layers(verts, tris)
-                two_colour |= ks
-                line += f", {INLAY_DEPTH} mm deep, in {len(ks)} layers ({z_ranges(ks)})"
-            meshes.append((part, verts, tris, colour, rgb))
-            print(line)
+    for file_name, objects in MODELS:
+        out_objects, two_colour, y_next = [], set(), 0.0
+        for object_name, parts in objects:
+            meshes = []
+            for i, (part, file, (colour, rgb)) in enumerate(parts):
+                verts, tris = read_stl(parts_dir / file)
+                check_closed(part, tris)
+                vol = volume(verts, tris)
+                if vol <= 0:
+                    fail(f"{part}: the mesh is inside out or empty")
+                zs = [v[2] for v in verts]
+                line = f"  {part}: {len(tris)} triangles, {vol / 1000:.2f} cm3, z {min(zs):.2f} to {max(zs):.2f} mm"
+                if i == 0:
+                    if abs(min(zs)) > 1e-3:
+                        fail(f"{part}: it does not lie on the bed (lowest z = {min(zs)})")
+                else:
+                    t, off = slab_thickness(verts, tris)
+                    if abs(t - INLAY_DEPTH) > 0.01 or off > 0.01:
+                        fail(f"{part}: not a {INLAY_DEPTH} mm slab everywhere ({t:.3f} mm thick, a vertex "
+                             f"{off:.3f} mm off its faces): it runs onto an edge, a chamfer or a hole")
+                    ks = layers(verts, tris)
+                    two_colour |= ks
+                    line += f", {INLAY_DEPTH} mm deep, in {len(ks)} layers ({z_ranges(ks)})"
+                meshes.append((part, verts, tris, colour, rgb))
+                print(line)
+            # Lay the plates out along Y, each one centred on X = 0, GAP from the last
+            xs = [v[0] for v in meshes[0][1]]
+            ys = [v[1] for v in meshes[0][1]]
+            dx, dy = -(min(xs) + max(xs)) / 2, y_next - min(ys)
+            y_next += max(ys) - min(ys) + GAP
+            out_objects.append((object_name, [(m[0], [(x + dx, y + dy, z) for x, y, z in m[1]], m[2], m[3], m[4])
+                                              for m in meshes]))
         out = out_dir / file_name
-        write_3mf(out, meshes, object_name)
+        write_3mf(out, out_objects)
         print(f"{out}: {len(two_colour)} two-colour layers of {LAYER} mm ({z_ranges(two_colour)})")
 
 
