@@ -181,6 +181,7 @@ build starts its own instance; never `taskkill` Edge).
   - move the `[Unreleased]` notes in `CHANGELOG.md` to the new version, with the date, and update the compare links at the bottom.
 - Create the GitHub release from the tag with `gh release create`.
   - Attach the six print files: `stl/enclosure_{shell,base}.stl`, `stl/enclosure_plate_{face,front,back}.stl` and `3mf/enclosure_plates_2color.3mf`.
+  - Attach the PCB's Gerber zip too (`hardware/electronics/fabrication/OutageAlarm_pcb_v<VERSION>_gerbers.zip`), and check that `VERSION` in `pcb/board.py` matches the board you release.
   - The release notes are for makers: what's in it, which files to print, what isn't tested yet.
 
 ## Schematic

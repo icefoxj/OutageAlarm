@@ -6,6 +6,10 @@ All notable changes to OutageAlarm are listed here.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-26
+
+A PCB for the electronics, with Gerbers ready to order.
+
 ### Added
 
 - **PCB** for the electronics, with Gerbers ready to order (`hardware/electronics/fabrication/OutageAlarm_pcb_v1.3_gerbers.zip`): 114.3 × 66.0 mm, 2 layers, all through-hole.
@@ -103,7 +107,8 @@ First release: the simple v1, with no microcontroller and no firmware.
   - the rocker switch cutout and the TEST button hole (they vary by vendor);
   - the fit of the top's lip in the sides (`glue_gap`).
 
-[Unreleased]: https://github.com/icefoxj/OutageAlarm/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/icefoxj/OutageAlarm/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/icefoxj/OutageAlarm/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/icefoxj/OutageAlarm/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/icefoxj/OutageAlarm/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/icefoxj/OutageAlarm/releases/tag/v1.0.0
