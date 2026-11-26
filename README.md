@@ -26,7 +26,7 @@ There is a two-colour 3MF of the plates, and one-colour STLs of every part. See 
 
 ![Schematic](hardware/electronics/schematic.svg)
 
-The whole circuit sits on one perfboard, held in the enclosure by the same four screws that close it: see the [perfboard layout](hardware/electronics/perfboard.svg).
+The whole circuit sits on one board, held in the enclosure by the same four screws that close it: the kit's [PCB](docs/electronics.md#pcb), with its Gerbers ready to order, or a perfboard cut from the [1:1 template](hardware/electronics/perfboard.svg).
 
 A regular USB charger plugged into the wall powers the alarm through the USB-C connector of the **TP4056** module (U1). The 5 V from USB does two things at once:
 
@@ -52,7 +52,7 @@ Design principles:
 |----:|------|----------------------------------------------------|-------|
 | 1   | U1   | TP4056 charger module, **USB-C, with protection** (DW01 + 8205A) | IN±, B±, OUT± pads; see the CC resistor note in [electronics.md](docs/electronics.md) |
 | 1   | BT1  | 18650 Li-ion cell, 2000–3500 mAh, unprotected      | reputable brand; U1 already protects the cell |
-| 1   | —    | 1 × 18650 holder with wire leads                   | ≈ 77 × 21 × 20 mm, stuck on the perfboard |
+| 1   | —    | 1 × 18650 holder with wire leads                   | ≈ 77 × 21 × 20 mm, stuck on the board |
 | 1   | K1   | 5 V SPDT relay: SRD-05VDC-SL-C                     | coil ≈ 70 Ω, draws ≈ 72 mA |
 | 1   | D1   | 1N4007 diode (or 1N4148)                           | coil flyback diode |
 | 1   | R1   | 1 kΩ resistor, 1/4 W                               | LED current limit |
@@ -60,8 +60,8 @@ Design principles:
 | 1   | BZ1  | SFM-27 active buzzer, 3–24 V                       | runs directly from the 3.7 V cell |
 | 1   | SW1  | KCD1-101 rocker switch (on/off, 21 × 15 mm)        | ARM: arms and disarms the alarm |
 | 1   | SW2  | **NC** (normally closed) momentary pushbutton, PBS-11B, 12 mm hole | TEST; a yellow cap matches the livery |
-| 1   | —    | Perfboard, 2.54 mm pitch, 10 × 15 cm               | cut to 114.3 × 66.0 mm; holds all the electronics ([layout](hardware/electronics/perfboard.svg)) |
-| 4   | —    | M3 × 16 mm countersunk machine screws (ISO 10642 / DIN 7991, or DIN 965) | close the enclosure from below and clamp the perfboard |
+| 1   | —    | PCB ([Gerbers](hardware/electronics/fabrication/OutageAlarm_pcb_v1.3_gerbers.zip)), or a 2.54 mm perfboard, 10 × 15 cm | holds all the electronics; the perfboard is cut to 114.3 × 66.0 mm ([layout](hardware/electronics/perfboard.svg)) |
+| 4   | —    | M3 × 16 mm countersunk machine screws (ISO 10642 / DIN 7991, or DIN 965) | close the enclosure from below and clamp the board |
 | 4   | —    | M3 heat-set inserts, brass, 5.7 mm long × 4.6 mm outer diameter | melted into the shell's screw posts with a soldering iron |
 | 1   | —    | 5 V USB charger **≥ 1.5 A** + cable                | **plug it straight into the wall, never into a UPS** |
 | —   | —    | CA glue (gel) or 5-minute epoxy                    | glue the armor plates on |
@@ -83,7 +83,10 @@ OutageAlarm/
 │   ├── electronics/
 │   │   ├── schematic.svg
 │   │   ├── perfboard.svg           # perfboard layout, 1:1 on A4 (cutting and drilling template)
-│   │   └── perfboard.py            # draws perfboard.svg from the layout data
+│   │   ├── perfboard.py            # draws perfboard.svg from the layout data
+│   │   ├── pcb/                    # the PCB as data (board.py) and the scripts that build and check it
+│   │   ├── kicad/                  # the PCB's KiCad 8 project (generated)
+│   │   └── fabrication/            # the PCB's Gerber zip, BOM and schematic PDF
 │   └── mechanical/
 │       ├── enclosure.scad          # parametric enclosure (OpenSCAD), source of truth
 │       ├── make_3mf.py             # packs the two-colour armor plates into the 3MF
@@ -100,7 +103,10 @@ OutageAlarm/
    - **Base (black or a darker graphite):** `hardware/mechanical/stl/enclosure_base.stl`.
    - **Armor plates (light grey + yellow):** `hardware/mechanical/3mf/enclosure_plates_2color.3mf`, all three in one print with a second filament for the livery. Or the three `stl/enclosure_plate_*.stl` in one colour, with the labels engraved.
    - Glue the plates onto the shell: two pegs locate each one.
-2. Build the circuit on the perfboard: cut it to 114.3 × 66.0 mm, solder K1, D1, R1 and the links, and stick the 18650 holder and the TP4056 module on it. Follow the [perfboard layout](hardware/electronics/perfboard.svg) and [docs/electronics.md](docs/electronics.md#perfboard).
+2. Build the circuit on the board:
+   - **PCB:** order it from the [Gerber zip](hardware/electronics/fabrication/OutageAlarm_pcb_v1.3_gerbers.zip) and solder K1, D1 and R1 ([docs/electronics.md](docs/electronics.md#pcb));
+   - **or perfboard:** cut it to 114.3 × 66.0 mm and solder K1, D1, R1 and the links ([perfboard layout](hardware/electronics/perfboard.svg), [docs/electronics.md](docs/electronics.md#perfboard)).
+   - Then stick the 18650 holder and the TP4056 module on it.
 3. Mount the parts on the shell's tilted face: TEST button, ARM switch, POWER LED, and the buzzer under the grille. Solder their wires to the board.
 4. Run the test below. Lay the board on the base, set the shell over it and close it with 4 screws from below, into the brass inserts in the shell's posts: they pass through the board and clamp it.
 

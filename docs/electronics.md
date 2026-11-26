@@ -33,8 +33,8 @@ The POWER LED sits **before** the button, so it stays lit during the test. That 
 | 1 | BZ1  | SFM-27 active buzzer | 3–24 V, < 20 mA | **active** (built-in oscillator) and **polarized** |
 | 1 | SW1  | KCD1-101 rocker switch | SPST on/off, 2 pins, 21 × 15 mm bezel, snaps into a 19.2 × 12.9 mm cutout | ARM |
 | 1 | SW2  | PBS-11B pushbutton | **NC** (normally closed), momentary, 12 mm hole | TEST. Check with a multimeter: conducts when **released**, opens when **pressed**. It mounts through 4.4 mm (the face and its armor plate); a yellow cap matches the livery |
-| 1 | —    | Perfboard | 2.54 mm pitch, single-sided with a pad on each hole, 10 × 15 cm | cut to 114.3 × 66.0 mm: see [Perfboard](#perfboard) |
-| — | —    | Bare tinned copper wire | ≈ 0.5 mm, or leftover component leads | the links on the board |
+| 1 | —    | PCB, or perfboard | the kit's PCB (see [PCB](#pcb)), or a 2.54 mm perfboard, single-sided with a pad on each hole, 10 × 15 cm | the perfboard is cut to 114.3 × 66.0 mm: see [Perfboard](#perfboard) |
+| — | —    | Bare tinned copper wire | ≈ 0.5 mm, or leftover component leads | the links on the perfboard (the PCB doesn't need them) |
 | 1 | —    | 5 V USB charger | ≥ 1.5 A | certified, plugged straight into the wall |
 
 > **5.1 kΩ CC resistors on USB-C.** A USB-C charger only turns on its 5 V after it detects a connected device, which it does through 5.1 kΩ resistors on the CC pins. Not every TP4056 USB-C module has them. If your module stays dark on a USB-C ↔ USB-C cable, use a **USB-A → USB-C cable**: the 5 V always comes through with it.
@@ -93,11 +93,58 @@ The SRD-05VDC has 5 pins. To identify them with a multimeter on continuity or re
 3. **NC:** the pin with continuity to COM when the relay is **off**.
 4. **NO:** the pin that only connects to COM when you apply 5 V to the coil.
 
+## PCB
+
+| Component side | Solder side, seen from below |
+|----------------|------------------------------|
+| ![PCB, component side](img/pcb_top.png) | ![PCB, solder side](img/pcb_bottom.png) |
+
+The electronics can go on a printed circuit board instead of the perfboard. It has the perfboard's outline (114.3 × 66.0 mm, corners cut at 45°), its four screw holes and the same positions for K1, D1, R1 and the wire pads, so it fits the enclosure unchanged and the same screws clamp it. The silkscreen carries the name, the unit code OA-01, the version and 3DTesla in the kit's mech font, and labels every wire pad. The pictures show it with a black solder mask, the house look.
+
+| File | What it is |
+|------|------------|
+| [`fabrication/OutageAlarm_pcb_v1.3_gerbers.zip`](../hardware/electronics/fabrication/OutageAlarm_pcb_v1.3_gerbers.zip) | **Gerbers and drill files:** upload this zip to the PCB maker |
+| [`fabrication/OutageAlarm_pcb_v1.3_bom.csv`](../hardware/electronics/fabrication/OutageAlarm_pcb_v1.3_bom.csv) | the parts soldered to the board |
+| [`fabrication/OutageAlarm_pcb_v1.3_schematic.pdf`](../hardware/electronics/fabrication/OutageAlarm_pcb_v1.3_schematic.pdf) | the board's schematic, as KiCad sees it |
+| [`kicad/`](../hardware/electronics/kicad/) | the KiCad 8 project: schematic and board |
+| [`pcb/`](../hardware/electronics/pcb/) | the scripts that generate and check all of the above; [`board.py`](../hardware/electronics/pcb/board.py) holds the board as data |
+
+### Ordering
+
+- Upload the Gerber zip to a PCB maker (JLCPCB, PCBWay and others take it as is). Options: **2 layers, 1.6 mm FR-4, 1 oz copper, HASL (lead-free)**, any solder mask colour; black with white silkscreen matches the kit. No assembly service is needed: every part is through-hole.
+- The board is 114.3 × 66.0 mm, a little over the 100 × 100 mm that some makers sell at their lowest price.
+- Design rules, all within what makers accept: tracks 0.6 mm, clearance 0.3 mm, copper 0.5 mm from the edge, smallest hole 0.8 mm.
+
+### Soldering
+
+- **Identify K1's pins first** (see [Identifying the relay pins](#identifying-the-relay-pins)). The board takes NC from pin 4 (front left, marked NC on the silkscreen), as in KiCad's symbol and footprint of the SRD relay. Check with a multimeter that, on your relay, that pin is the one closed to COM with the coil off.
+- **Fit K1, D1 and R1.** D1's band (cathode, square pad) goes to the back. The relay's pins match the holes exactly, unlike on the perfboard.
+- **Wires:** solder them straight into the pads (1.0 mm holes), or fit 2.54 mm pin headers and use female Dupont leads. Pin 1 of each connector is the square pad.
+- **Trim every lead to 1.5 mm or less**: the solder side sits over a 2 mm pocket in the base. The board keeps all its joints off the base's rim, the pads around the screws and the rib under the holder.
+- **Holder and U1:** stick them inside their outlines, as on the perfboard (see [Mounting the holder and U1](#mounting-the-holder-and-u1)).
+
+| Pad | Label | To | Net |
+|-----|-------|----|-----|
+| J1.1 | U1 IN+ | U1 IN+ | `+5V` |
+| J1.2 | U1 IN- | U1 IN− | `0V` |
+| J1.3 | U1 OUT- | U1 OUT− | `BAT−` |
+| J1.4 | U1 OUT+ | U1 OUT+ | `BAT+` |
+| J2.1, J2.2 | ARM | SW1 | `BAT+`, `ARM` |
+| J3.1, J3.2 | TEST | SW2 | `COIL`, `+5V` |
+| J4.1 | LED+ | LED1 anode (long leg) | `LED` |
+| J4.2 | LED- | LED1 cathode | `0V` |
+| J5.1 | BZ+ | BZ1 + (red) | `BZ+` |
+| J5.2 | BZ- | BZ1 − (black) | `BAT−` |
+
+**Checked, not built yet:** KiCad's ERC and DRC pass with no violations, and the board matches its schematic. [`check_pcb.py`](../hardware/electronics/pcb/check_pcb.py) also checks every net against the [wiring table](#wiring-table), the enclosure's keep-outs and the positions against `enclosure.scad`. The Gerbers were read back: a 114.30 × 66.04 mm outline, 21 plated holes and 4 plain 3.2 mm holes. No board has been made yet.
+
+To change the board, edit `board.py` and run `pcb/make_all.sh` (Git Bash, with KiCad 8 installed): it rebuilds the project, runs every check and writes the files above.
+
 ## Perfboard
 
 [![Perfboard layout](../hardware/electronics/perfboard.svg)](../hardware/electronics/perfboard.svg)
 
-All the electronics sit on one perfboard that covers the floor of the enclosure:
+The do-it-yourself alternative to the [PCB](#pcb): the same board, on a perfboard that covers the floor of the enclosure:
 - the 18650 holder and U1 at the back;
 - K1, D1 and R1 at the front;
 - a pad for every wire.

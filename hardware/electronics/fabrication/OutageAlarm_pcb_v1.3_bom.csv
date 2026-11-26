@@ -1,0 +1,7 @@
+Qty,References,Value,Footprint,Description
+1,PCB,OutageAlarm OA-01 v1.3,"114.3 x 66.04 mm, 2 layers, 1.6 mm",the board itself: order it from the Gerber zip
+1,D1,1N4007,Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal,"flyback diode across the coil, band to the back"
+1,J1,pin header (optional),Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical,"wires to the TP4056 module: IN+, IN-, OUT-, OUT+"
+4,J2 J3 J4 J5,pin header (optional),Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,"J2: wires to SW1, the ARM rocker switch; J3: wires to SW2, the TEST button (NC); J4: wires to LED1: 1 = + (long leg), 2 = -; J5: the buzzer's leads: 1 = + (red), 2 = - (black)"
+1,K1,SRD-05VDC-SL-C,Relay_THT:Relay_SPDT_SANYOU_SRD_Series_Form_C,"5 V relay, SPDT; NC (pin 4) at the front left"
+1,R1,1k,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,"LED resistor, 1/4 W"

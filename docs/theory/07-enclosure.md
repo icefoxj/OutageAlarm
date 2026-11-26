@@ -1,6 +1,6 @@
 # 7. The enclosure
 
-OA-01's enclosure is a 3D-printed wedge: a one-piece **shell** (the control face, the walls and the screw posts) and a darker **base**, both in graphite, with three grey **armor plates** glued onto the face, the front and the back. It holds one perfboard with all the electronics, puts the controls where hands and eyes find them, lets the buzzer out, keeps the charger's heat in check and carries the mech livery on its plates, in the house style of the other 3DTesla kits. The model is parametric, in OpenSCAD, and it has not been test-printed yet: the numbers below are the design values of the model, and the thermal results are estimates from a simple model.
+OA-01's enclosure is a 3D-printed wedge: a one-piece **shell** (the control face, the walls and the screw posts) and a darker **base**, both in graphite, with three grey **armor plates** glued onto the face, the front and the back. It holds one board with all the electronics, puts the controls where hands and eyes find them, lets the buzzer out, keeps the charger's heat in check and carries the mech livery on its plates, in the house style of the other 3DTesla kits. The model is parametric, in OpenSCAD, and it has not been test-printed yet: the numbers below are the design values of the model, and the thermal results are estimates from a simple model.
 
 ## 7.1 The wedge
 
@@ -56,7 +56,7 @@ where $h$ is the layer height. With $h$ = 0.2 mm and a 0.4 mm wide line, a 45° 
 All the parts of OA-01 are oriented to stay within that rule:
 
 - **The shell** prints **face down**, in one piece. The face is the first layer, so it comes out flat for its armor plate, and the grille and the holes form in the first layers. In this orientation the face chamfer is exactly 45°, the walls lean at most 30° and the screw posts grow straight up from the face. The part is 49 mm tall as printed.
-- **The base** prints flat; its undercut is a 45° overhang, and the pocket for the perfboard's solder side is on top.
+- **The base** prints flat; its undercut is a 45° overhang, and the pocket for the board's solder side is on top.
 - **The armor plates** print **visible face down**, all three together. The visible face takes the texture of the bed (glossy on smooth PEI or glass, matt on textured PEI), the 0.6 mm chamfer around it is a 45° overhang, and the locating pegs grow up from the back.
 
 No supports means no support scars, no post-processing and exact surfaces where parts meet. The orientations are already in the print files.
@@ -85,7 +85,7 @@ The glue goes on as a few small dots of CA gel or epoxy, away from the edges and
 
 ## 7.7 One board, four screws
 
-All the electronics sit on one perfboard, 114.3 × 66.0 mm (45 × 26 hole spacings of 2.54 mm), 1.6 mm thick, with its corners cut at 45° to clear the cut inner corners of the shell. It needs no screws of its own:
+All the electronics sit on one board, 114.3 × 66.0 mm (45 × 26 hole spacings of 2.54 mm), 1.6 mm thick, with its corners cut at 45° to clear the cut inner corners of the shell: a printed circuit board made from the kit's Gerber files, or a perfboard cut from its 1:1 template, with the same holes and part positions. It needs no screws of its own:
 
 - four **M3 × 16 countersunk machine screws** come up from below, through the base and through the board's corner holes, into brass **heat-set inserts** in the screw posts moulded in the shell; each screw goes through the whole 5.7 mm of its insert;
 - the posts stop on top of the board, so tightening the screws **clamps the board** between the posts and a 3 mm rim of the base that carries its outer row of holes;

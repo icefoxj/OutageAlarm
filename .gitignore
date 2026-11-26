@@ -15,3 +15,11 @@ hardware/mechanical/parts/
 
 # Python
 __pycache__/
+
+# KiCad: intermediate fabrication files, reports and local state (make_all.sh regenerates them)
+hardware/electronics/fabrication/gerber/
+hardware/electronics/fabrication/*.json
+hardware/electronics/kicad/*-backups/
+hardware/electronics/kicad/*.kicad_prl
+hardware/electronics/kicad/*.lck
+hardware/electronics/kicad/fp-info-cache

@@ -6,6 +6,13 @@ All notable changes to OutageAlarm are listed here.
 
 ## [Unreleased]
 
+### Added
+
+- **PCB** for the electronics, with Gerbers ready to order (`hardware/electronics/fabrication/OutageAlarm_pcb_v1.3_gerbers.zip`): 114.3 × 66.0 mm, 2 layers, all through-hole.
+  - Same outline, screw holes and part positions as the perfboard, so it fits the enclosure unchanged; the perfboard stays as the do-it-yourself option.
+  - The silkscreen carries "OUTAGE ALARM", the unit code OA-01, "PCB V1.3" and 3DTesla in the kit's mech font, and labels every wire pad.
+  - A KiCad 8 project (`hardware/electronics/kicad/`), generated with its checks by `hardware/electronics/pcb/make_all.sh` from `board.py`: ERC and DRC pass with no violations, and every net matches the wiring table. Not manufactured yet.
+
 ## [1.2.0] - 2026-11-24
 
 The enclosure closes with M3 heat-set inserts and machine screws.

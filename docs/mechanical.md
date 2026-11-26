@@ -16,7 +16,7 @@ There are five printed parts:
 
 The shell screws onto the base from below, and the plates are glued onto the shell. The shell and the base print in one colour; all the second colour is in the plates, which print together, face down, with the livery in their first 3 layers.
 
-All the electronics sit on one perfboard that lies on the base, and the same screws clamp it.
+All the electronics sit on one board that lies on the base, the kit's PCB or a perfboard, and the same screws clamp it.
 
 The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../hardware/mechanical/enclosure.scad). The ready-to-print files are in [`hardware/mechanical/stl/`](../hardware/mechanical/stl/) and [`hardware/mechanical/3mf/`](../hardware/mechanical/3mf/). They are also attached to each [release](https://github.com/icefoxj/OutageAlarm/releases).
 
@@ -30,7 +30,7 @@ The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../
 |---------|----------|
 | ![Cutaway](img/cutaway.png) | ![Exploded](img/exploded.png) |
 
-| Profile | Inside: the perfboard on the base |
+| Profile | Inside: the board on the base |
 |---------|---------------------|
 | ![Profile](img/profile.png) | ![Interior](img/interior.png) |
 
@@ -59,7 +59,7 @@ The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../
   - A **ring around TEST**, **corner brackets** around ARM, and the labels TEST, ARM and POWER.
   - All the lettering uses a chamfered, straight-line stroke font, the same as on the other kits, drawn in the model (`mech_glyphs`).
 - **No visible screws.** Four countersunk M3 machine screws close the enclosure from below, into brass heat-set inserts in posts molded in the corners of the shell. The threads are in brass, so the enclosure can be opened and closed as often as you like.
-- **One board, no standoffs.** The perfboard covers the floor. On their way up, the four screws pass through its corners, and the posts press it onto the base. Its solder side sits over a shallow pocket.
+- **One board, no standoffs.** The board, the PCB or a perfboard with the same outline, covers the floor. On their way up, the four screws pass through its corners, and the posts press it onto the base. Its solder side sits over a shallow pocket.
 
 ## Dimensions
 
@@ -73,7 +73,7 @@ The model is parametric, in OpenSCAD: [`hardware/mechanical/enclosure.scad`](../
   - Front plate: 100 × 14 mm, centered on the front wall.
   - Back plate: 34 × 12 mm, over the USB-C opening.
 - **Inlay / engraving depth:** 0.6 mm.
-- **Perfboard:** 114.3 × 66.0 mm (45 × 26 hole spacings), 1.6 mm thick, corners cut at 45°.
+- **Board** (PCB or perfboard): 114.3 × 66.0 mm (45 × 26 hole spacings), 1.6 mm thick, corners cut at 45°.
   - The base's pocket under it is 2 mm deep.
   - A 3 mm rim under the outer row of holes carries it, with a pad around each screw and a rib under the 18650 holder.
 
@@ -83,9 +83,9 @@ Positions in top view (X to the right, Y to the back), measured from the inner f
 
 | Item | Where | How it's held |
 |------|-------|---------------|
-| Perfboard | the whole floor, inside the walls (X 1.85–116.15, Y 1.98–68.02), on the base | clamped by the 4 screw posts; the shell screws pass through it |
+| Board (PCB or perfboard) | the whole floor, inside the walls (X 1.85–116.15, Y 1.98–68.02), on the base | clamped by the 4 screw posts; the shell screws pass through it |
 | 18650 holder (BT1) | on the board, against the back wall (X 11–89, Y 47.5–69.5) | thin double-sided tape |
-| Relay K1, D1, R1 | front middle of the board (relay at X 53.8–73.4, Y 8.3–23.7) | soldered to the board ([layout](../hardware/electronics/perfboard.svg)) |
+| Relay K1, D1, R1 | front middle of the board (relay at X 53.8–73.4, Y 8.3–23.7) | soldered to the board ([PCB](electronics.md#pcb), [perfboard layout](../hardware/electronics/perfboard.svg)) |
 | TP4056 module (U1) | on the board, back right, centered at X = 98.3; USB-C through the back wall, 5.4 mm above the base | 1 mm double-sided foam tape |
 | SFM-27 buzzer (BZ1) | under the grille, at X 30, Y 38 | 4-segment centering ring + hot glue or epoxy |
 | TEST button (SW2) | face, X 98, Y 19 | its own nut, through the face plate and the face (12.2 mm hole, 4.4 mm thick) |
@@ -187,8 +187,8 @@ Open `enclosure.scad` in OpenSCAD and use **Window → Customizer**. The paramet
 | Parameter | Default | When to change |
 |-----------|---------|----------------|
 | `holder_x`, `holder_y`, `holder_z` | 78 × 22 × 21 mm | size of your 18650 holder |
-| `pcb_t` | 1.6 mm | thickness of your perfboard: the screw posts stop on top of it |
-| `k1_hole`, `d1_hole`, `r1_hole` | [22, 3], [29, 3], [31, 2] | the parts' holes on the board; change them in `perfboard.py` too |
+| `pcb_t` | 1.6 mm | thickness of your board: the screw posts stop on top of it |
+| `k1_hole`, `d1_hole`, `r1_hole` | [22, 3], [29, 3], [31, 2] | the parts' holes on the board; change them in `perfboard.py` and `pcb/board.py` too |
 | `chg_pcb` | [17.4, 29] mm | size of your TP4056 module (width, length) |
 | `chg_lift` | 1 mm | the tape under the module; it sets the USB-C height |
 | `buzzer_d` | 30 mm | the SFM-27 varies between 29 and 30 mm by manufacturer |
@@ -241,7 +241,7 @@ Extra hardware: 4 × M3 × 16 countersunk machine screws (ISO 10642 / DIN 7991, 
    - TEST button: remove the nut, push the button through from the inside, and tighten the nut on the face plate.
    - LED: push it in from below until the flange seats, and fix it with a dab of hot glue.
    - Buzzer: place its sound face against the face, inside the ring, and fix it with hot glue or epoxy around it.
-5. **Perfboard:** cut, drill and solder it per [electronics.md](electronics.md#perfboard), then stick the battery holder and the TP4056 module on it. Insert the cell last, checking the polarity.
+5. **Board:** solder the [PCB](electronics.md#pcb), or cut, drill and solder the [perfboard](electronics.md#perfboard), then stick the battery holder and the TP4056 module on it. Insert the cell last, checking the polarity.
 6. Solder the wires from the shell parts to the board's pads. Give them about 15 cm, so the shell can lie next to the base while you work.
 7. Run the [README](../README.md#test) test.
 8. **Close:**
